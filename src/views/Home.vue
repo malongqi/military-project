@@ -1,83 +1,338 @@
 <template>
-  <div class="home">
+  <div>
+    <swiper-slide :data="bannerList"></swiper-slide>   
     <div class="container">
-      <am-topbar>
-        <am-topbar-brand><a href="#">Amaze UI</a></am-topbar-brand>
-        <am-topbar-toggle></am-topbar-toggle>
-        <am-topbar-collapse>
-          <am-nav :pill="true" :topbar="true">
-            <am-nav-item :active="true" :to="'/'">home</am-nav-item>
-            <am-nav-item :to="'/list'">list</am-nav-item>
-            <am-nav-item :to="'/article'">article</am-nav-item>
-          </am-nav>
-          <am-topbar-form>
-            <am-form-group size="sm">
-              <am-input placement="请输入要查询的内容"></am-input>
-            </am-form-group>
-          </am-topbar-form>
-          <am-topbar-slot>
-            <am-button color="secondary" custom-class="am-topbar-btn">注册</am-button>
-          </am-topbar-slot>
-          <am-topbar-slot>
-            <am-button color="primary" custom-class="am-topbar-btn">登录</am-button>
-          </am-topbar-slot>
-        </am-topbar-collapse>
-      </am-topbar>
-    </div>
-    
-    <div class="swiper-container">
-      <!-- Additional required wrapper -->
-        <div class="swiper-wrapper">
-            <!-- Slides -->
-            <div class="swiper-slide">Slide 1</div>
-            <div class="swiper-slide">Slide 2</div>
-            <div class="swiper-slide">Slide 3</div>...</div>
-        <!-- If we need pagination -->
-        <div class="swiper-pagination"></div>
-        <!-- If we need navigation buttons -->
-        <div class="swiper-button-prev"></div>
-        <div class="swiper-button-next"></div>
-        <!-- If we need scrollbar -->
-        <div class="swiper-scrollbar"></div>
-    </div>
-    <div data-am-widget="titlebar" class="am-titlebar am-titlebar-default" >
-        <h2 class="am-titlebar-title ">
-            栏目标题
-        </h2>
-
-        <nav class="am-titlebar-nav">
-            <a href="#more" class="">more &raquo;</a>
-        </nav>
+      <div class="section" v-for="(section,index) in homeList" :key="'section' + index">
+        <div class="advert" v-if="section.view_type == '1'">
+          <a :href="section.data.target_url">
+            <img :src="section.data.img_url" alt="">
+          </a>
+        </div>
+        <div v-if="section.view_type == '2' || section.view_type == '3'" data-am-widget="titlebar" class="am-titlebar am-titlebar-default" >
+          <h2 class="am-titlebar-title ">
+            {{section.data.title}}
+          </h2>
+          <nav class="am-titlebar-nav">
+              <a href="#more" class="">更多 <i class="am-icon-angle-right"></i></a>
+          </nav>
+        </div>
+        <!-- 课程列表 -->
+        <div class="list-wrapper" :class="section.cover_data ? 'padLeft': 'default'" v-if="section.view_type == '2'" >
+          <div class="cover-item" v-if="section.cover_data">
+            <a :href="section.cover_data.target_url"></a>
+            <img :src="section.cover_data.img_url" alt="">
+          </div>
+          <ul class="lists clearfix">
+            <li class="list" v-for="(listItem,index) in section.data" :key="'listItem' + index">
+              <div class="list-img">
+                <img :src="listItem.img_url" alt="">
+              </div>
+              <div class="list-infor clearfix">
+                <div class="infor-left">
+                  <h5 class="tit">{{listItem.title}}</h5>
+                  <p class="label">{{listItem.sub_title}}</p>
+                  <div>¥ {{listItem.price}}</div>
+                </div>
+                <div class="infor-right">
+                  <div class="list-btn">goumai</div>
+                  <div class="subinfor">{{listItem.buy_num}}购买</div>
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>
+        <!-- 图书列表 -->
+        <div class="list-wrapper" v-if="section.view_type == '3'" >
+          <ul class="lists clearfix">
+            <li class="list-book" v-for="(listItem,index) in section.data" :key="'listItem' + index">
+              <div class="list-img">
+                <img :src="listItem.img_url" alt="">
+              </div>
+              <div class="list-infor clearfix">
+                <h5 class="tit">{{listItem.title}}</h5>
+                <router-link to="" class="list-btn">立即购买</router-link>
+              </div>
+            </li>
+          </ul>
+        </div>
+        <!--军政list列表 -->
+        <div class="list-wrapper" v-if="section.view_type == '4'" >
+          <div class="list-item-wrapper clearfix">
+            <ul class="lists" v-for="twoItem in section.data">
+              <li data-am-widget="titlebar" class="am-titlebar am-titlebar-default" >
+                <h2 class="am-titlebar-title ">
+                  {{twoItem.title}}
+                </h2>
+                <nav class="am-titlebar-nav">
+                    <a href="#more" class="">更多 <i class="am-icon-angle-right"></i></a>
+                </nav>
+              </li>
+              <li class="list-item clearfix" v-for="(listsubItem,index) in twoItem.items" :key="'listsubItem' + index">
+                <div class="title">
+                 {{listsubItem.title}}
+                </div>
+                <div class="label">
+                  {{listsubItem.public_time}}
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class=""></div>
     </div>
   </div>
 </template>
 
 <script>
-import Swiper from 'amazeui-swiper'
+const Swiper= require('amazeui-swiper')
 // @ is an alias to /src
-import HelloWorld from '@/components/HelloWorld.vue'
-
+import SwiperSlide from '@/components/SwiperSlide.vue'
+import { getBanner, getHomeList, getHomeLinks } from './../api/home'
 export default {
   name: 'home',
   components: {
-    HelloWorld,
+    SwiperSlide,
   },
   data () {
     return {
-      mySwiper: null
+      bannerList: [],
+      homeList: []
     }
   },
   mounted () {
-    let swiperContainer = document.querySelector('.swiper-container')
-    this.mySwiper = new Swiper(swiperContainer)
+    this.getBannerData()
+    this.getHomeListData()
+  
   },
   methods: {
-
+    getBannerData() {
+      getBanner().then(res => {
+        if (res.status === 200) {
+          let data = res.data.data
+          this.bannerList = data.items
+        }
+      })
+    },
+    getHomeListData() {
+      getHomeList().then(res => {
+        if (res.status === 200) {
+          let data = res.data.data
+          this.homeList = data.items
+        }
+      })
+    }
   }
 }
 </script>
 
-<style  scoped>
+<style lang="scss" scoped>
+.header {
+  line-height: 90px;
+  background: #fff;
+  /deep/ .am-topbar {
+    background: #fff;
+    border-bottom: 0;
+    .am-topbar-nav li {
+      margin-right:70px;
+      &.am-active { 
+        a {
+          color: #ef2020;
+        }
+      }
+    }
+    a {
+      line-height: 90px;
+      font-size: 24px;
+      color: #333;
+      &:after {
+        display: none !important;
+      }
+    }
+  }
+  .am-topbar-brand {
+    margin-right: 300px;
+  }
+  .login-btn {
+    color: #ef2020;
+    font-size: 18px;
+  }
+}
 .swiper-container { width: 600px; height: 300px; }
+.am-titlebar-default {
+  .am-titlebar-title {
+    color: #333333;
+    font-size: 28px;
+    &:before {
+      border-left:0;
+    }
+  }
+  a{
+    color: #4d4d4d;
+    font-size: 20px;
+  }
+  .am-icon-angle-right{
+    font-size: 22px;
+  }
+}
+.section {
+  img {
+    width: 100%;
+    height: 100%;
+  }
+  .advert {
+    img {
+      height:116px;
+    }
+    margin: 40px 0 46px;
+  }
+}
+.list-wrapper {
+  position: relative;
+  &.padLeft {
+    padding-left: 324px;
+  }
+  &.default {
+    .list:nth-child(4n+1){
+      margin-left:0
+    }
+  }
+  .cover-item {
+    position: absolute;
+    left: 0;
+    top:0;
+    width: 324px;
+    height: 400px;
+  }
+  .list {
+    float: left;
+    margin-left: 32px;
+    margin-bottom: 24px;
+    width: 324px;
+    list-style: none;
+    .list-img {
+      overflow: hidden;
+      height: 110px;
+      img{
+        width: 100%;
+      }
+    }
+    .list-infor {
+      padding: 14px 20px 20px;
+      font-size: 14px;
+      background: #fff;
+      .infor-left {
+        float: left;
+      }
+      .infor-right {
+        float: right;
+        text-align: right;
+      }
+      .tit {
+        margin: 0 0 16px;
+        color: #333333;
+      }
+      .label {
+        margin-bottom: 15px;
+        color: #666666;
+      }
+      .list-btn {
+        width: 40px;
+        height: 20px;
+        line-height: 20px;
+        text-align: center;
+        background: #e26262;
+        color: #fff;
+      }
+      .subinfor {
+        color: #808080;
+      }
+    }
+  }
+  .list-book {
+    list-style: none;
+    float: left;
+    width: 248px;
+    height: 352px;
+    padding: 30px;
+    background: #fff;
+    margin-right: 40px;
+    box-sizing: border-box;
+    &:nth-child(5n){
+       margin-right: 0;
+    }
+    .list-img {
+      height: 182px;
+    }
+    .list-infor {
+      text-align: center;
+      font-size: 18px;
+      .tit {
+        height: 48px;
+        margin: 20px 0;
+        overflow: hidden;
+        line-height: 26px;
+        color: #000;
+      }
+      .list-btn {
+        background: #ff6666;
+        color: #fff;
+        padding: 2px 13px;
+      }
+    }
+  }
+  .list-item-wrapper  {
+    margin-top: 50px;
+    .lists {
+       background-color: #fff;
+    }
+    .lists:nth-child(2n-1) {
+      float: left
+    }
+    .lists:nth-child(2n) {
+      float: right
+    }
+  }
+  .list-item {
+    width:620px;
+    margin: 10px 30px;
+    line-height: 50px;
+    list-style: none;
+    border-bottom: 1px solid #eeeeee;
+    font-size: 16px;
+    .title {
+      float: left;
+      color: #4d4d4d;
+    }
+    .label {
+      float: right;
+      color: #808080;
+    }
+  }
+}
+.footer {
+  margin-top:50px;
+  padding-top:30px;
+  background: #4d4d4d;
+  .footer-list {
+    list-style: none;
+    float: left;
+    margin-right: 180px;
+    color:#b0b0b0;
+    font-size: 14px;
+    &.last {
+      float: right;
+      margin-right: 0
+    }
+    .title {
+      margin-bottom: 40px;
+      color: #fffefe;
+      font-size: 18px;
+    }
+    li {
+      margin-bottom: 30px;
+    }
+  }
+}
 </style>
 

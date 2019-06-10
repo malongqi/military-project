@@ -1,6 +1,27 @@
 @media screen and (min-width: 800px) {
-  .container {
-    width:1000px;
-    margin: 0 auto;
-  }
+  
+}
+.home {
+  background: #eeeeee;
+}
+.container {
+  width:1400px;
+  margin: 0 auto;
+}
+ul,li {
+  margin: 0;
+  padding: 0;
+}
+ /*开启haslayout*/
+ .clearfix {
+  *zoom: 1;
+}
+/*ie6 7 不支持伪元素*/
+.clearfix:after {
+  content: '';
+  display: block;
+  clear: both;
+  height:0;
+  line-height:0;
+  visibility:hidden;
 }
