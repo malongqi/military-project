@@ -2812,7 +2812,6 @@ fieldset[disabled] .am-checkbox-inline {
     vertical-align: middle;
   }
   .am-form-inline .am-input-group {
-    display: inline-table;
     vertical-align: middle;
   }
   .am-form-inline .am-input-group .am-input-group-label,
@@ -6766,7 +6765,6 @@ a.am-close:hover {
  ============================================================================ */
 .am-input-group {
   position: relative;
-  display: table;
   border-collapse: separate;
 }
 .am-input-group .am-form-field {
@@ -8684,7 +8682,6 @@ TODO:
   bottom: 0;
   left: 0;
   z-index: 1110;
-  display: none;
   opacity: 0;
   outline: 0;
   text-align: center;
@@ -8749,9 +8746,13 @@ TODO:
   }
 }
 .am-modal-hd {
+  position:relative;
+  display: flex;
   padding: 15px 10px 5px 10px;
   font-size: 1.8rem;
   font-weight: 500;
+  background: #2b93c6;
+  color:#fff;
 }
 .am-modal-hd + .am-modal-bd {
   padding-top: 0;
@@ -10418,7 +10419,6 @@ tbody.am-collapse.am-in {
   right: 0;
   bottom: 0;
   left: 0;
-  display: none;
   width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.6);
@@ -10741,9 +10741,7 @@ tbody.am-collapse.am-in {
 .am-datepicker-date {
   display: block;
 }
-.am-datepicker-date.am-input-group {
-  display: table;
-}
+
 .am-datepicker-time-box {
   padding: 30px 0 30px 0;
 }
@@ -14079,7 +14077,7 @@ tbody.am-collapse.am-in {
 }
 .am-titlebar {
   margin-top: 20px;
-  height: 45px;
+  margin-bottom: 32px;
   font-size: 100%;
 }
 .am-titlebar h2 {
@@ -14102,7 +14100,6 @@ tbody.am-collapse.am-in {
   margin-left: 10px;
   margin-right: 10px;
   background-color: transparent;
-  border-bottom: 1px solid #dedede;
   line-height: 44px;
 }
 .am-titlebar-default a {
@@ -14110,10 +14107,12 @@ tbody.am-collapse.am-in {
 }
 .am-titlebar-default .am-titlebar-title {
   position: relative;
-  padding-left: 12px;
+  padding-bottom: 10px;
   color: #0e90d2;
   font-size: 1.8rem;
+  border-bottom: 4px solid #e26262;
   text-align: left;
+  box-sizing: border-box;
   font-weight: bold;
 }
 .am-titlebar-default .am-titlebar-title:before {

@@ -10,7 +10,7 @@
         </div>
         <div v-if="section.view_type == '2' || section.view_type == '3'" data-am-widget="titlebar" class="am-titlebar am-titlebar-default" >
           <h2 class="am-titlebar-title ">
-            {{section.data.title}}
+            {{section.title}}
           </h2>
           <nav class="am-titlebar-nav">
               <a href="#more" class="">更多 <i class="am-icon-angle-right"></i></a>
@@ -27,16 +27,25 @@
               <div class="list-img">
                 <img :src="listItem.img_url" alt="">
               </div>
-              <div class="list-infor clearfix">
-                <div class="infor-left">
-                  <h5 class="tit">{{listItem.title}}</h5>
-                  <p class="label">{{listItem.sub_title}}</p>
-                  <div>¥ {{listItem.price}}</div>
+              <div class="list-infor">
+                <h5 class="tit">{{listItem.title}}</h5>
+                <div class="clearfix">
+                  <div class="infor-left">
+                    <p class="label">{{listItem.sub_title}}</p>
+                  </div>
+                  <div class="infor-right">
+                    <div class="list-btn">{{listItem.course_type}}</div>
+                  </div>
                 </div>
-                <div class="infor-right">
-                  <div class="list-btn">goumai</div>
-                  <div class="subinfor">{{listItem.buy_num}}购买</div>
+                <div class="clearfix">
+                  <div class="infor-left">
+                    <div class="price">¥ {{listItem.price}}</div>
+                  </div>
+                  <div class="infor-right">
+                    <div class="subinfor">{{listItem.buy_num}}人购买</div>
+                  </div>
                 </div>
+                
               </div>
             </li>
           </ul>
@@ -58,7 +67,7 @@
         <!--军政list列表 -->
         <div class="list-wrapper" v-if="section.view_type == '4'" >
           <div class="list-item-wrapper clearfix">
-            <ul class="lists" v-for="twoItem in section.data">
+            <ul class="lists" v-for="(twoItem,index) in section.data" :key="'twoItem' + index">
               <li data-am-widget="titlebar" class="am-titlebar am-titlebar-default" >
                 <h2 class="am-titlebar-title ">
                   {{twoItem.title}}
@@ -85,7 +94,6 @@
 </template>
 
 <script>
-const Swiper= require('amazeui-swiper')
 // @ is an alias to /src
 import SwiperSlide from '@/components/SwiperSlide.vue'
 import { getBanner, getHomeList, getHomeLinks } from './../api/home'
@@ -231,14 +239,24 @@ export default {
       .tit {
         margin: 0 0 16px;
         color: #333333;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
       .label {
         margin-bottom: 15px;
         color: #666666;
       }
+      .price {
+        font-size: 18px;
+        color: #e26262;
+        font-weight: bold;
+      }
       .list-btn {
+        float: right;
         width: 40px;
         height: 20px;
+        margin-bottom: 14px;
         line-height: 20px;
         text-align: center;
         background: #e26262;

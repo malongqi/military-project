@@ -13,7 +13,7 @@
               <am-nav-item :to="'/article'">关于我们</am-nav-item>
             </am-nav>
             <am-topbar-slot>
-              <span class="login-btn">注册</span>
+              <span class="login-btn" @click="register">注册</span>
             </am-topbar-slot>
             <am-topbar-slot>
               <span class="login-btn">登录</span>
@@ -43,12 +43,16 @@
         </ul>
       </div>
     </div>
+    <login-dialog ref="register"></login-dialog>
   </div>
 </template>
-
 <script>
+import LoginDialog from './LoginDialog'
 export default {
-  name: 'Layot',
+  name: 'Layout',
+  components: {
+    LoginDialog
+  },
   data () {
     return {
     }
@@ -58,6 +62,11 @@ export default {
     // this.getHomeListData()
   
   },
+  methods: {
+    register () {
+      this.$refs.register.modalVisible = true
+    }
+  }
 }
 </script>
 

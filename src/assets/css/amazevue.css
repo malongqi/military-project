@@ -11345,10 +11345,11 @@ button,input:not([type=radio]):not([type=checkbox]),select {
 	vertical-align: middle
 }
 
-.am- scrollbar-measure {
+.am-scrollbar-measure {
 	width: 100px;
 	height: 100px;
 	overflow: scroll;
 	position: absolute;
 	top: -9999px
 }
+
