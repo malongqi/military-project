@@ -1,22 +1,26 @@
 <template>
-  <div class="home">
+  <div>
     <div class="header">
       <div class="container">
         <am-topbar>
-          <am-topbar-brand><a href="#">Amaze UI</a></am-topbar-brand>
+          <am-topbar-brand>
+            <a href="#">
+              <img src="./../assets/images/logo.png" alt="">
+            </a>
+          </am-topbar-brand>
           <am-topbar-toggle></am-topbar-toggle>
           <am-topbar-collapse>
             <am-nav :pill="true" :topbar="true">
               <am-nav-item :active="true" :to="'/'">首页</am-nav-item>
-              <am-nav-item :to="'/list'">课程</am-nav-item>
+              <am-nav-item :to="'/course'">课程</am-nav-item>
               <am-nav-item :to="'/article'">教材</am-nav-item>
               <am-nav-item :to="'/article'">关于我们</am-nav-item>
             </am-nav>
             <am-topbar-slot>
-              <span class="login-btn" @click="register">注册</span>
+              <span class="login-btn" @click="handleUser('register')">注册</span>
             </am-topbar-slot>
             <am-topbar-slot>
-              <span class="login-btn">登录</span>
+              <span class="login-btn" @click="handleUser('login')">登录</span>
             </am-topbar-slot>
           </am-topbar-collapse>
         </am-topbar>
@@ -43,15 +47,18 @@
         </ul>
       </div>
     </div>
-    <login-dialog ref="register"></login-dialog>
+    <login-dialog ref="login"></login-dialog>
+    <register-dialog ref="register"></register-dialog>
   </div>
 </template>
 <script>
 import LoginDialog from './LoginDialog'
+import RegisterDialog from './RegisterDialog'
 export default {
   name: 'Layout',
   components: {
-    LoginDialog
+    LoginDialog,
+    RegisterDialog
   },
   data () {
     return {
@@ -63,8 +70,8 @@ export default {
   
   },
   methods: {
-    register () {
-      this.$refs.register.modalVisible = true
+    handleUser (val) {
+      this.$refs[val].modalVisible = true
     }
   }
 }

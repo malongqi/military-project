@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="home">
     <swiper-slide :data="bannerList"></swiper-slide>   
     <div class="container">
       <div class="section" v-for="(section,index) in homeList" :key="'section' + index">
@@ -288,8 +288,12 @@ export default {
       .tit {
         height: 48px;
         margin: 20px 0;
-        overflow: hidden;
         line-height: 26px;
+        display:-webkit-box;
+        overflow:hidden;
+        text-overflow:ellipsis;
+        -webkit-line-clamp:2;
+        -webkit-box-orient:vertical;
         color: #000;
       }
       .list-btn {

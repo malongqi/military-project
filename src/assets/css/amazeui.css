@@ -2979,7 +2979,7 @@ fieldset[disabled] .am-checkbox-inline {
 .am-nav > li > a:hover,
 .am-nav > li > a:focus {
   text-decoration: none;
-  background-color: #eeeeee;
+  background-color: transparent;
 }
 .am-nav > li.am-active > a,
 .am-nav > li.am-active > a:hover,
@@ -3093,7 +3093,7 @@ fieldset[disabled] .am-checkbox-inline {
 .am-topbar {
   position: relative;
   min-height: 50px;
-  margin-bottom: 1.6rem;
+  margin-bottom:0;
   background: #f8f8f8;
   border-width: 0 0 1px;
   border-style: solid;
@@ -8748,7 +8748,7 @@ TODO:
 .am-modal-hd {
   position:relative;
   display: flex;
-  padding: 15px 10px 5px 10px;
+  padding: 15px 10px 15px 30px;
   font-size: 1.8rem;
   font-weight: 500;
   background: #2b93c6;
@@ -8759,13 +8759,13 @@ TODO:
 }
 .am-modal-hd .am-close {
   position: absolute;
-  top: 4px;
+  top: 15px;
   right: 4px;
 }
 .am-modal-bd {
   padding: 15px 10px;
   text-align: center;
-  border-bottom: 1px solid #dedede;
+  border-bottom: 0;
   border-radius: 2px 2px 0 0;
 }
 .am-modal-bd + .am-modal-bd {
@@ -8789,11 +8789,14 @@ TODO:
   border-color: #d6d6d6;
 }
 .am-modal-footer {
-  height: 44px;
+  height: auto;
   overflow: hidden;
   display: table;
   width: 100%;
   border-collapse: collapse;
+}
+.am-modal-footer>.am-btn.login-btn:not(.am-modal-btn) {
+  float:none;
 }
 .am-modal-btn {
   display: table-cell !important;
@@ -14220,4 +14223,30 @@ tbody.am-collapse.am-in {
 .am-wechatpay .am-wechatpay-btn {
   margin-top: 1rem;
   margin-bottom: 1rem;
+}
+
+
+.login-dialog .am-modal-footer {
+  display:block;
+  padding-bottom: 46px;
+}
+.login-dialog .login-btn {
+  float: none;
+  width:190px;
+  height:58px;
+  text-align: center;
+  line-height: 38px;
+  background: #2b93c6;
+  font-size: 20px;
+}
+.loginform {
+  width: 420px;
+  margin: 40px auto 20px;
+}
+.loginform .am-form-field {
+  padding: 12px;
+  height: 58px;
+}
+.loginform .am-input-group-label {
+  line-height: 58px;
 }
