@@ -8,7 +8,7 @@ export default new Router({
   routes: [
     {
       path: '/',
-      name: '首页',
+      name: '首页 ',
       redirect: '/home',
       component: () => import(/* webpackChunkName: "index" */ './views/Layout.vue'),
       children: [
@@ -18,12 +18,20 @@ export default new Router({
           // route level code-splitting
           // this generates a separate chunk (about.[hash].js) for this route
           // which is lazy-loaded when the route is visited.
+          meta: {name: 'home'},
           component: () => import(/* webpackChunkName: "index" */ './views/Home.vue')
         },
         {
           path: '/course',
           name: '课程',
+          meta: {name: 'course'},
           component: () => import(/* webpackChunkName: "index" */ './views/Course.vue')
+        },
+        {
+          path: '/detail',
+          name: '详情',
+          meta: {name: 'course'},
+          component: () => import(/* webpackChunkName: "index" */ './views/Detail.vue')
         }
       ]
     },

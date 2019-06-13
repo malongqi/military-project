@@ -59,7 +59,7 @@
               </div>
               <div class="list-infor clearfix">
                 <h5 class="tit">{{listItem.title}}</h5>
-                <router-link to="" class="list-btn">立即购买</router-link>
+                <span class="list-btn">立即购买</span>
               </div>
             </li>
           </ul>
@@ -105,13 +105,14 @@ export default {
   data () {
     return {
       bannerList: [],
-      homeList: []
+      homeList: [],
+      links: [],
     }
   },
   mounted () {
     this.getBannerData()
     this.getHomeListData()
-  
+    this.getLinks()
   },
   methods: {
     getBannerData() {
@@ -129,43 +130,20 @@ export default {
           this.homeList = data.items
         }
       })
+    },
+    getLinks() {
+      getHomeLinks().then(res => {
+        if (res.status === 200) {
+          let data = res.data.data
+          this.links = data.items
+        }
+      })
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
-.header {
-  line-height: 90px;
-  background: #fff;
-  /deep/ .am-topbar {
-    background: #fff;
-    border-bottom: 0;
-    .am-topbar-nav li {
-      margin-right:70px;
-      &.am-active { 
-        a {
-          color: #ef2020;
-        }
-      }
-    }
-    a {
-      line-height: 90px;
-      font-size: 24px;
-      color: #333;
-      &:after {
-        display: none !important;
-      }
-    }
-  }
-  .am-topbar-brand {
-    margin-right: 300px;
-  }
-  .login-btn {
-    color: #ef2020;
-    font-size: 18px;
-  }
-}
 .swiper-container { width: 600px; height: 300px; }
 .am-titlebar-default {
   .am-titlebar-title {
@@ -329,30 +307,6 @@ export default {
     .label {
       float: right;
       color: #808080;
-    }
-  }
-}
-.footer {
-  margin-top:50px;
-  padding-top:30px;
-  background: #4d4d4d;
-  .footer-list {
-    list-style: none;
-    float: left;
-    margin-right: 180px;
-    color:#b0b0b0;
-    font-size: 14px;
-    &.last {
-      float: right;
-      margin-right: 0
-    }
-    .title {
-      margin-bottom: 40px;
-      color: #fffefe;
-      font-size: 18px;
-    }
-    li {
-      margin-bottom: 30px;
     }
   }
 }

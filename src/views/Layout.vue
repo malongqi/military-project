@@ -11,10 +11,7 @@
           <am-topbar-toggle></am-topbar-toggle>
           <am-topbar-collapse>
             <am-nav :pill="true" :topbar="true">
-              <am-nav-item :active="true" :to="'/'">首页</am-nav-item>
-              <am-nav-item :to="'/course'">课程</am-nav-item>
-              <am-nav-item :to="'/article'">教材</am-nav-item>
-              <am-nav-item :to="'/article'">关于我们</am-nav-item>
+              <am-nav-item v-for="(item, index) in routers" :key="'menu' + index" :active="item.page==currentRoute.name" :to="item.path">{{item.name}}</am-nav-item>
             </am-nav>
             <am-topbar-slot>
               <span class="login-btn" @click="handleUser('register')">注册</span>
@@ -62,12 +59,41 @@ export default {
   },
   data () {
     return {
+      currentRoute: '',
+      routers: [
+        {
+          path: '/',
+          page: 'home',
+          name: '首页'
+        },
+        {
+          path: '/course',
+          page: 'course',
+          name: '课程'
+        },
+        {
+          path: '/book',
+          page: 'book',
+          name: '教材'
+        },
+        {
+          path: '/about',
+          page: 'about',
+          name: '关于我们'
+        }
+      ]
     }
   },
   mounted () {
+    this.currentRoute = this.$route.meta
     // this.getBannerData()
     // this.getHomeListData()
   
+  },
+  watch: {
+    '$route' (to) {
+      this.currentRoute = to.meta
+    }
   },
   methods: {
     handleUser (val) {
@@ -122,6 +148,9 @@ export default {
     &.last {
       float: right;
       margin-right: 0
+    }
+    a {
+      color:#b0b0b0;
     }
     .title {
       margin-bottom: 40px;
