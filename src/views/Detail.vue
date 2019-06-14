@@ -55,8 +55,8 @@
               <div class="img-box">
                <img src="" alt="">
               </div>
-              <div class="label">
-                <span class="load-btn">点击下载</span>
+              <div class="list-hd">
+               
               </div>
             </li>
           </ul>
@@ -70,6 +70,9 @@
 
 <script type="text/ecmascript-6">
 import {getDetail} from './../api/course.js'
+// import md5 from './../utils/md5.js'
+var md5 = require('md5');
+debugger
 export default {
   name: 'Detail',
   components: {
@@ -86,10 +89,24 @@ export default {
     this.getCoursedetail()
   },
   methods: {
+    paramsEdit (params) {
+      debugger
+      let paramList = ''
+      for (let key in params) {
+        if ( params[key] !== '') {
+          paramList += `&${key}=${encodeURI(params[key])}`
+        }
+      }
+      let msg =  paramList.substring(1) + '_1Ftjv0bfpVmqbE38'
+      let code = md5(msg)
+      console.log(JSON.stringify(code))
+    },
     getCoursedetail () {
       let params = {
         course_id: this.id 
       }
+      this.paramsEdit({id:12})
+      this.paramsEdit({id:12})
       getDetail(params).then(res => {
         if (res.data.code == 0) {
           let data = res.data.data

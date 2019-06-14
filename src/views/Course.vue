@@ -39,6 +39,7 @@
 <script type="text/ecmascript-6">
 import BreadCrumbs from './../components/BreadCrumbs'
 import {getCourses, getSortType} from './../api/course.js'
+// import CryptoJS from 'crypto-js';
 export default {
   name: 'Course',
   components: {
@@ -74,14 +75,26 @@ export default {
         }
       })
     },
+    // paramsEdit (params) {
+    //   debugger
+    //   let paramList = ''
+    //   for (let key in params) {
+    //     if ( params[key] !== '') {
+    //       paramList += `&${key}=${encodeURI(params[key])}`
+    //     }
+    //   }
+    //   paramList = CryptoJS.MD5(paramList.substring(1) + '_1Ftjv0bfpVmqbE38')
+    //   console.log(JSON.stringify(paramList))
+    // },
     getCourseList () {
       this.courseLists = []
       let params = {
         cat_id: this.filterParam.catId,
-        sort_id: this.filterParam.sortId,
         page_index: this.filterParam.pageIndex,
         page_size: this.filterParam.pageSize,
+        sort_id: this.filterParam.sortId,
       }
+      // this.paramsEdit(params)
       getCourses(params).then(res=> {
         if (res.data.code == 0) {
           let data = res.data.data
