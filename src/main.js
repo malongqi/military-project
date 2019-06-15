@@ -5,7 +5,6 @@ import store from './store'
 import AmazeVue from 'amaze-vue';
 import 'amaze-vue/dist/amaze-vue.css';
 import './assets/css/amazeui.css';
-// import 'amazeui-swiper/dist/amazeui.swiper.css';
 
 Vue.use(AmazeVue);
 Vue.config.productionTip = false

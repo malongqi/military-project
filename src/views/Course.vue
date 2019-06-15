@@ -16,7 +16,7 @@
           <!--缩略图在标题左边-->
           <li v-for="(item,index) in courseLists" :key="'course' + index" class="list-news-item clearfix">
             <div class="list-thumb">
-              <router-link :to="{path:'detail',query:{id: item.course_id}}">
+              <router-link :to="{path:'detail',query:{courseid: item.course_id}}">
                 <img :src="item.img_url" />
               </router-link>
             </div>
@@ -39,7 +39,6 @@
 <script type="text/ecmascript-6">
 import BreadCrumbs from './../components/BreadCrumbs'
 import {getCourses, getSortType} from './../api/course.js'
-// import CryptoJS from 'crypto-js';
 export default {
   name: 'Course',
   components: {
@@ -75,17 +74,6 @@ export default {
         }
       })
     },
-    // paramsEdit (params) {
-    //   debugger
-    //   let paramList = ''
-    //   for (let key in params) {
-    //     if ( params[key] !== '') {
-    //       paramList += `&${key}=${encodeURI(params[key])}`
-    //     }
-    //   }
-    //   paramList = CryptoJS.MD5(paramList.substring(1) + '_1Ftjv0bfpVmqbE38')
-    //   console.log(JSON.stringify(paramList))
-    // },
     getCourseList () {
       this.courseLists = []
       let params = {

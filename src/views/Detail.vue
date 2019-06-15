@@ -1,7 +1,7 @@
 <template>
  <div class="detail">
 <!-- html code -->
-  <div class="container">
+  <div class="container" v-if="pageType == 'courseId'">
     <ul class="list-news">
       <!--缩略图在标题左边-->
       <li class="list-news-item clearfix">
@@ -35,78 +35,185 @@
           <span class="tabbar-item">详情</span>
           <span class="tabbar-item">资料下载</span>
         </div>
-        <div class="tabbar-content">
-          <ul class="list-item-wrapper">
-            <li class="list-item clearfix" v-for="(item,index) in courseDetail.downs" :key="'down' + index">
-              <div class="title">
-                {{item.title}}
-              </div>
-              <div class="label">
-                <span class="load-btn">点击下载</span>
-              </div>
-            </li>
-          </ul>
+        <div class="two-colomn clearfix">
+          <div class="sidebar">
+            <div class="sidebar-title">
+              <h3>课程推荐</h3>
+            </div>
+            <ul class="list-item-wrapper">
+              <li class="list-item clearfix" v-for="(item,index) in courseDetail.downs" :key="'down' + index">
+                <div class="img-box">
+                  <img src="http://wechatapppro-1252524126.file.myqcloud.com/appq9jtJc2T2160/image/compress/be44a1a9ea8f6e88a7aeefd16955ccf0.png" alt="">
+                </div>
+                <div class="list-hd">
+                  2019星军精讲班-习题册
+                </div>
+              </li>
+            </ul>
+          </div>
+          <div class="tabbar-content">
+            <ul class="list-item-wrapper">
+              <li class="list-item clearfix" v-for="(item,index) in courseDetail.downs" :key="'down' + index">
+                <div class="title">
+                  {{item.title}}
+                </div>
+                <div class="label">
+                  <span class="load-btn">点击下载</span>
+                </div>
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
-      <div class="sidebar">
-        <div class="tabbar-content">
-          <ul class="list-item-wrapper">
-            <li class="list-item clearfix" v-for="(item,index) in courseDetail.downs" :key="'down' + index">
-              <div class="img-box">
-               <img src="" alt="">
-              </div>
-              <div class="list-hd">
-               
-              </div>
-            </li>
-          </ul>
+     
+    </div>
+  </div>
+  <div class="container" v-if="pageType == 'bookId'">
+    <swiper-list
+      ref="swiperTop"
+      :swiperOption="swiperOptionTop"
+      :data="swiperSlides"
+      ></swiper-list>
+      <swiper-list
+      ref="swiperThumbs"
+      :swiperOption="swiperOptionThumbs"
+      :data="swiperSlides"
+      ></swiper-list>
+      <!-- swiper2 Thumbs -->
+    <ul class="list-news">
+      <!--缩略图在标题左边-->
+      <li class="list-news-item clearfix">
+        <div class="list-thumb">
+          <img :src="courseDetail.img_url" />
+        </div>
+        <div class="list-main">
+          <h3 class="list-item-hd">
+            {{courseDetail.title}}
+          </h3>
+          <div class="list-item-hd">
+            <span class="item-sub">购买数{{courseDetail.buy_num}}</span>
+            <span class="item-sub">课时数{{courseDetail.course_num}}</span>
+            <span class="item-sub">浏览量{{courseDetail.view_num}}</span>
+          </div>
+          <div class="list-item-text">
+            <p>主讲：{{courseDetail.lecturer}}</p>
+            <p>课程有效期：从购买之日起{{courseDetail.period}}天</p>
+          </div>
+          <div class="list-item-text clearfix">
+            <span class="price">¥{{courseDetail.price}}</span>
+            <div class="list-btn">购买</div>
+          </div>
+        </div>
+      </li>
+    </ul>
+    <div class="section">
+      <div class="tabbar-wrapper">
+        <div class="tabbar">
+          <span class="tabbar-item">课时</span>
+          <span class="tabbar-item">详情</span>
+          <span class="tabbar-item">资料下载</span>
+        </div>
+        <div class="two-colomn clearfix">
+          <div class="sidebar">
+            <div class="sidebar-title">
+              <h3>课程推荐</h3>
+            </div>
+            <ul class="list-item-wrapper">
+              <li class="list-item clearfix" v-for="(item,index) in courseDetail.downs" :key="'down' + index">
+                <div class="img-box">
+                  <img src="http://wechatapppro-1252524126.file.myqcloud.com/appq9jtJc2T2160/image/compress/be44a1a9ea8f6e88a7aeefd16955ccf0.png" alt="">
+                </div>
+                <div class="list-hd">
+                  2019星军精讲班-习题册
+                </div>
+              </li>
+            </ul>
+          </div>
+          <div class="tabbar-content">
+            <ul class="list-item-wrapper">
+              <li class="list-item clearfix" v-for="(item,index) in courseDetail.downs" :key="'down' + index">
+                <div class="title">
+                  {{item.title}}
+                </div>
+                <div class="label">
+                  <span class="load-btn">点击下载</span>
+                </div>
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
     </div>
   </div>
-  
  </div>
 </template>
 
 <script type="text/ecmascript-6">
+import SwiperList from '@/components/SwiperList.vue'
 import {getDetail} from './../api/course.js'
-// import md5 from './../utils/md5.js'
-var md5 = require('md5');
-debugger
 export default {
   name: 'Detail',
   components: {
-
+    SwiperList
   },
   data () {
     return {
+      pageType: '',
       id: '',
-      courseDetail: ''
+      courseDetail: '',
+      swiperSlides: [
+        {
+          url: 'http://wechatapppro-1252524126.file.myqcloud.com/appq9jtJc2T2160/image/compress/be44a1a9ea8f6e88a7aeefd16955ccf0.png'
+        },
+        {
+          url: 'http://wechatapppro-1252524126.file.myqcloud.com/appq9jtJc2T2160/image/compress/be44a1a9ea8f6e88a7aeefd16955ccf0.png'
+        },
+        {
+          url: 'http://wechatapppro-1252524126.file.myqcloud.com/appq9jtJc2T2160/image/compress/be44a1a9ea8f6e88a7aeefd16955ccf0.png'
+        }
+      ],
+      swiperOptionTop: {
+        spaceBetween: 10,
+        loop: true,
+        loopedSlides: 5, 
+        navigation: {
+          nextEl: '.swiper-button-next',
+          prevEl: '.swiper-button-prev'
+        }
+      },
+      swiperOptionThumbs: {
+        spaceBetween: 10,
+        slidesPerView: 4,
+        touchRatio: 0.2,
+        loop: true,
+        loopedSlides: 5, 
+        slideToClickedSlide: true,
+      } 
+    }
+  },
+  computed: {
+    swiper() {
+      return this.$refs.mySwiper.swiper
     }
   },
   mounted () {
-    this.id = this.$route.query.id
+    for (let key in this.$route.query) {
+      this.pageType = key
+      this.id = this.$route.query[key]
+    }
+    this.$nextTick(() => {
+        const swiperTop = this.$refs.swiperTop.swiper
+        const swiperThumbs = this.$refs.swiperThumbs.swiper
+        swiperTop.controller.control = swiperThumbs
+        swiperThumbs.controller.control = swiperTop
+      })
     this.getCoursedetail()
   },
   methods: {
-    paramsEdit (params) {
-      debugger
-      let paramList = ''
-      for (let key in params) {
-        if ( params[key] !== '') {
-          paramList += `&${key}=${encodeURI(params[key])}`
-        }
-      }
-      let msg =  paramList.substring(1) + '_1Ftjv0bfpVmqbE38'
-      let code = md5(msg)
-      console.log(JSON.stringify(code))
-    },
     getCoursedetail () {
       let params = {
         course_id: this.id 
       }
-      this.paramsEdit({id:12})
-      this.paramsEdit({id:12})
       getDetail(params).then(res => {
         if (res.data.code == 0) {
           let data = res.data.data
@@ -171,6 +278,13 @@ export default {
     }
   }
 }
+.bookId {
+  .list-thumb{ 
+    width: 420px;
+    height: 344px;
+    padding: 30px 20px;
+  }
+}
 .list-item-wrapper  {
   .lists {
       background-color: #fff;
@@ -205,6 +319,14 @@ export default {
     }
   }
 }
+.two-colomn {
+  .sidebar {
+    float: right;
+  }
+  .tabbar-content {
+    float: left;
+  }
+}
 .tabbar-wrapper {
   .tabbar {
     padding: 34px 30px 25px;
@@ -216,11 +338,76 @@ export default {
     }
   }
   .tabbar-content {
+    width: 958px;
     box-sizing: border-box;
     padding: 0 30px;
     border: 1px solid #a6a6a6;
     border-top: 0;
   }
 }
+.sidebar {
+  width:412px;
+  margin-left: 30px;
+  border: 1px solid #a6a6a6;
+  border-top: 0;
+  .sidebar-title {
+    padding: 36px 30px 0;
+    
+    h3 {
+      margin:0;
+      padding-bottom: 20px; 
+      font-size: 24px;
+      color: #333333;
+      text-align: center;
+      border-bottom: 1px solid #a6a6a6;
+    }
+  }
+  .list-item {
+    padding: 0 30px 20px;
+    margin-top:20px;
+    .img-box {
+      float: left;
+      width:120px;
+      height: 90px;
+      margin-right: 20px;
+      overflow: hidden;
+      img {
+        width: 100%;
+      }
+    }
+    .list-hd {
+      font-size: 16px;
+      color: #666666;
+    }
+  }
+}
 
+
+ .swiper-container {
+    background-color: #000;
+  }
+  .swiper-slide {
+    background-size: cover;
+    background-position: center;
+  }
+  .gallery-top {
+    height: 80%!important;
+    width: 100%;
+  }
+  .gallery-thumbs {
+    height: 20%!important;
+    box-sizing: border-box;
+    padding: 10px 0;
+    img {
+      width: 100%;
+    }
+  }
+  .gallery-thumbs .swiper-slide {
+    width: 25%;
+    height: 100%;
+    opacity: 0.4;
+  }
+  .gallery-thumbs .swiper-slide-active {
+    opacity: 1;
+  }
 </style>

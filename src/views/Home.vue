@@ -1,6 +1,6 @@
 <template>
   <div class="home">
-    <swiper-slide :data="bannerList"></swiper-slide>   
+    <!-- <swiper-slide :data="bannerList"></swiper-slide>    -->
     <div class="container">
       <div class="section" v-for="(section,index) in homeList" :key="'section' + index">
         <div class="advert" v-if="section.view_type == '1'">
@@ -95,12 +95,12 @@
 
 <script>
 // @ is an alias to /src
-import SwiperSlide from '@/components/SwiperSlide.vue'
+// import SwiperSlide from '@/components/SwiperSlide.vue'
 import { getBanner, getHomeList, getHomeLinks } from './../api/home'
 export default {
   name: 'home',
   components: {
-    SwiperSlide,
+    // SwiperSlide,
   },
   data () {
     return {

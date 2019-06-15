@@ -32,6 +32,12 @@ export default new Router({
           name: '详情',
           meta: {name: 'course'},
           component: () => import(/* webpackChunkName: "index" */ './views/Detail.vue')
+        },
+        {
+          path: '/book',
+          name: '课程',
+          meta: {name: 'book'},
+          component: () => import(/* webpackChunkName: "index" */ './views/Book.vue')
         }
       ]
     },
