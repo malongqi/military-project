@@ -1,16 +1,18 @@
 @media screen and (min-width: 800px) {
   
 }
-.home {
-  background: #eeeeee;
-}
+
 .container {
   width:1400px;
   margin: 0 auto;
 }
 ul,li {
+  list-style: none;
   margin: 0;
   padding: 0;
+}
+a {
+  text-decoration: none;
 }
  /*开启haslayout*/
  .clearfix {
@@ -63,3 +65,18 @@ ul,li {
   color: #e26262;
   font-size:18px;
 }
+
+.icons {
+  width: 30px;
+  height: 30px;
+  display: inline;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+.icon-user {
+  background-image: url(./images/user.png)
+}
+.icon-lock {
+  background-image: url(./images/lock.png)
+}
+

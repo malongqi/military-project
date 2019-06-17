@@ -35,9 +35,21 @@ export default new Router({
         },
         {
           path: '/book',
-          name: '课程',
+          name: '教材',
           meta: {name: 'book'},
           component: () => import(/* webpackChunkName: "index" */ './views/Book.vue')
+        },
+        {
+          path: '/news',
+          name: '资讯',
+          meta: {name: 'book'},
+          component: () => import(/* webpackChunkName: "index" */ './views/News.vue')
+        },
+        {
+          path: '/about',
+          name: '关于我们',
+          meta: {name: 'about'},
+          component: () => import(/* webpackChunkName: "index" */ './views/About.vue')
         }
       ]
     },

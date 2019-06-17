@@ -146,7 +146,7 @@ export default {
         page_index: 1,
         page_size: 15,
       }
-      getbooks().then(res => {
+      getbooks(params).then(res => {
         if (res.data.code == 0) {
           let data = res.data.data
           this.bookLists = data.items

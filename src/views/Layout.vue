@@ -2,25 +2,28 @@
   <div>
     <div class="header">
       <div class="container">
-        <am-topbar>
-          <am-topbar-brand>
+        <div class="topbar">
+          <div class="topbar-brand">
             <a href="#">
               <img src="./../assets/images/logo.png" alt="">
             </a>
-          </am-topbar-brand>
-          <am-topbar-toggle></am-topbar-toggle>
-          <am-topbar-collapse>
-            <am-nav :pill="true" :topbar="true">
-              <am-nav-item v-for="(item, index) in routers" :key="'menu' + index" :active="item.page==currentRoute.name" :to="item.path">{{item.name}}</am-nav-item>
-            </am-nav>
-            <am-topbar-slot>
-              <span class="login-btn" @click="handleUser('register')">注册</span>
-            </am-topbar-slot>
-            <am-topbar-slot>
-              <span class="login-btn" @click="handleUser('login')">登录</span>
-            </am-topbar-slot>
-          </am-topbar-collapse>
-        </am-topbar>
+          </div>
+          <ul class="topbar-nav">
+            <li
+              class="tapbar-nav-item"
+              :class="{'topbar-nav-active': item.page==currentRoute.name}"
+              v-for="(item, index) in routers"
+              :key="'menu' + index">
+              <router-link :to="item.path">
+                {{item.name}}
+              </router-link>
+            </li>
+          </ul>
+          <div class="navbar-right">
+            <span class="login-btn" @click="handleUser('register')">注册</span>
+            <span class="login-btn" @click="handleUser('login')">登录</span>
+          </div>
+        </div>
       </div>
     </div>
     
@@ -45,17 +48,17 @@
       </div>
     </div>
     <login-dialog ref="login"></login-dialog>
-    <register-dialog ref="register"></register-dialog>
+    <!-- <register-dialog ref="register"></register-dialog> -->
   </div>
 </template>
 <script>
 import LoginDialog from './LoginDialog'
-import RegisterDialog from './RegisterDialog'
+// import RegisterDialog from './RegisterDialog'
 export default {
   name: 'Layout',
   components: {
     LoginDialog,
-    RegisterDialog
+    // RegisterDialog
   },
   data () {
     return {
@@ -97,7 +100,7 @@ export default {
   },
   methods: {
     handleUser (val) {
-      this.$refs[val].modalVisible = true
+      this.$refs[val].visibile = true
     }
   }
 }
@@ -107,36 +110,46 @@ export default {
 .header {
   line-height: 90px;
   background: #fff;
-  /deep/ .am-topbar {
+  .topbar{
+    display: flex;
     background: #fff;
     border-bottom: 0;
-    .am-topbar-nav li {
-      margin-right:70px;
-      &.am-active { 
-        a {
-          color: #ef2020;
+    .topbar-nav {
+      display: flex;
+      list-style: none;
+      .tapbar-nav-item {
+        float: left;
+        margin-right:70px;
+        &.topbar-nav-active { 
+          a {
+            color: #ef2020;
+          }
         }
       }
     }
     a {
       line-height: 90px;
       font-size: 24px;
+      text-decoration: none;
       color: #333;
       &:after {
         display: none !important;
       }
     }
   }
-  .am-topbar-brand {
+  .topbar-brand {
     margin-right: 300px;
+    img {
+      vertical-align: middle;
+    }
   }
   .login-btn {
+    margin: 0 20px;
     color: #ef2020;
     font-size: 18px;
   }
 }
 .footer {
-  margin-top:50px;
   padding-top:30px;
   background: #4d4d4d;
   .footer-list {

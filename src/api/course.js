@@ -6,7 +6,7 @@ export const getSortType = (params) => {
 export const getCourses = (params) => {
   return axios.post('Course/lists', params)
 }
-export const getDetail = (params) => {
+export const getCourseDetail = (params) => {
   return axios.post('Course/detail', params)
 }
 

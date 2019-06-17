@@ -1,6 +1,18 @@
 <template>
   <div class="home">
-    <!-- <swiper-slide :data="bannerList"></swiper-slide>    -->
+    <swiper
+      class="banner-slider"
+      :options="swiperOption">
+      <swiper-slide
+        v-for="(banner, index) in bannerList"
+        :key="'banner' + index"
+        >
+        <a :href="banner.target_url">
+          <img :src="banner.img_url" alt="">
+        </a>
+      </swiper-slide>
+      <div class="swiper-pagination swiper-pagination-bullets" slot="pagination"></div>
+    </swiper>
     <div class="container">
       <div class="section" v-for="(section,index) in homeList" :key="'section' + index">
         <div class="advert" v-if="section.view_type == '1'">
@@ -8,11 +20,11 @@
             <img :src="section.data.img_url" alt="">
           </a>
         </div>
-        <div v-if="section.view_type == '2' || section.view_type == '3'" data-am-widget="titlebar" class="am-titlebar am-titlebar-default" >
-          <h2 class="am-titlebar-title ">
+        <div v-if="section.view_type == '2' || section.view_type == '3'" class="titlebar">
+          <h2 class="titlebar-title">
             {{section.title}}
           </h2>
-          <nav class="am-titlebar-nav">
+          <nav class="titlebar-nav">
               <a href="#more" class="">更多 <i class="am-icon-angle-right"></i></a>
           </nav>
         </div>
@@ -45,7 +57,6 @@
                     <div class="subinfor">{{listItem.buy_num}}人购买</div>
                   </div>
                 </div>
-                
               </div>
             </li>
           </ul>
@@ -68,12 +79,12 @@
         <div class="list-wrapper" v-if="section.view_type == '4'" >
           <div class="list-item-wrapper clearfix">
             <ul class="lists" v-for="(twoItem,index) in section.data" :key="'twoItem' + index">
-              <li data-am-widget="titlebar" class="am-titlebar am-titlebar-default" >
-                <h2 class="am-titlebar-title ">
+              <li class="titlebar">
+                <h2 class="titlebar-title">
                   {{twoItem.title}}
                 </h2>
-                <nav class="am-titlebar-nav">
-                    <a href="#more" class="">更多 <i class="am-icon-angle-right"></i></a>
+                <nav class="titlebar-nav">
+                    <router-link to="/news" class="">更多 <i class="am-icon-angle-right"></i></router-link>
                 </nav>
               </li>
               <li class="list-item clearfix" v-for="(listsubItem,index) in twoItem.items" :key="'listsubItem' + index">
@@ -94,16 +105,26 @@
 </template>
 
 <script>
-// @ is an alias to /src
-// import SwiperSlide from '@/components/SwiperSlide.vue'
+import { swiper, swiperSlide } from 'vue-awesome-swiper'
 import { getBanner, getHomeList, getHomeLinks } from './../api/home'
 export default {
   name: 'home',
   components: {
-    // SwiperSlide,
+    swiper,
+    swiperSlide,
   },
   data () {
     return {
+      swiperOption: {
+        pagination: {
+          autoplay: {
+            delay: 2500,
+            disableOnInteraction: false
+          },
+          el: '.swiper-pagination',
+          clickable: true
+        }
+      },
       bannerList: [],
       homeList: [],
       links: [],
@@ -144,18 +165,49 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.swiper-container { width: 600px; height: 300px; }
-.am-titlebar-default {
-  .am-titlebar-title {
+.home {
+  background: #eeeeee;
+  padding-bottom: 50px;
+}
+.banner-slider {
+  height: 300px;
+  img {
+    width: 100%;
+    height: 100%;
+  }
+  .swiper-pagination {
+    text-align: right;
+    padding-right: 60px;
+  }
+  /deep/ .swiper-pagination-bullet {
+    background: #fff;
+    opacity: 1;
+  }
+  /deep/ .swiper-pagination-bullet-active {
+    background: #e26262;
+  }
+}
+.titlebar {
+  padding: 46px 0 32px;
+  .titlebar-title {
+    display: inline-block;
+    margin: 0;
+    padding-bottom: 10px;
     color: #333333;
     font-size: 28px;
+    border-bottom: 4px solid #e26262;
     &:before {
       border-left:0;
     }
   }
   a{
+    text-decoration: none;
     color: #4d4d4d;
+    line-height: 54px;
     font-size: 20px;
+  }
+  .titlebar-nav {
+    float: right;
   }
   .am-icon-angle-right{
     font-size: 22px;
@@ -170,7 +222,7 @@ export default {
     img {
       height:116px;
     }
-    margin: 40px 0 46px;
+    margin: 40px 0 0;
   }
 }
 .list-wrapper {
@@ -284,7 +336,10 @@ export default {
   .list-item-wrapper  {
     margin-top: 50px;
     .lists {
-       background-color: #fff;
+      background-color: #fff;
+      .titlebar {
+        padding: 20px 30px;
+      }
     }
     .lists:nth-child(2n-1) {
       float: left

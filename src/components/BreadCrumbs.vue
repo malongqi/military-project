@@ -1,6 +1,6 @@
 <template>
  <ul class="bread-crumbs container">
-   <li class="bread-item" v-for="item in lists">
+   <li class="bread-item" v-for="(item,index) in lists" :key="'bread' + index">
       <span>{{item.name}}</span>
       <i> > </i>
    </li>
