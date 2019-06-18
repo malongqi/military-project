@@ -176,6 +176,7 @@ export default {
     height: 100%;
   }
   .swiper-pagination {
+    box-sizing: border-box;
     text-align: right;
     padding-right: 60px;
   }

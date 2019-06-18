@@ -1,4 +1,5 @@
 module.exports = {
+  baseUrl: './',
   // 选项...
   devServer: {
     proxy: {
