@@ -13,7 +13,7 @@ const paramsEdit = (params) => {
 }
 
 const instance = axios.create({
-  baseURL: '/',
+  baseURL: '/api',
 });
 
 instance.interceptors.request.use(config => {

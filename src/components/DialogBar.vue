@@ -52,20 +52,20 @@ export default {
         }
     },
     methods:{
-        closeMask(){
-            this.showMask = false;
-        },
         closeBtn(){
             this.$emit('cancel');
-            this.closeMask();
+            this.handleClose();
         },
         dangerBtn(){
             this.$emit('danger');
-            this.closeMask();
+            this.handleClose();
         },
         confirmBtn(){
             this.$emit('confirm');
-            this.closeMask();
+            this.handleClose();
+        },
+        handleClose () {
+            this.showMask = false;
         }
     },
     mounted(){

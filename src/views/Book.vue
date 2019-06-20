@@ -173,6 +173,7 @@ export default {
   border-top:1px solid #a6a6a6;
   border-left:1px solid #a6a6a6;
   .img-box {
+    box-sizing: border-box;
     padding: 30px 40px 35px;
     height:251px;
     img {

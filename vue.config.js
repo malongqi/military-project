@@ -1,14 +1,14 @@
 module.exports = {
-  baseUrl: './',
+  publicPath: './',
   // 选项...
   devServer: {
     proxy: {
-      '/': {
-        target: 'http://xingjun.zdapk.cn/Api',
+      '/api': {
+        target: 'http://xingjun.zdapk.cn/',
         ws: false,
         changeOrigin: true,
         pathRewrite: {
-          '^/': ''
+          '^/api': 'Api'
         }
       },
     }

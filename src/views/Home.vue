@@ -36,28 +36,30 @@
           </div>
           <ul class="lists clearfix">
             <li class="list" v-for="(listItem,index) in section.data" :key="'listItem' + index">
-              <div class="list-img">
-                <img :src="listItem.img_url" alt="">
-              </div>
-              <div class="list-infor">
-                <h5 class="tit">{{listItem.title}}</h5>
-                <div class="clearfix">
-                  <div class="infor-left">
-                    <p class="label">{{listItem.sub_title}}</p>
+              <router-link to="">
+                <div class="list-img">
+                  <img :src="listItem.img_url" alt="">
+                </div>
+                <div class="list-infor">
+                  <h5 class="tit">{{listItem.title}}</h5>
+                  <div class="clearfix">
+                    <div class="infor-left">
+                      <p class="label">{{listItem.sub_title}}</p>
+                    </div>
+                    <div class="infor-right">
+                      <div class="list-btn">{{listItem.course_type}}</div>
+                    </div>
                   </div>
-                  <div class="infor-right">
-                    <div class="list-btn">{{listItem.course_type}}</div>
+                  <div class="clearfix">
+                    <div class="infor-left">
+                      <div class="price">¥ {{listItem.price}}</div>
+                    </div>
+                    <div class="infor-right">
+                      <div class="subinfor">{{listItem.buy_num}}人购买</div>
+                    </div>
                   </div>
                 </div>
-                <div class="clearfix">
-                  <div class="infor-left">
-                    <div class="price">¥ {{listItem.price}}</div>
-                  </div>
-                  <div class="infor-right">
-                    <div class="subinfor">{{listItem.buy_num}}人购买</div>
-                  </div>
-                </div>
-              </div>
+              </router-link>
             </li>
           </ul>
         </div>
@@ -170,7 +172,7 @@ export default {
   padding-bottom: 50px;
 }
 .banner-slider {
-  height: 300px;
+  height: 520px;
   img {
     width: 100%;
     height: 100%;
