@@ -50,6 +50,62 @@ export default new Router({
           name: '关于我们',
           meta: {name: 'about'},
           component: () => import(/* webpackChunkName: "index" */ './views/About.vue')
+        },
+        {
+          path: '/order',
+          name: '关于我们',
+          meta: {name: 'about'},
+          component: () => import(/* webpackChunkName: "index" */ './views/Order.vue')
+        },
+        {
+          path: '/mine',
+          name: '会员中心',
+          meta: {name: 'about'},
+          component: () => import(/* webpackChunkName: "index" */ './views/mine/Mine.vue'),
+          children: [
+            {
+              path: '/',
+              name: '会员中心',
+              redirect: '/mycourse',
+              component: () => import(/* webpackChunkName: "index" */ './views/mine/Mine.vue')
+            },
+            {
+              path: '/mycourse',
+              name: '我的课程',
+              meta: {name: 'about'},
+              component: () => import(/* webpackChunkName: "index" */ './views/mine/mycourse.vue')
+            },
+            {
+              path: '/myview',
+              name: '我的浏览',
+              meta: {name: 'about'},
+              component: () => import(/* webpackChunkName: "index" */ './views/mine/myview.vue')
+            },
+            {
+              path: '/myorder',
+              name: '我的订单',
+              meta: {name: 'about'},
+              component: () => import(/* webpackChunkName: "index" */ './views/mine/myorder.vue')
+            },
+            {
+              path: '/myaddress',
+              name: '我的订单',
+              meta: {name: 'about'},
+              component: () => import(/* webpackChunkName: "index" */ './views/mine/myaddress.vue')
+            },
+            {
+              path: '/mypassword',
+              name: '修改密码',
+              meta: {name: 'about'},
+              component: () => import(/* webpackChunkName: "index" */ './views/mine/mypassword.vue')
+            },
+            {
+              path: '/myinfor',
+              name: '完善资料',
+              meta: {name: 'about'},
+              component: () => import(/* webpackChunkName: "index" */ './views/mine/myinfor.vue')
+            }
+          ]
         }
       ]
     },

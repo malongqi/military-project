@@ -5,6 +5,10 @@
         <label for="">分类：</label>
         <span v-for="(item,index) in sortTypes.category" :class="{'active': item.checked}" :key="'cat' + index" @click="getFilter('category',item)">{{item.name}}</span>
       </div>
+      <ul class="list-course-title" v-if="sortTypes.sort">
+        <!-- <li class="active">综合排序</li> -->
+        <li v-for="(item,index) in sortTypes.sort" :class="{'active': item.checked}" :key="'sort' + index" @click="getFilter('sort',item)">{{item.name}}</li>
+      </ul>
        <div class="list-books-box clearfix">
          <div class="list-book" v-for="(book, index) in bookLists" :key="'book' + index">
            <router-link :to="{path: 'detail', query: {bookId: book.book_id}}">
@@ -33,98 +37,18 @@ export default {
   },
   data () {
     return {
-      sortTypes: '',
-      bookLists: [
-        {
-                "book_id":0,
-                "title":"2019 专业课专业课专业课专业课专业课专业课专业课专业课-新闻0",
-                "desc":"课程简介:新闻学专业讲解新闻学专业讲解新闻学专业讲解新闻学专业讲解",
-                "img_url":"http://wechatapppro-1252524126.file.myqcloud.com/appq9jtJc2T2160/image/compress/be44a1a9ea8f6e88a7aeefd16955ccf0.png",
-                "price":"2980"
-            },
-            {
-                "book_id":1,
-                "title":"2019 专业课-新闻1",
-                "desc":"课程简介:新闻学专业讲解",
-                "img_url":"http://wechatapppro-1252524126.file.myqcloud.com/appq9jtJc2T2160/image/compress/be44a1a9ea8f6e88a7aeefd16955ccf0.png",
-                "price":"2981"
-            },
-            {
-                "book_id":2,
-                "title":"2019 专业课-新闻2",
-                "desc":"课程简介:新闻学专业讲解",
-                "img_url":"http://wechatapppro-1252524126.file.myqcloud.com/appq9jtJc2T2160/image/compress/be44a1a9ea8f6e88a7aeefd16955ccf0.png",
-                "price":"2982"
-            },
-            {
-                "book_id":3,
-                "title":"2019 专业课-新闻3",
-                "desc":"课程简介:新闻学专业讲解",
-                "img_url":"http://wechatapppro-1252524126.file.myqcloud.com/appq9jtJc2T2160/image/compress/be44a1a9ea8f6e88a7aeefd16955ccf0.png",
-                "price":"2983"
-            },
-            {
-                "book_id":4,
-                "title":"2019 专业课-新闻4",
-                "desc":"课程简介:新闻学专业讲解",
-                "img_url":"http://wechatapppro-1252524126.file.myqcloud.com/appq9jtJc2T2160/image/compress/be44a1a9ea8f6e88a7aeefd16955ccf0.png",
-                "price":"2984"
-            },
-            {
-                "book_id":5,
-                "title":"2019 专业课-新闻5",
-                "desc":"课程简介:新闻学专业讲解",
-                "img_url":"http://wechatapppro-1252524126.file.myqcloud.com/appq9jtJc2T2160/image/compress/be44a1a9ea8f6e88a7aeefd16955ccf0.png",
-                "price":"2985"
-            },
-            {
-                "book_id":6,
-                "title":"2019 专业课-新闻6",
-                "desc":"课程简介:新闻学专业讲解",
-                "img_url":"http://wechatapppro-1252524126.file.myqcloud.com/appq9jtJc2T2160/image/compress/be44a1a9ea8f6e88a7aeefd16955ccf0.png",
-                "price":"2986"
-            },
-            {
-                "book_id":7,
-                "title":"2019 专业课-新闻7",
-                "desc":"课程简介:新闻学专业讲解",
-                "img_url":"http://wechatapppro-1252524126.file.myqcloud.com/appq9jtJc2T2160/image/compress/be44a1a9ea8f6e88a7aeefd16955ccf0.png",
-                "price":"2987"
-            },
-            {
-                "book_id":8,
-                "title":"2019 专业课-新闻8",
-                "desc":"课程简介:新闻学专业讲解",
-                "img_url":"http://wechatapppro-1252524126.file.myqcloud.com/appq9jtJc2T2160/image/compress/be44a1a9ea8f6e88a7aeefd16955ccf0.png",
-                "price":"2988"
-            },
-            {
-                "book_id":9,
-                "title":"2019 专业课-新闻9",
-                "desc":"课程简介:新闻学专业讲解",
-                "img_url":"http://wechatapppro-1252524126.file.myqcloud.com/appq9jtJc2T2160/image/compress/be44a1a9ea8f6e88a7aeefd16955ccf0.png",
-                "price":"2989"
-            },
-            {
-                "book_id":10,
-                "title":"2019 专业课-新闻10",
-                "desc":"课程简介:新闻学专业讲解",
-                "img_url":"http://wechatapppro-1252524126.file.myqcloud.com/appq9jtJc2T2160/image/compress/be44a1a9ea8f6e88a7aeefd16955ccf0.png",
-                "price":"29810"
-            },
-            {
-                "book_id":11,
-                "title":"2019 专业课-新闻11",
-                "desc":"课程简介:新闻学专业讲解",
-                "img_url":"http://wechatapppro-1252524126.file.myqcloud.com/appq9jtJc2T2160/image/compress/be44a1a9ea8f6e88a7aeefd16955ccf0.png",
-                "price":"29811"
-            }
-      ]
+      sortTypes: [],
+      bookLists: [],
+      filterParam: {
+        catId: '',
+        pageIndex: 1,
+        pageSize: 15
+      }
     }
   },
   mounted () {
     this.getSorts()
-    // this.getbookList()
+    this.getbookList()
   },
   methods: {
     getSorts () {
@@ -141,8 +65,10 @@ export default {
       })
     },
     getbookList () {
+      this.$store.commit('handleLoad', true)
+      this.bookLists = []
       let params = {
-        cat_id: '',
+        cat_id: this.filterParam,
         page_index: 1,
         page_size: 15,
       }
@@ -150,17 +76,28 @@ export default {
         if (res.data.code == 0) {
           let data = res.data.data
           this.bookLists = data.items
+          this.$store.commit('handleLoad', false)
         }
       })
-    }
+    },
+    getFilter (val,item) {
+      this.sortTypes[val].map(item => {item.checked = false})
+      item.checked = true
+      this.filterParam.pageIndex = 1
+      this.filterParam[val == 'sort' ? 'sortId' : 'catId'] = item[val == 'sort' ? 'sort_id' : 'cat_id']
+      this.getbookList()
+    },
   }
 }
 </script>
 
 <style scoped lang="scss">
 /* scss */
+.book {
+  margin-bottom: 50px;
+}
 .list-books-box {
-  width: 1401px;
+  margin-top: 30px;
   box-sizing: border-box;
   border-right:1px solid #a6a6a6;
   border-bottom:1px solid #a6a6a6; 
@@ -168,7 +105,7 @@ export default {
 .list-book {
   box-sizing: border-box;
   float: left;
-  width: 350px;
+  width: 25%;
   height: 420px;
   border-top:1px solid #a6a6a6;
   border-left:1px solid #a6a6a6;

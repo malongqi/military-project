@@ -1,8 +1,17 @@
 <template>
   <div id="app">
+    <loading v-show="$store.state.loading" :full-page="true"/>
     <router-view/>
   </div>
 </template>
+<script>
+import loading from './components/Loading'
+export default {
+  components: {
+    loading
+  }
+}
+</script>
 
 <style>
 @import url('./assets/index.scss');

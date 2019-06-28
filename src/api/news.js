@@ -10,3 +10,7 @@ export const getNewsList = (params) => {
 export const getNewsDetail = (params) => {
   return axios.post('News/detail', params)
 }
+
+export const getOrderList = (params) => {
+  return axios.post('Mine/order_list', params)
+}

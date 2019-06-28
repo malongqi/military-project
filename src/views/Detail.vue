@@ -1,5 +1,6 @@
 <template>
  <div class="detail">
+  <bread-crumbs></bread-crumbs>
   <!-- 课程详情 -->
   <div class="container" v-if="pageType == 'courseId'">
     <ul class="list-news">
@@ -23,7 +24,7 @@
           </div>
           <div class="list-item-text clearfix">
             <span class="price">¥{{courseDetail.price}}</span>
-            <div class="list-btn">购买</div>
+            <router-link class="list-btn" :to="{path:'order',query:{courseId: id}}">购买</router-link>
           </div>
         </div>
       </li>
@@ -31,9 +32,13 @@
     <div class="section">
       <div class="tabbar-wrapper">
         <div class="tabbar">
-          <span class="tabbar-item">课时</span>
-          <span class="tabbar-item">详情</span>
-          <span class="tabbar-item">资料下载</span>
+          <span
+            class="tabbar-item"
+            v-for="(item, index) in tabNavs"
+            :key="'bar' + index"
+            :class="{'active':item.checked}"
+            @click="handleNavBar(item)"
+            >{{item.name}}</span>
         </div>
         <div class="two-colomn clearfix">
           <div class="sidebar">
@@ -41,27 +46,32 @@
               <h3>课程推荐</h3>
             </div>
             <ul class="list-item-wrapper">
-              <li class="list-item clearfix" v-for="(item,index) in courseDetail.downs" :key="'down' + index">
-                <div class="img-box">
-                  <img src="http://wechatapppro-1252524126.file.myqcloud.com/appq9jtJc2T2160/image/compress/be44a1a9ea8f6e88a7aeefd16955ccf0.png" alt="">
-                </div>
-                <div class="list-hd">
-                  2019星军精讲班-习题册
-                </div>
+              <li class="list-item clearfix" v-for="(item,index) in recommend" :key="'down' + index">
+                <router-link :to="{path:'detail', query: {courseId: item.course_id}}">
+                  <div class="img-box">
+                    <img :src="item.img_url" alt="">
+                  </div>
+                  <div class="list-hd">
+                    {{item.title}}
+                  </div>
+                </router-link>
               </li>
             </ul>
           </div>
           <div class="tabbar-content">
-            <ul class="list-item-wrapper">
-              <li class="list-item clearfix" v-for="(item,index) in courseDetail.downs" :key="'down' + index">
+            <ul class="list-item-wrapper" v-if="content instanceof Array">
+              <li class="list-item clearfix" v-for="(item,index) in content" :key="'down' + index">
                 <div class="title">
                   {{item.title}}
                 </div>
                 <div class="label">
-                  <span class="load-btn">点击下载</span>
+                  <a class="load-btn" >点击下载</a>
                 </div>
               </li>
             </ul>
+            <div v-else>
+              {{content}}
+            </div>
           </div>
         </div>
       </div>
@@ -89,13 +99,13 @@
         </div>
         <div class="list-main">
           <h3 class="list-item-hd">
-            {{courseDetail.title}}
+            {{bookDetail.title}}
           </h3>
           <div class="list-item-hd">
-              <span class="price">¥{{courseDetail.price}}</span>
+              <span class="price">¥{{bookDetail.price}}</span>
           </div>
           <div class="list-item-text">
-            <p>{{courseDetail.desc}}</p>
+            <p>{{bookDetail.desc}}</p>
           </div>
           <div class="list-item-text clearfix">
             <div class="list-btn">提交订单</div>
@@ -104,19 +114,18 @@
       </li>
     </ul>
     <div class="section">
-      <div class="tabbar-wrapper">
+      <div class="tabbar-wrapper book-detail-wrapper">
         <div class="tabbar">
           <span class="tabbar-item active">书籍介绍</span>
         </div>
         <div class="detail-content">
-          
+          {{bookDetail.desc}}
         </div>
       </div>
     </div>
   </div>
   <!-- 资讯详情 -->
   <div class="container" v-if="pageType == 'newsId'">
-    <bread-crumbs></bread-crumbs>
     <div class="news-detail">
       <h3 class="title">{{newsDetail.title}}</h3>
       <div class="label">
@@ -137,7 +146,7 @@
 <script type="text/ecmascript-6">
 import BreadCrumbs from './../components/BreadCrumbs'
 import { swiper, swiperSlide } from 'vue-awesome-swiper'
-import {getCourseDetail} from './../api/course.js'
+import {getCourseDetail, getCourseRecommend} from './../api/course.js'
 import {getBookDetail} from './../api/book.js'
 import {getNewsDetail} from './../api/news.js'
 export default {
@@ -154,6 +163,23 @@ export default {
       courseDetail: '',
       bookDetail: '',
       newsDetail: '',
+      recommend: [],
+      tabNavs: [
+        {
+          name:'课时',
+          type:'courses',
+          checked: true
+        },{
+          name:'详情',
+          type: 'desc',
+          checked: false
+        },{
+          name:'资料下载',
+          type: 'downs',
+          checked: false
+        }
+      ],
+      content: '',
       swiperSlides: [
         {
           url: 'http://wechatapppro-1252524126.file.myqcloud.com/appq9jtJc2T2160/image/compress/be44a1a9ea8f6e88a7aeefd16955ccf0.png'
@@ -198,6 +224,7 @@ export default {
   },
   methods: {
     getDetail () {
+      this.$store.commit('handleLoad', true)
       switch (this.pageType) {
         case 'bookId':
            this._getBookdetail()
@@ -209,6 +236,7 @@ export default {
           })
            break
         case 'courseId':
+          this._getCourseRecommend()
           this._getCoursedetail()
           break
         case 'newsId':
@@ -224,6 +252,7 @@ export default {
         if (res.data.code == 0) {
           let data = res.data.data
           this.bookDetail = data
+          this.$store.commit('handleLoad', false)
         }
       })
     },
@@ -235,6 +264,16 @@ export default {
         if (res.data.code == 0) {
           let data = res.data.data
           this.courseDetail = data
+          this.content = this.courseDetail.courses
+          this.$store.commit('handleLoad', false)
+        }
+      })
+    },
+    _getCourseRecommend () {
+      getCourseRecommend().then(res => {
+        if (res.data.code == 0) {
+          let data = res.data.data
+          this.recommend = data.items
         }
       })
     },
@@ -246,8 +285,15 @@ export default {
         if (res.data.code == 0) {
           let data = res.data.data
           this.newsDetail = data
+          this.$store.commit('handleLoad', false)
         }
       })
+    },
+    // 处理点击tab
+    handleNavBar (item) {
+      this.tabNavs.map(item => {item.checked = false})
+      item.checked  = true
+      this.content = this.courseDetail[item.type]
     }
   }
 }
@@ -256,6 +302,9 @@ export default {
 <style scoped lang="scss">
 /* scss */
 /* scss */
+.detail {
+  margin-bottom: 50px;
+}
 .list-news {
   list-style-type: none;
   .list-news-item {
@@ -265,7 +314,7 @@ export default {
   }
   .list-thumb{
     float: left;
-    width:600px;
+    width:48%;
     height: 420px;
     margin-right: 50px;
     img {
@@ -311,7 +360,7 @@ export default {
   background: #eee;
   .list-thumb{ 
     float: left;
-    width: 420px;
+    width: 33%;
     height: 420px;
     margin-right: 50px;
     padding: 30px 20px;
@@ -349,6 +398,9 @@ export default {
       border-radius: 8px;
     }
   }
+  .detail-content {
+    background: #f5f5f5;
+  }
 }
 .list-item-wrapper  {
   .lists {
@@ -377,6 +429,8 @@ export default {
     .load-btn {
       width: 117px;
       height: 34px;
+      padding: 2px 7px;
+      border-radius: 3px;
       line-height: 34px;
       color: #ef2020;
       text-align: center;
@@ -393,7 +447,11 @@ export default {
   }
 }
 .tabbar-wrapper {
+  &.book-detail-wrapper{
+    border: 1px solid #a6a6a6;
+  }
   .tabbar {
+    border-bottom:  1px solid #a6a6a6;
     padding: 34px 30px 25px;
     background: #f5f5f5;
     .tabbar-item {
@@ -406,16 +464,18 @@ export default {
     }
   }
   .tabbar-content {
-    width: 958px;
+    width: 68%;
     box-sizing: border-box;
     padding: 0 30px;
     border: 1px solid #a6a6a6;
     border-top: 0;
   }
+  .detail-content {
+    padding: 30px 10%;
+  }
 }
 .sidebar {
-  width:412px;
-  margin-left: 30px;
+  width: 30%;
   border: 1px solid #a6a6a6;
   border-top: 0;
   .sidebar-title {
@@ -444,7 +504,11 @@ export default {
       }
     }
     .list-hd {
+      // white-space: nowrap;
+      // text-overflow: ellipsis;
+      // overflow: hidden;
       font-size: 16px;
+      line-height: 30px;
       color: #666666;
     }
   }

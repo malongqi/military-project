@@ -1,6 +1,6 @@
 <template>
     <div class="dialog" v-show="showMask" @click="handleClose">
-        <div class="dialog-container" :style="{'width': width + 'px'}">
+        <div class="dialog-container" :style="{'width': width + 'px'}" @click.stop="">
             <div class="dialog-title">{{title}}</div>
             <div class="content">
                 <slot></slot>
@@ -64,7 +64,7 @@ export default {
             this.$emit('confirm');
             this.handleClose();
         },
-        handleClose () {
+        handleClose (e) {
             this.showMask = false;
         }
     },
@@ -93,7 +93,6 @@ export default {
         background: rgba(0, 0, 0, 0.6);
         z-index: 9999;
         .dialog-container{
-            min-height: 380px;
             background: #ffffff;
             position: absolute;
             top: 50%;

@@ -57,6 +57,7 @@ export default {
       })
     },
     getList () {
+      this.$store.commit('handleLoad', true)
       this.newsList = []
       let params = {
         page_index: this.filterParam.pageIndex,
@@ -66,6 +67,7 @@ export default {
         if (res.data.code == 0) {
           let data = res.data.data
           this.newsList = data.items
+          this.$store.commit('handleLoad', false)
         }
       })
     },
@@ -77,9 +79,13 @@ export default {
 }
 </script>
 <style lang='scss' scoped>
-.catalog {
-  background: #f5f5f5;
+.news {
+  .catalog {
+    background: #f5f5f5;
+    margin-bottom: 0;
+  }
 }
+
 .list-news-wrapper {
   padding: 0 10px;
   border: 1px solid #a6a6a6;

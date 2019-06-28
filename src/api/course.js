@@ -9,4 +9,7 @@ export const getCourses = (params) => {
 export const getCourseDetail = (params) => {
   return axios.post('Course/detail', params)
 }
+export const getCourseRecommend = (params) => {
+  return axios.post('Course/recommend', params)
+}
 

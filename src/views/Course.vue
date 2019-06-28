@@ -15,19 +15,21 @@
         <ul class="list-news">
           <!--缩略图在标题左边-->
           <li v-for="(item,index) in courseLists" :key="'course' + index" class="list-news-item clearfix">
-            <div class="list-thumb">
-              <router-link :to="{path:'detail',query:{courseId: item.course_id}}">
+            <router-link :to="{path:'detail',query:{courseId: item.course_id}}">
+              <div class="list-thumb">
                 <img :src="item.img_url" />
-              </router-link>
-            </div>
-            <div class="list-main">
-              <h3 class="list-item-hd">
-                <a :href="item.href" class="">{{item.title}}</a>
-                <span class="price">¥{{item.price}}</span>
-              </h3>
-              <div class="list-item-text">{{item.desc}}</div>
-              <div class="list-item-text">{{item.course_type}} 浏览量{{item.view_num}}</div>
-            </div>
+              </div>
+              <div class="list-main">
+                <h3 class="list-item-hd">
+                  <a :href="item.href" class="">{{item.title}}</a>
+                  <span class="price">¥{{item.price}}</span>
+                </h3>
+                <div class="list-item-text">课程简介：{{item.desc}}</div>
+                <div class="list-item-text">
+                  <span>【{{item.course_type}}】</span> 
+                  <span>浏览量{{item.view_num}}</span></div>
+              </div>
+            </router-link>
           </li>
         </ul>
         <am-pagination :total="100" align="center" v-model="filterParam.pageIndex" @change="changePages"></am-pagination>
@@ -77,6 +79,7 @@ export default {
       })
     },
     getCourseList () {
+      this.$store.commit('handleLoad', true)
       this.courseLists = []
       let params = {
         cat_id: this.filterParam.catId,
@@ -84,11 +87,13 @@ export default {
         page_size: this.filterParam.pageSize,
         sort_id: this.filterParam.sortId,
       }
+      debugger
       // this.paramsEdit(params)
       getCourses(params).then(res=> {
         if (res.data.code == 0) {
           let data = res.data.data
           this.courseLists = data.items
+          this.$store.commit('handleLoad', false)
         }
       })
     },
@@ -123,6 +128,7 @@ export default {
     margin-right: 40px;
     img {
       width: 100%;
+      height: 100%;
     }
   }
   .list-main {
@@ -137,6 +143,9 @@ export default {
       margin-bottom:30px;
       font-size:20px;
       color: #666666;
+      span {
+        padding: 0 10px 0 0
+      }
     }
     .price {
       margin-left: 20px;

@@ -6,7 +6,7 @@
         <li :class="{'am-disabled': value === 1 || disabled}" @click="value !== 1 && changePage(value - 1)">
             <a href="javascript:void(0)"> {{ preBtnText }}</a>
         </li>
-        <li v-for="num,key in loop"
+        <li v-for="(num,key) in loop"
             :key="key"
             :class="{'am-active': num === value, 'am-disabled': disabled && num !== value}"
             @click="num !== value && changePage(num)">

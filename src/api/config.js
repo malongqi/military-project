@@ -14,18 +14,23 @@ const paramsEdit = (params) => {
 
 const instance = axios.create({
   baseURL: '/api',
-});
-
-instance.interceptors.request.use(config => {
-  if(config.data) {
-    let param = config.data
-    config.data = {
-      ...config.data,
+  headers: {
+    'Content-Type': 'multipart/form-data'
+  },
+  transformRequest:[function(data){
+    let Params = {
+      ...data,
       client: 'pc-h5',
       request_time: new Date().getTime(),
-      api_sign: paramsEdit(param)
+      api_sign: paramsEdit(Params)
     }
-  }
-  return config
+    let formData = new FormData()
+    if (data) {
+      for (let key in Params) {
+        formData.append(key, data[key])
+      }
+    }
+    return formData
+  }]
 })
 export default instance

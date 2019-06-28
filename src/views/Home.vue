@@ -25,18 +25,19 @@
             {{section.title}}
           </h2>
           <nav class="titlebar-nav">
-              <a href="#more" class="">更多 <i class="am-icon-angle-right"></i></a>
+              <router-link :to="{path: (section.view_type == '2') && 'course' || (section.view_type == '3' && 'book')}" class="">更多 <i class="am-icon-angle-right"></i></router-link>
           </nav>
         </div>
         <!-- 课程列表 -->
-        <div class="list-wrapper" :class="section.cover_data ? 'padLeft': 'default'" v-if="section.view_type == '2'" >
-          <div class="cover-item" v-if="section.cover_data">
-            <a :href="section.cover_data.target_url"></a>
-            <img :src="section.cover_data.img_url" alt="">
-          </div>
-          <ul class="lists clearfix">
+        <div class="list-wrapper" v-if="section.view_type == '2'" >
+          <ul class="lists clearfix" :class="{'has-cover': section.cover_data}">
+            <li  class="list cover-item" v-if="section.cover_data">
+              <a :href="section.cover_data.target_url">
+                <img :src="section.cover_data.img_url" alt="">
+              </a>
+            </li>
             <li class="list" v-for="(listItem,index) in section.data" :key="'listItem' + index">
-              <router-link to="">
+              <router-link :to="{path:'detail',query:{courseId: listItem.id}}">
                 <div class="list-img">
                   <img :src="listItem.img_url" alt="">
                 </div>
@@ -67,20 +68,22 @@
         <div class="list-wrapper" v-if="section.view_type == '3'" >
           <ul class="lists clearfix">
             <li class="list-book" v-for="(listItem,index) in section.data" :key="'listItem' + index">
-              <div class="list-img">
-                <img :src="listItem.img_url" alt="">
-              </div>
-              <div class="list-infor clearfix">
-                <h5 class="tit">{{listItem.title}}</h5>
-                <span class="list-btn">立即购买</span>
-              </div>
+              <router-link :to="{path:'detail',query:{bookId: listItem.id}}">
+                <div class="list-img">
+                  <img :src="listItem.img_url" alt="">
+                </div>
+                <div class="list-infor clearfix">
+                  <h5 class="tit">{{listItem.title}}</h5>
+                  <span class="list-btn">立即购买</span>
+                </div>
+              </router-link>
             </li>
           </ul>
         </div>
         <!--军政list列表 -->
         <div class="list-wrapper" v-if="section.view_type == '4'" >
           <div class="list-item-wrapper clearfix">
-            <ul class="lists" v-for="(twoItem,index) in section.data" :key="'twoItem' + index">
+            <ul class="lists list-two" v-for="(twoItem,index) in section.data" :key="'twoItem' + index">
               <li class="titlebar">
                 <h2 class="titlebar-title">
                   {{twoItem.title}}
@@ -90,18 +93,31 @@
                 </nav>
               </li>
               <li class="list-item clearfix" v-for="(listsubItem,index) in twoItem.items" :key="'listsubItem' + index">
-                <div class="title">
-                 {{listsubItem.title}}
-                </div>
-                <div class="label">
-                  {{listsubItem.public_time}}
-                </div>
+                <router-link :to="{path: 'detail', query: {newsId: listsubItem.news_id}}">
+                  <div class="title">
+                  {{listsubItem.title}}
+                  </div>
+                  <div class="label">
+                    {{listsubItem.public_time}}
+                  </div>
+                </router-link>
               </li>
             </ul>
           </div>
         </div>
       </div>
-      <div class=""></div>
+    </div>
+    <div class="list-links">
+      <div class="links-title">
+        友情链接
+      </div>
+      <ul class="links-items">
+        <li class="links-item" v-for="(link, index) in links" :key="'link' + index">
+          <a :href="link.target_url" target="_blank">
+            <img :src="link.img_url" alt="">
+          </a>
+        </li>
+      </ul>
     </div>
   </div>
 </template>
@@ -147,9 +163,11 @@ export default {
       })
     },
     getHomeListData() {
+      this.$store.commit('handleLoad', true)
       getHomeList().then(res => {
         if (res.status === 200) {
           let data = res.data.data
+          this.$store.commit('handleLoad', false)
           this.homeList = data.items
         }
       })
@@ -172,7 +190,7 @@ export default {
   padding-bottom: 50px;
 }
 .banner-slider {
-  height: 520px;
+  height: 370px;
   img {
     width: 100%;
     height: 100%;
@@ -193,6 +211,10 @@ export default {
 .titlebar {
   padding: 46px 0 32px;
   .titlebar-title {
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     display: inline-block;
     margin: 0;
     padding-bottom: 10px;
@@ -230,29 +252,30 @@ export default {
 }
 .list-wrapper {
   position: relative;
-  &.padLeft {
-    padding-left: 324px;
-  }
   &.default {
     .list:nth-child(4n+1){
       margin-left:0
     }
   }
-  .cover-item {
-    position: absolute;
-    left: 0;
-    top:0;
-    width: 324px;
-    height: 400px;
+  .has-cover .list:nth-child(4n + 1) {
+    margin-left:1.2%
+  }
+  .list.cover-item {
+    height: 460px;
+    margin-left: 0 !important;
+  }
+  .list:nth-child(4n + 1) {
+    margin-left: 0; 
   }
   .list {
     float: left;
-    margin-left: 32px;
+    margin-left: 1.2%;
     margin-bottom: 24px;
-    width: 324px;
+    width: 24%;
     list-style: none;
     .list-img {
       overflow: hidden;
+      background: #fff;
       height: 110px;
       img{
         width: 100%;
@@ -261,6 +284,7 @@ export default {
     .list-infor {
       padding: 14px 20px 20px;
       font-size: 14px;
+      line-height: 1;
       background: #fff;
       .infor-left {
         float: left;
@@ -277,7 +301,10 @@ export default {
         white-space: nowrap;
       }
       .label {
-        margin-bottom: 15px;
+        margin-top: 0;
+        margin-bottom: 8px;
+        height: 20px;
+        line-height: 20px;
         color: #666666;
       }
       .price {
@@ -289,7 +316,6 @@ export default {
         float: right;
         width: 40px;
         height: 20px;
-        margin-bottom: 14px;
         line-height: 20px;
         text-align: center;
         background: #e26262;
@@ -303,11 +329,11 @@ export default {
   .list-book {
     list-style: none;
     float: left;
-    width: 248px;
+    width: 18.2%;
     height: 352px;
     padding: 30px;
     background: #fff;
-    margin-right: 40px;
+    margin-right: 2.2%;
     box-sizing: border-box;
     &:nth-child(5n){
        margin-right: 0;
@@ -350,15 +376,21 @@ export default {
     .lists:nth-child(2n) {
       float: right
     }
+    .list-two {
+      width: 49%;
+    }
   }
   .list-item {
-    width:620px;
     margin: 10px 30px;
     line-height: 50px;
     list-style: none;
     border-bottom: 1px solid #eeeeee;
     font-size: 16px;
     .title {
+      max-width: 76%;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
       float: left;
       color: #4d4d4d;
     }
@@ -366,6 +398,24 @@ export default {
       float: right;
       color: #808080;
     }
+  }
+}
+.list-links {
+  .links-title {
+    margin-top: 30px;
+    background: #2b93c6;
+    line-height: 80px;
+    text-align: center;
+    color:#fff;
+    font-size: 20px;
+  }
+  .links-items {
+    padding: 30px 0 0;
+    text-align: center;
+  }
+  .links-item {
+    display: inline-block;
+    margin: 0 13px;
   }
 }
 </style>

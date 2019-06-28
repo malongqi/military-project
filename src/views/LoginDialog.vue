@@ -4,8 +4,7 @@
     v-model="visibile"
     :width="720"
     type="danger"
-    title="我是标题"
-    content="我是内容"
+    title="登录"
     v-on:cancel="clickCancel()"
     @danger="clickDanger()"
     @confirm="clickConfirm()"
@@ -14,18 +13,22 @@
       <form-item
       class="log-form-item"
       icon-left="icon-user"
-      placeholder="请输入用户名">
+      v-model="form.mobile"
+      :error-tips="errors['mobile']"
+      placeholder="请输入手机号">
       </form-item>
       <form-item
       class="log-form-item"
       type="password"
+      v-model="form.password"
+      :error-tips="errors['password']"
       icon-left="icon-lock"
       placeholder="请输入密码">
       </form-item>
     </div>
     <div slot="foot">
-      <span class="login-btn">注册</span>
-      <span class="login-btn">取消</span>
+      <span class="login-btn" @click="submit">登录</span>
+      <span class="login-btn" @click="register">立即注册</span>
     </div>
   </dialog-bar>
 </template>
@@ -34,8 +37,9 @@
   
 import dialogBar from './../components/DialogBar'
 import FormItem from './../components/FormItem'
+import { login } from './../api/login'
 export default {
-  name: 'RegisterDialog',
+  name: 'LoginDialog',
   components: {
     dialogBar,
     FormItem
@@ -44,21 +48,66 @@ export default {
     return {
       visibile: false,
       showLogin: false,
-      modalVisible: false
+      modalVisible: false,
+      form: {
+        mobile: '',
+        password: ''
+      }
     };
   },
+   vuerify: {
+    'form.mobile': {
+      test: /^1[3456789]\d{9}$/,
+      message: '请输入正确的手机号'
+    },
+    'form.password': {
+      test (val) {
+        return val !== ''
+      },
+      message: '请输入密码'
+    }
+  },
+  computed: {
+    errors () {
+      let errorsMsg = {}
+      for (let key in this.$vuerify.$errors) {
+        errorsMsg[key.split('.')[1]] = this.$vuerify.$errors[key]
+      }
+      return errorsMsg
+    }
+  },
   methods: {
-    openMask(index){
-      this.visibile = true;
+    submit () {
+      if (!this.$vuerify.check()) {
+        return
+      }
+      let formData = new FormData()
+      formData.append('mobile', this.form.mobile)
+      formData.append('password', this.form.password)
+      let config = {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      }
+      login(formData, config).then(res => {
+        if(res.data.code == 0) {
+          let data = res.data.data
+          this.$cookies.set('user', data);
+          this.$store.commit('setUser', data)
+          this.$parent.$refs.login.visibile = false
+          this.$toasted.show('登录成功', {
+            type : 'success',
+          })
+        } else {
+          this.$toasted.show(res.data.msg, {
+            type : 'error',
+          })
+        }
+      })
     },
-    clickCancel(){
-      console.log('点击了取消');
-    },
-    clickDanger(){
-      console.log('这里是danger回调')
-    },
-    clickConfirm(){
-      console.log('点击了confirm');
+    register () {
+      this.$parent.$refs.login.visibile = false
+      this.$parent.$refs.register.visibile = true
     }
   }
 }
@@ -90,6 +139,7 @@ export default {
 }
 .login-dialog {
   /deep/ .content {
+    height: 320px;
     padding: 40px 0 30px;
     width: 420px;
     margin: auto;

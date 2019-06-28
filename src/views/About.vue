@@ -1,18 +1,18 @@
 <template>
-  <div class="about container">
+  <div class="about">
     <div class="banner">
-      <img :src="oursDetail.banner" alt="">
+      <img :src="oursDetail.img_url" alt="">
     </div>
-    <div class="about-content">
+    <div class="about-content container">
       <div class="tabbar clearfix">
         <ul class="tabbar-nav">
           <li
             class="tabbar-nav-item"
-            v-for="(navItem, index) in oursDetail.detail"
+            v-for="(navItem, index) in oursDetail.category"
             :key="'nav' + index"
-            :class="{'active': navItem.active}"
+            :class="{'active': navItem.checked}"
             @click="handleClickNav(navItem)">
-            {{navItem.title}}
+            {{navItem.name}}
           </li>
         </ul>
         <div class="tabbar-content">
@@ -24,44 +24,43 @@
 </template>
 
 <script>
+import { getAbout } from './../api/mine'
 export default {
   components: {},
   data () {
     return {
-      oursDetail: {
-        banner: 'http://wechatapppro-1252524126.file.myqcloud.com/appq9jtJc2T2160/image/compress/be44a1a9ea8f6e88a7aeefd16955ccf0.png',
-        detail : [
-          {
-            title: '关于我们',
-            active: true,
-            des: '1本科生学费全额奖励计划是李嘉诚基金会捐资在汕头大学设立的专项奖助学金。首期奖励计划的对象为2019级至2022级本科生，包括四年制专业和临床医学、口腔医学等五年制专业。主要奖励支持这四个年级的汕大本科学生在校修读完成本科所有课程。每年的捐资额度依据2019级至2022级本科生当年的学费总额，并以每年一亿元人民币为资助上限'
-          },
-          {
-            title: '企业文化',
-            active: false,
-            des: '2本科生学费全额奖励计划是李嘉诚基金会捐资在汕头大学设立的专项奖助学金。首期奖励计划的对象为2019级至2022级本科生，包括四年制专业和临床医学、口腔医学等五年制专业。主要奖励支持这四个年级的汕大本科学生在校修读完成本科所有课程。每年的捐资额度依据2019级至2022级本科生当年的学费总额，并以每年一亿元人民币为资助上限'
-          },
-          {
-            title: '企业愿景',
-            active: false,
-            des: '3本科生学费全额奖励计划是李嘉诚基金会捐资在汕头大学设立的专项奖助学金。首期奖励计划的对象为2019级至2022级本科生，包括四年制专业和临床医学、口腔医学等五年制专业。主要奖励支持这四个年级的汕大本科学生在校修读完成本科所有课程。每年的捐资额度依据2019级至2022级本科生当年的学费总额，并以每年一亿元人民币为资助上限'
-          }
-        ]
-      },
+      oursDetail: '',
       content: ''
     };
   },
   computed: {},
   mounted() {
-    this.content = this.oursDetail.detail[0].des
+    this.$store.commit('handleLoad', false)
+    this.getAboutMe()
   },
   methods: {
     handleClickNav (item) {
-      this.oursDetail.detail.map(item => {
-        item.active = false
+      this.oursDetail.category.map(item => {
+        item.checked = false
       })
-      item.active = true
-      this.content = item.des
+      item.checked = true
+      this.content = item.content
+    },
+    getAboutMe() {
+      getAbout().then(res => {
+        if (res.data.code == 0) {
+          this.oursDetail = res.data.data
+          let detail = this.oursDetail.category
+          detail.map((item,index) => {
+            if (index == 0) {
+              item.checked = true
+              this.content = item.content
+            } else {
+              item.checked = false
+            }
+          })
+        }
+      })
     }
   }
 }
@@ -75,7 +74,7 @@ export default {
   }
 }
 .about-content {
-  padding: 20px 260px;
+  padding: 20px;
 }
 .tabbar {
   display: flex;
@@ -97,6 +96,7 @@ export default {
     }
   }
   .tabbar-content {
+    padding: 50px 0 30px;
     float: left;
     line-height: 1.5;
   }

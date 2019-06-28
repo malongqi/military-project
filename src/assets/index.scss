@@ -1,9 +1,13 @@
 @media screen and (min-width: 800px) {
   
 }
-
+body {
+  min-width: 980px;
+  max-width: 1440px;
+  margin: 0 auto;
+}
 .container {
-  width:1400px;
+  width:80%;
   margin: 0 auto;
 }
 ul,li {
@@ -29,9 +33,11 @@ a {
 }
 
 .catalog {
-  line-height: 90px;
-  font-size: 24px;
+  padding: 12px 0;
+  margin-bottom: 20px;
+  font-size: 18px;
   color: #333;
+  background: #eeeeee;
 }
 .catalog label {
   margin-left: 15px;
@@ -40,7 +46,7 @@ a {
 .catalog span {
   display: inline-block;
   padding: 3px 5px;
-  margin:0 15px;
+  margin:0 10px;
   line-height: 30px;
   border-radius: 4px;
   cursor: pointer;
@@ -50,7 +56,7 @@ a {
   color: #fff;
 }
 .list-course-title {
-  padding: 21px 0;
+  padding: 0 0 21px;
   list-style: none;
 }
 .list-course-title li {

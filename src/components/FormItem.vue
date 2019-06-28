@@ -2,7 +2,7 @@
   <div class="form-item">
     <slot name="append">
     </slot>
-    <slot name="icon" v-if="iconLeft">
+    <slot name="iconLeft">
       <i class="icons" :class="iconLeft"></i>
     </slot>
     <div class="form-item-inner">
@@ -10,10 +10,12 @@
       class="input-inner"
       :type="type"
       :placeholder="placeholder"
-      v-model="value">  
+      :value="value" 
+      @input="$emit('input', $event.target.value)">  
+      <span class="error-tips" v-if="error">{{error}}</span>
     </div>
-    <slot name="icon" v-if="iconRight">
-      <i class="icons" :class="iconRight"></i>
+    <slot name="iconRight">
+      <i class="icons" :class="iconRight" v-if="iconRight"></i>
     </slot>
   </div>
 </template>
@@ -36,15 +38,28 @@ export default {
     },
     iconRight: {
       type: String,
+      default: '',
+    },
+    value: {
       default: ''
-    }
+    },
+    errorTips: String
   },
   data () {
     return {
-      value: ''
+      // error: ''
     }
   },
-  computed: {},
+  computed: {
+    error () {
+      return this.errorTips
+    }
+  },
+  // watch: {
+  //   errorTips(val) {
+  //     this.error = val
+  //   }
+  // },
   mounted() {
 
   },
@@ -58,7 +73,15 @@ export default {
   border: 1px solid #c4c4c4;
   align-items: center;
   .form-item-inner {
+    position: relative;
     flex: 1;
+  }
+  .error-tips {
+    position: absolute;
+    right: 0px;
+    font-size: 12px;
+    color: #e26262;
+    line-height: 50px;
   }
   .input-inner {
     padding: 10px;

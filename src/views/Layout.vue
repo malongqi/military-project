@@ -19,14 +19,17 @@
               </router-link>
             </li>
           </ul>
-          <div class="navbar-right">
+          <div class="navbar-right"  v-if="$store.state.user">
+            <router-link :to="{path: 'mine'}" class="item">【{{$store.state.user.nickname}}】</router-link>
+            <span class="item" @click="quite">退出</span>
+          </div>
+          <div class="navbar-right" v-else>
             <span class="login-btn" @click="handleUser('register')">注册</span>
             <span class="login-btn" @click="handleUser('login')">登录</span>
           </div>
         </div>
       </div>
     </div>
-    
     <router-view/>
     <div class="footer">
       <div class="container clearfix">
@@ -43,26 +46,28 @@
         </ul>
         <ul class="footer-list last">
           <li>微信公众号</li>
-          <li><img src="" alt=""></li>
+          <li><img src="./../assets/images/code.png" alt=""></li>
         </ul>
       </div>
     </div>
     <login-dialog ref="login"></login-dialog>
-    <!-- <register-dialog ref="register"></register-dialog> -->
+    <register-dialog ref="register"></register-dialog>
   </div>
 </template>
 <script>
 import LoginDialog from './LoginDialog'
-// import RegisterDialog from './RegisterDialog'
+import RegisterDialog from './RegisterDialog'
+import { getCompany } from './../api/mine'
 export default {
   name: 'Layout',
   components: {
     LoginDialog,
-    // RegisterDialog
+    RegisterDialog
   },
   data () {
     return {
       currentRoute: '',
+      company: '',
       routers: [
         {
           path: '/',
@@ -89,7 +94,8 @@ export default {
   },
   mounted () {
     this.currentRoute = this.$route.meta
-    // this.getBannerData()
+    this.$store.commit('setUser', this.$cookies.get('user') )
+    this._getCompany()
     // this.getHomeListData()
   
   },
@@ -99,8 +105,20 @@ export default {
     }
   },
   methods: {
+    _getCompany() {
+      getCompany().then(res => {
+        if (res.data.code ==0) {
+          let data = res.data.data
+          this.company = data
+        }
+      })
+    },
     handleUser (val) {
       this.$refs[val].visibile = true
+    },
+    quite () {
+       this.$store.commit('setUser', '' )
+      this.$cookies.remove("user");
     }
   }
 }
@@ -115,11 +133,12 @@ export default {
     background: #fff;
     border-bottom: 0;
     .topbar-nav {
+      width: 52%;
       display: flex;
       list-style: none;
+      justify-content: space-around;
       .tapbar-nav-item {
         float: left;
-        margin-right:70px;
         &.topbar-nav-active { 
           a {
             color: #ef2020;
@@ -138,7 +157,7 @@ export default {
     }
   }
   .topbar-brand {
-    margin-right: 300px;
+    margin-right: 8%;
     img {
       vertical-align: middle;
     }
@@ -147,6 +166,14 @@ export default {
     margin: 0 20px;
     color: #ef2020;
     font-size: 18px;
+    cursor: pointer;
+  }
+  .navbar-right {
+    .item {
+      cursor: pointer;
+      color: #ef2020;
+      font-size: 18px;
+    }
   }
 }
 .footer {
@@ -160,7 +187,8 @@ export default {
     font-size: 14px;
     &.last {
       float: right;
-      margin-right: 0
+      margin-right: 0;
+      text-align: right;
     }
     a {
       color:#b0b0b0;
