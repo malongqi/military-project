@@ -31,7 +31,19 @@ Vue.use(Toasted, {
   duration: 1000
 })
 Vue.config.productionTip = false
-
+// 路由跳转拦截//test
+// router.beforeEach((to, from, next) => {
+//   debugger
+//   if (to.path !== '/login') {
+//     if (getLocalStorage('menu') && getCookie('userinfo')) {
+//       next()
+//     } else {
+//       next({path: '/login'})
+//     }
+//   } else {
+//     next()
+//   }
+// })
 new Vue({
   router,
   store,

@@ -28,6 +28,9 @@ export const getMyAddress = (params) => {
 export const editMyAddress = (params) => {
   return axios.post('Mine/modify_Addr', params)
 }
+export const modifyUser = (params) => {
+  return axios.post('User/modify', params)
+}
 export const modifyPwd = (params) => {
   return axios.post('User/modify_pwd', params)
 }

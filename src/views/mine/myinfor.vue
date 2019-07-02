@@ -37,7 +37,7 @@
 </template>
 
 <script>
-import {getMyAddress,getProvinceList,getCityList,getCountyList} from './../../api/mine'
+import {modifyUser} from './../../api/mine'
 export default {
   components: {},
   data () {
@@ -54,7 +54,19 @@ export default {
   computed: {},
   mounted() {},
   methods: {
-    onSubmit () {},
+    onSubmit () {
+      modifyUser(params).then(res => {
+        if (res.data.code == 0) {
+          this.$toasted.show('修改成功', {
+            type : 'success',
+          })
+        } else {
+          this.$toasted.show(res.data.msg, {
+            type : 'error',
+          })
+        }
+      })
+    },
   }
 }
 </script>

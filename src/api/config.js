@@ -1,6 +1,7 @@
+import Vue from 'vue'
 import axios from 'axios'
 var md5 = require('md5')
-
+import cookies from 'vue-cookies'
 const paramsEdit = (params) => {
   let paramList = ''
   for (let key in params) {
@@ -11,7 +12,8 @@ const paramsEdit = (params) => {
   let msg =  paramList.substring(1) + '_1Ftjv0bfpVmqbE38'
   return md5(msg)
 }
-
+let token = getCookie('user')
+debugger
 const instance = axios.create({
   baseURL: '/api',
   headers: {

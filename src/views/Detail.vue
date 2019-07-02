@@ -65,7 +65,8 @@
                   {{item.title}}
                 </div>
                 <div class="label">
-                  <a class="load-btn" >点击下载</a>
+                  <a href="" v-if="currentTab === 'courses'">观看视频</a>
+                  <a v-else class="load-btn" >点击下载</a>
                 </div>
               </li>
             </ul>
@@ -185,6 +186,7 @@ export default {
           checked: false
         }
       ],
+      currentTab: '',
       content: '',
       swiperSlides: [],
       swiperOptionTop: {
@@ -311,6 +313,7 @@ export default {
     // 处理点击tab
     handleNavBar (item) {
       this.tabNavs.map(item => {item.checked = false})
+      this.currentTab = item.type
       item.checked  = true
       this.content = this.courseDetail[item.type]
     }

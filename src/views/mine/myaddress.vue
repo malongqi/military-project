@@ -135,7 +135,7 @@ export default {
             type : 'success',
           })
         } else {
-         this.$toasted.show('res.data.msg', {
+          this.$toasted.show(res.data.msg, {
             type : 'error',
           })
         }

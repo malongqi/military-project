@@ -52,11 +52,11 @@
           <div class="order-form">
             <h4>确认付款方式</h4>
             <div class="radio-group">
-              <radio name="robot" :value="1" v-model="radioValue">
-                 支付宝 <img src="" alt="">
+              <radio name="zfb" :value="1" v-model="radioValue">
+                <img width="100" src="./../assets/images/zfb.jpg" alt="">
               </radio>
-              <radio name="robot" :value="2" v-model="radioValue">
-                  微信
+              <radio name="wx" :value="2" v-model="radioValue">
+                <img width="130" src="./../assets/images/wx.png" alt="">
               </radio>
             </div>
             <p class="order-tips">为了保证及时处理您的订单，请下单24小时内付款</p>
@@ -295,6 +295,10 @@ export default {
 .radio-group {
   padding: 20px 0;
   display: flex;
+  /deep/ label {
+    display: flex;
+    align-items: center;
+  }
 }
 .checkbox-component
 /deep/ .input-box {
