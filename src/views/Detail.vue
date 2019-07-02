@@ -129,30 +129,7 @@
   </div>
   <!-- 资讯详情 -->
   <div class="container" v-if="pageType == 'newsId'">
-    <a href="http://v.t.sina.com.cn/share/share.php?url=http://www.jb51.net&title='分享内容'" target="_blank">新浪微博</a> </p> <p>2、腾讯微博
-    <a href="http://v.t.qq.com/share/share.php?url=http://www.jb51.net&title='分享内容'" target="_blank">腾讯微博</a> </p> <p>3、开心网
-    <a href="javascript:window.open('http://www.kaixin001.com/repaste/share.php?rtitle='+encodeURIComponent(document.title)+'&rurl='+encodeURIComponent(document.location.href)+'&rcontent=');void(0)">开心网</a>
-    或者用
-    <a href="http://www.kaixin001.com/repaste/share.php?rurl=http://www.jb51.net&rcontent=http://www.baidu.com&rtitle=kaixin" target="_blank">开心网</a> </p> <p>4、豆瓣网
-    <a href="javascript:window.open('http://www.douban.com/recommend/?url='+encodeURIComponent(document.location.href)+'&title='+encodeURIComponent(document.title));void(0)">豆瓣</a> </p> <p>或者用
-    <a href="http://www.douban.com/recommend/?url=http://www.jb51.net&title=douban" target="_blank">豆瓣</a> </p> <p>5、人人网
-    <a href="javascript:window.open('http://share.renren.com/share/buttonshare.do?link='+encodeURIComponent(document.location.href)+'&title='+encodeURIComponent(document.title));void(0)">人人网</a>
-    或者用
-    <a href="http://share.renren.com/share/buttonshare.do?link=http://www.jb51.net" target="_blank">人人网</a> </p> <p>6、百度贴吧
-    <a href="http://tieba.baidu.com/f/commit/share/openShareApi?url=http://www.jb51.net&title=hello&desc=&pic=" target="_blank">百度贴吧</a> </p> <p>7、QQ好友
-    <a href="http://connect.qq.com/widget/shareqq/index.html?title=qqhaoyou&url=http://www.jb51.net&desc=还不错哦&pics=&site=优酷" target="_blank">QQ好友</a> </p> <p>8、QQ空间
-    <a href="http://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=http://www.jb51.net" target="_blank">QQ空间</a> </p> <p>9、腾讯朋友
-    <a href="http://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?to=pengyou&url=http://www.jb51.net" target="_blank">腾讯朋友</a> </p> <p>
-    10、百度收藏
-    <a href="javascript:window.open('http://cang.baidu.com/do/add?it='+encodeURIComponent(document.title.substring(0,76))+'&iu='+encodeURIComponent(location.href)+'&fr=ien#nw=1','scrollbars=no,width=600,height=450,left=75,top=20,status=no,resizable=yes'); void 0">百度搜藏</a> </p> <p>11、优酷空间
-    <a href="http://i.youku.com/u/share/?url=http://www.jb51.net&content='分享内容'" target="_blank">优酷空间</a> </p> <p>12、搜狐微博
-    <a href="http://t.sohu.com/third/post.jsp?content=utf-8&url=http://www.jb51.net&title=souhu" target="_blank">搜狐微博</a> </p> <p>13、MSN
-    <a href="http://profile.live.com/badge/?url=http://www.jb51.net&Title=msn" target="_blank">MSN</a> </p> <p>14、猫扑
-    <a href="http://tt.mop.com/share/shareV.jsp?title=moptietie&pageUrl=http://www.jb51.net" target="_blank">MOP贴贴</a> </p> <p>15、网易微博
-    <a href="http://t.163.com/article/user/checkLogin.do?link=http://www.jb51.net" target="_blank">网易微博</a> </p> <p>16、QQ书签 </p> <p><a href="javascript:window.open('http://shuqian.qq.com/post?from=3&title='+encodeURIComponent(document.title)+'&uri='+encodeURIComponent(document.location.href)+'&jumpback=2&noui=1','favit','width=930,height=470,left=50,top=50,toolbar=no,menubar=no,location=no,scrollbars=yes,status=yes,resizable=yes');void(0)">QQ书签</a> </p> <p>17、GOOGLE书签：
-    <a href="javascript:window.open('http://www.google.com/bookmarks/mark?op=add&bkmk='+encodeURIComponent(document.location.href)+'&title='+encodeURIComponent(document.title));void(0)">Google</a> </p> <p>18、Twitter
-    <a href="javascript:window.open('http://twitter.com/home?status='+encodeURIComponent(document.location.href)+' '+encodeURIComponent(document.title));void(0)">Twitter</a> </p> <p>19、Facebook
-    <a class="fav_facebook" rel="nofollow" href="javascript:window.open('http://www.facebook.com/sharer.php?u='+encodeURIComponent(document.location.href)+'&t='+encodeURIComponent(document.title));void(0)">Facebook</a> </p> <p>20、Delicious书签： </p> <p><a href="javascript:window.open('http://del.icio.us/post?url='+encodeURIComponent(document.location.href)+'&title='+encodeURIComponent(document.title)+'&notes=');void(0)">Delicious</a>
+    <div class="social-share"></div>
     <div class="news-detail">
       <h3 class="title">{{newsDetail.title}}</h3>
       <div class="label">
@@ -171,6 +148,7 @@
 </template>
 
 <script type="text/ecmascript-6">
+import 'social-share.js/dist/js/social-share.min.js'
 import BreadCrumbs from './../components/BreadCrumbs'
 import { swiper, swiperSlide } from 'vue-awesome-swiper'
 import {getCourseDetail, getCourseRecommend} from './../api/course.js'
@@ -225,7 +203,10 @@ export default {
         loop: true,
         loopedSlides: 5, 
         slideToClickedSlide: true,
-      } 
+      },
+      config: {
+
+      }
     }
   },
   // computed: {
@@ -248,6 +229,7 @@ export default {
       this.pageType = key
       this.id = this.$route.query[key]
     }
+    
     this.getDetail()
   },
   methods: {
@@ -313,6 +295,15 @@ export default {
         if (res.data.code == 0) {
           let data = res.data.data
           this.newsDetail = data
+          this.config = {
+            title:data.title,
+            description: data.title,
+            sites: ['qzone', 'qq', 'weibo','wechat']
+          }
+          this.$nextTick(() => {
+            let sharebox = document.querySelector('.social-share')
+            window.socialShare(sharebox,  this.config)
+          })
           this.$store.commit('handleLoad', false)
         }
       })
@@ -326,10 +317,14 @@ export default {
   }
 }
 </script>
-
+<style src="social-share.js/dist/css/share.min.css"></style>
 <style scoped lang="scss">
 /* scss */
 /* scss */
+.social-share {
+  margin-bottom: 20px;
+  text-align: right;
+}
 .detail {
   margin-bottom: 50px;
 }

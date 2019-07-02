@@ -28,7 +28,6 @@ export default {
     }
   },
   mounted () {
-    debugger
     this.lists = this.$router.currentRoute.matched
   }
 }

@@ -4,18 +4,18 @@
       <span>修改秘密</span>
     </div>
     <div class="table-content">
-      <el-form class="form-list" ref="form" :model="form" label-width="130px">
-        <el-form-item label="原密码">
-          <el-input v-model="form.name"></el-input>
+      <el-form class="form-list" :rules="rules" ref="form" :model="form" label-width="130px">
+        <el-form-item label="原密码" prop="oldPwd">
+          <el-input type="password" v-model="form.oldPwd"></el-input>
         </el-form-item>
-        <el-form-item label="新密码">
-          <el-input v-model="form.name"></el-input>
+        <el-form-item label="新密码" prop="newPwd">
+          <el-input type="password" v-model="form.newPwd"></el-input>
         </el-form-item>
-        <el-form-item label="确认密码">
-          <el-input v-model="form.name"></el-input>
+        <el-form-item label="确认密码" prop="pwdConfirm">
+          <el-input type="password" v-model="form.pwdConfirm"></el-input>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="onSubmit">保存</el-button>
+          <el-button type="primary" @click="onSubmit('form')">保存</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -23,23 +23,66 @@
 </template>
 
 <script>
-import {getMyAddress,getProvinceList,getCityList,getCountyList} from './../../api/mine'
+import {modifyPwd} from './../../api/mine'
 export default {
   components: {},
   data () {
     return {
       editState: false,
       form: {
-        oldPassword: '',
-        newPassword: '',
-        passwordConfirm: '',
+        oldPwd: '',
+        newPwd: '',
+        pwdConfirm: '',
+      },
+      rules: {
+        oldPwd: [
+          { required: true, message: '请填写旧密码', trigger: 'blur' }
+        ],
+        newPwd: [
+          { required: true, message: '请填写新密码', trigger: 'blur' }
+        ],
+        pwdConfirm: [
+          { validator: (rule, value, callback) => {
+            if (value === '') {
+              callback(new Error('请再次输入密码'));
+            } else if (value !== this.form.newPwd) {
+              callback(new Error('两次输入密码不一致!'));
+            } else {
+              callback();
+            }
+          }, required: true, message: '请选择时间', trigger: 'change' }
+        ]
       }
     }
   },
   computed: {},
   mounted() {},
   methods: {
-    onSubmit () {},
+    onSubmit (formName) {
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          let params = {
+            user_id: this.$parent.user.uid,
+            old_password: this.form.oldPwd,
+            password: this.form.newPwd
+          }
+          modifyPwd(params).then(res => {
+            if (res.data.code == 0){
+              this.$toasted.show('修改成功', {
+                type : 'success',
+              })
+            } else {
+              this.$toasted.show(res.data.msg, {
+                type : 'error',
+              })
+            }
+          })
+        } else {
+          console.log('error submit!!');
+          return false;
+        }
+      });
+    },
   }
 }
 </script>

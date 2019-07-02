@@ -69,7 +69,7 @@
 </template>
 
 <script>
-import {getMyAddress,getProvinceList,getCityList,getCountyList,addMyAddress} from './../../api/mine'
+import {getMyAddress,getProvinceList,getCityList,getCountyList,addMyAddress,editMyAddress} from './../../api/mine'
 export default {
   components: {},
   data () {
@@ -179,7 +179,16 @@ export default {
       })
     },
     modifyAddress (row) {
-
+      this.editState = true
+      this.form =  {
+        province: '',
+        city: '',
+        county: '',
+        name: '',
+        desc: '',
+        mobile: '',
+        isdefalut: false
+      }
     }
   }
 }
@@ -202,6 +211,7 @@ export default {
       height: 30px;
       line-height: 30px;
       text-align: center;
+      cursor: pointer;
     }
   }
   .table-content {

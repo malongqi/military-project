@@ -102,8 +102,6 @@ export default {
     },
     'form.confirm': {
       test (val) {
-        debugger
-
         return val === this.form.password
       },
       message: '密码输入不一致'

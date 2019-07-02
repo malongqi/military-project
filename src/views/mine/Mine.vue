@@ -30,9 +30,9 @@
       </div>
       <div class="main">
         <div class="user-infor">
-          <img class="avatar" src="" alt="">
+          <img class="avatar" :src="user.head_pic" alt="">
           <div class="user-hd">
-            <p>账号：11111111</p>
+            <p>账号：{{user.nickname}}</p>
             <p>上次登录时间：dsss</p>
           </div>
         </div>
@@ -51,6 +51,7 @@ export default {
   data () {
     return {
       defaultActive: '',
+
       menuList: [
         {
           menu: '我的课程',
@@ -92,11 +93,12 @@ export default {
           ]
         }
       ],
-      tableData: []
-    };
+      user: ''
+    }
   },
   computed: {},
   mounted() {
+    this.user = this.$cookies.get('user')
     this.defaultActive = this.$route.path
     this.$store.commit('handleLoad', false)
   },

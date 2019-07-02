@@ -87,7 +87,6 @@ export default {
         page_size: this.filterParam.pageSize,
         sort_id: this.filterParam.sortId,
       }
-      debugger
       // this.paramsEdit(params)
       getCourses(params).then(res=> {
         if (res.data.code == 0) {

@@ -25,6 +25,12 @@ export const getMyView = (params) => {
 export const getMyAddress = (params) => {
   return axios.post('Mine/addr_list', params)
 }
+export const editMyAddress = (params) => {
+  return axios.post('Mine/modify_Addr', params)
+}
+export const modifyPwd = (params) => {
+  return axios.post('User/modify_pwd', params)
+}
 export const getProvinceList = (params) => {
   return axios.post('District/provinceList', params)
 }
