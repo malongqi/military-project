@@ -13,7 +13,7 @@
           <h3 class="list-item-hd">
             {{courseDetail.title}}
           </h3>
-          <div class="list-item-hd">
+          <div class="list-item-hd border-bt">
             <span class="item-sub">购买数{{courseDetail.buy_num}}</span>
             <span class="item-sub">课时数{{courseDetail.course_num}}</span>
             <span class="item-sub">浏览量{{courseDetail.view_num}}</span>
@@ -59,7 +59,7 @@
             </ul>
           </div>
           <div class="tabbar-content">
-            <ul class="list-item-wrapper" v-if="content instanceof Array">
+            <ul class="list-item-wrapper" v-if="typeof content=='object'&&content.constructor==Array">
               <li class="list-item clearfix" v-for="(item,index) in content" :key="'down' + index">
                 <div class="title">
                   {{item.title}}
@@ -75,7 +75,7 @@
           </div>
         </div>
       </div>
-     
+
     </div>
   </div>
   <!-- 教材详情 -->
@@ -83,7 +83,7 @@
     <ul class="list-book">
       <!--缩略图在标题左边-->
       <li class="list-news-item clearfix">
-        <div class="list-thumb">
+        <!-- <div class="list-thumb">
           <swiper :options="swiperOptionTop" class="gallery-top" ref="swiperTop">
             <swiper-slide v-for="(item, index) in swiperSlides" :key="'gallery-top' + index">
               <img :src="item.url" alt="">
@@ -96,6 +96,9 @@
               <img :src="item.url" alt="">
             </swiper-slide>
           </swiper>
+        </div> -->
+        <div class="list-thumb">
+          <img :src="bookDetail.img_url" />
         </div>
         <div class="list-main">
           <h3 class="list-item-hd">
@@ -126,6 +129,30 @@
   </div>
   <!-- 资讯详情 -->
   <div class="container" v-if="pageType == 'newsId'">
+    <a href="http://v.t.sina.com.cn/share/share.php?url=http://www.jb51.net&title='分享内容'" target="_blank">新浪微博</a> </p> <p>2、腾讯微博
+    <a href="http://v.t.qq.com/share/share.php?url=http://www.jb51.net&title='分享内容'" target="_blank">腾讯微博</a> </p> <p>3、开心网
+    <a href="javascript:window.open('http://www.kaixin001.com/repaste/share.php?rtitle='+encodeURIComponent(document.title)+'&rurl='+encodeURIComponent(document.location.href)+'&rcontent=');void(0)">开心网</a>
+    或者用
+    <a href="http://www.kaixin001.com/repaste/share.php?rurl=http://www.jb51.net&rcontent=http://www.baidu.com&rtitle=kaixin" target="_blank">开心网</a> </p> <p>4、豆瓣网
+    <a href="javascript:window.open('http://www.douban.com/recommend/?url='+encodeURIComponent(document.location.href)+'&title='+encodeURIComponent(document.title));void(0)">豆瓣</a> </p> <p>或者用
+    <a href="http://www.douban.com/recommend/?url=http://www.jb51.net&title=douban" target="_blank">豆瓣</a> </p> <p>5、人人网
+    <a href="javascript:window.open('http://share.renren.com/share/buttonshare.do?link='+encodeURIComponent(document.location.href)+'&title='+encodeURIComponent(document.title));void(0)">人人网</a>
+    或者用
+    <a href="http://share.renren.com/share/buttonshare.do?link=http://www.jb51.net" target="_blank">人人网</a> </p> <p>6、百度贴吧
+    <a href="http://tieba.baidu.com/f/commit/share/openShareApi?url=http://www.jb51.net&title=hello&desc=&pic=" target="_blank">百度贴吧</a> </p> <p>7、QQ好友
+    <a href="http://connect.qq.com/widget/shareqq/index.html?title=qqhaoyou&url=http://www.jb51.net&desc=还不错哦&pics=&site=优酷" target="_blank">QQ好友</a> </p> <p>8、QQ空间
+    <a href="http://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=http://www.jb51.net" target="_blank">QQ空间</a> </p> <p>9、腾讯朋友
+    <a href="http://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?to=pengyou&url=http://www.jb51.net" target="_blank">腾讯朋友</a> </p> <p>
+    10、百度收藏
+    <a href="javascript:window.open('http://cang.baidu.com/do/add?it='+encodeURIComponent(document.title.substring(0,76))+'&iu='+encodeURIComponent(location.href)+'&fr=ien#nw=1','scrollbars=no,width=600,height=450,left=75,top=20,status=no,resizable=yes'); void 0">百度搜藏</a> </p> <p>11、优酷空间
+    <a href="http://i.youku.com/u/share/?url=http://www.jb51.net&content='分享内容'" target="_blank">优酷空间</a> </p> <p>12、搜狐微博
+    <a href="http://t.sohu.com/third/post.jsp?content=utf-8&url=http://www.jb51.net&title=souhu" target="_blank">搜狐微博</a> </p> <p>13、MSN
+    <a href="http://profile.live.com/badge/?url=http://www.jb51.net&Title=msn" target="_blank">MSN</a> </p> <p>14、猫扑
+    <a href="http://tt.mop.com/share/shareV.jsp?title=moptietie&pageUrl=http://www.jb51.net" target="_blank">MOP贴贴</a> </p> <p>15、网易微博
+    <a href="http://t.163.com/article/user/checkLogin.do?link=http://www.jb51.net" target="_blank">网易微博</a> </p> <p>16、QQ书签 </p> <p><a href="javascript:window.open('http://shuqian.qq.com/post?from=3&title='+encodeURIComponent(document.title)+'&uri='+encodeURIComponent(document.location.href)+'&jumpback=2&noui=1','favit','width=930,height=470,left=50,top=50,toolbar=no,menubar=no,location=no,scrollbars=yes,status=yes,resizable=yes');void(0)">QQ书签</a> </p> <p>17、GOOGLE书签：
+    <a href="javascript:window.open('http://www.google.com/bookmarks/mark?op=add&bkmk='+encodeURIComponent(document.location.href)+'&title='+encodeURIComponent(document.title));void(0)">Google</a> </p> <p>18、Twitter
+    <a href="javascript:window.open('http://twitter.com/home?status='+encodeURIComponent(document.location.href)+' '+encodeURIComponent(document.title));void(0)">Twitter</a> </p> <p>19、Facebook
+    <a class="fav_facebook" rel="nofollow" href="javascript:window.open('http://www.facebook.com/sharer.php?u='+encodeURIComponent(document.location.href)+'&t='+encodeURIComponent(document.title));void(0)">Facebook</a> </p> <p>20、Delicious书签： </p> <p><a href="javascript:window.open('http://del.icio.us/post?url='+encodeURIComponent(document.location.href)+'&title='+encodeURIComponent(document.title)+'&notes=');void(0)">Delicious</a>
     <div class="news-detail">
       <h3 class="title">{{newsDetail.title}}</h3>
       <div class="label">
@@ -149,6 +176,7 @@ import { swiper, swiperSlide } from 'vue-awesome-swiper'
 import {getCourseDetail, getCourseRecommend} from './../api/course.js'
 import {getBookDetail} from './../api/book.js'
 import {getNewsDetail} from './../api/news.js'
+import { debuglog } from 'util';
 export default {
   name: 'Detail',
   components: {
@@ -180,17 +208,7 @@ export default {
         }
       ],
       content: '',
-      swiperSlides: [
-        {
-          url: 'http://wechatapppro-1252524126.file.myqcloud.com/appq9jtJc2T2160/image/compress/be44a1a9ea8f6e88a7aeefd16955ccf0.png'
-        },
-        {
-          url: 'http://wechatapppro-1252524126.file.myqcloud.com/appq9jtJc2T2160/image/compress/be44a1a9ea8f6e88a7aeefd16955ccf0.png'
-        },
-        {
-          url: 'http://wechatapppro-1252524126.file.myqcloud.com/appq9jtJc2T2160/image/compress/be44a1a9ea8f6e88a7aeefd16955ccf0.png'
-        }
-      ],
+      swiperSlides: [],
       swiperOptionTop: {
         spaceBetween: 10,
         loop: true,
@@ -210,9 +228,19 @@ export default {
       } 
     }
   },
-  computed: {
-    swiper() {
-      return this.$refs.mySwiper.swiper
+  // computed: {
+  //   swiper(to) {
+
+  //     return this.$refs.mySwiper.swiper
+  //   }
+  // },
+  watch: {
+    '$route' () {
+      for (let key in this.$route.query) {
+        this.pageType = key
+        this.id = this.$route.query[key]
+      }
+      this.getDetail()
     }
   },
   mounted () {
@@ -228,12 +256,12 @@ export default {
       switch (this.pageType) {
         case 'bookId':
            this._getBookdetail()
-           this.$nextTick(() => {
-            const swiperTop = this.$refs.swiperTop.swiper
-            const swiperThumbs = this.$refs.swiperThumbs.swiper
-            swiperTop.controller.control = swiperThumbs
-            swiperThumbs.controller.control = swiperTop
-          })
+          //  this.$nextTick(() => {
+          //   const swiperTop = this.$refs.swiperTop.swiper
+          //   const swiperThumbs = this.$refs.swiperThumbs.swiper
+          //   swiperTop.controller.control = swiperThumbs
+          //   swiperThumbs.controller.control = swiperTop
+          // })
            break
         case 'courseId':
           this._getCourseRecommend()
@@ -279,7 +307,7 @@ export default {
     },
     _getNewsdetail () {
       let params = {
-        course_id: this.id 
+        news_id: this.id 
       }
       getNewsDetail(params).then(res => {
         if (res.data.code == 0) {
@@ -308,6 +336,7 @@ export default {
 .list-news {
   list-style-type: none;
   .list-news-item {
+    display: flex;
     margin-bottom:20px;
     padding: 30px;
     background: #eeeeee;
@@ -326,6 +355,7 @@ export default {
       margin-bottom: 50px;
       font-size: 24px;
       color: #333333;
+      padding-bottom: 10px;
       .item-sub{
         display: inline-block;
         margin-right: 20px;
@@ -355,18 +385,26 @@ export default {
     }
   }
 }
+.border-bt {
+  border-bottom: 1px solid #666666;
+}
 .list-book {
   list-style: none;
   background: #eee;
   .list-thumb{ 
     float: left;
     width: 33%;
-    height: 420px;
+    height: 340px;
     margin-right: 50px;
     padding: 30px 20px;
+    overflow: hidden;
+    img {
+      width: 100%;
+      height: 100%;
+    }
   }
   .list-main {
-    padding: 50px 0 0;
+    padding: 50px 20px 0 0;
     .list-item-hd {
       margin-bottom: 30px;
       font-size: 24px;

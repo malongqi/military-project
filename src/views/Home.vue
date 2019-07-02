@@ -93,7 +93,7 @@
                 </nav>
               </li>
               <li class="list-item clearfix" v-for="(listsubItem,index) in twoItem.items" :key="'listsubItem' + index">
-                <router-link :to="{path: 'detail', query: {newsId: listsubItem.news_id}}">
+                <router-link :to="{path: 'detail', query: {newsId: listsubItem.id}}">
                   <div class="title">
                   {{listsubItem.title}}
                   </div>

@@ -10,13 +10,7 @@
           <el-upload
             class="upload-btn"
             action="https://jsonplaceholder.typicode.com/posts/"
-            :on-preview="handlePreview"
-            :on-remove="handleRemove"
-            :before-remove="beforeRemove"
-            multiple
-            :limit="3"
-            :on-exceed="handleExceed"
-            :file-list="fileList">
+            >
             <el-button size="small" type="primary">点击上传</el-button>
           </el-upload>
         </el-form-item>

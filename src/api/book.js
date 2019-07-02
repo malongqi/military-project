@@ -1,7 +1,7 @@
 import axios from './config'
 
 export const getSortType = (params) => {
-  return axios.post('Course/cat_sort', params)
+  return axios.post('Teaching/cat_sort', params)
 }
 export const getbooks = (params) => {
   return axios.post('Teaching/lists', params)

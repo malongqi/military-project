@@ -97,6 +97,7 @@ export default {
   },
   computed: {},
   mounted() {
+    this.defaultActive = this.$route.path
     this.$store.commit('handleLoad', false)
   },
   methods: {

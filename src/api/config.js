@@ -24,10 +24,11 @@ const instance = axios.create({
       request_time: new Date().getTime(),
       api_sign: paramsEdit(Params)
     }
+
     let formData = new FormData()
     if (data) {
       for (let key in Params) {
-        formData.append(key, data[key])
+        formData.append(key, Params[key])
       }
     }
     return formData

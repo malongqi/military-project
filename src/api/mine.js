@@ -34,3 +34,7 @@ export const getCityList = (params) => {
 export const getCountyList = (params) => {
   return axios.post('District/countyList', params)
 }
+// 地址新增
+export const addMyAddress = (params) => {
+  return axios.post('Mine/add_Addr', params)
+}

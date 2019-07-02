@@ -59,16 +59,23 @@ export default {
       tableData: [],
       pagination: {
 
-      }
+      },
+      user: ''
     }
   },
   computed: {},
   mounted() {
+    this.user = this.$cookies.get('user')
     this.getData()
   },
   methods: {
     getData () {
-      getOrderList().then(res => {
+      let params = {
+        user_id: this.user.uid,
+        page_index: 1,
+        page_size: 20
+      }
+      getOrderList(params).then(res => {
         if (res.data.code == 0) {
           let data = res.data.data
           this.tableData = data.items

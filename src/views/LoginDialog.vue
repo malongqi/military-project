@@ -81,15 +81,11 @@ export default {
       if (!this.$vuerify.check()) {
         return
       }
-      let formData = new FormData()
-      formData.append('mobile', this.form.mobile)
-      formData.append('password', this.form.password)
-      let config = {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+      let params = {
+        mobile: this.form.mobile,
+        password: this.form.password
       }
-      login(formData, config).then(res => {
+      login(params).then(res => {
         if(res.data.code == 0) {
           let data = res.data.data
           this.$cookies.set('user', data);

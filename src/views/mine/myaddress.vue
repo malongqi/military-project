@@ -15,14 +15,14 @@
             >
             <div class="list-tit">{{item.name}}</div>
             <div class="list-sub">{{item.mobile}}</div>
-            <div class="list-adress">{{item.address}}</div>
-            <div class="list-edit">修改</div>
+            <div class="list-adress">{{item.addr_detail}}</div>
+            <div class="list-edit" @click="modifyAddress">修改</div>
           </li>
         </ul>
       </div>
       <el-form v-else class="form-list" ref="form" :model="form" label-width="130px">
         <el-form-item label="活动名称" class="form-inner">
-          <el-select v-model="form.provinceList" placeholder="请选择活动区域" @change="handleChangeProvince">
+          <el-select v-model="form.province" placeholder="请选择省" @change="handleChangeProvince">
             <el-option
               v-for="(item,index) in provinceList"
               :key="'province' + index"
@@ -30,7 +30,7 @@
               :value="item.provinceId">
             </el-option>
           </el-select>
-          <el-select v-model="form.cityList" placeholder="请选择活动区域" @change="handleChangeCity">
+          <el-select v-model="form.city" placeholder="请选择市" @change="handleChangeCity">
             <el-option
               v-for="(item,index) in cityList"
               :key="'city' + index"
@@ -38,12 +38,12 @@
               :value="item.cityId">
             </el-option>
           </el-select>
-          <el-select v-model="form.countyList" placeholder="请选择活动区域">
+          <el-select v-model="form.county" placeholder="请选择县">
             <el-option
               v-for="(item,index) in countyList"
               :key="'county' + index"
               :label="item.name"
-              :value="item.provinceId">
+              :value="item.countyId">
             </el-option>
           </el-select>
         </el-form-item>
@@ -54,10 +54,10 @@
           <el-input type="textarea" v-model="form.desc"></el-input>
         </el-form-item>
         <el-form-item label="电话">
-          <el-input type="" v-model="form.desc"></el-input>
+          <el-input type="" v-model="form.mobile"></el-input>
         </el-form-item>
         <el-form-item label="是否设为常用地址">
-          <el-switch v-model="form.delivery"></el-switch>
+          <el-switch v-model="form.isdefalut"></el-switch>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="onSubmit">立即创建</el-button>
@@ -69,7 +69,7 @@
 </template>
 
 <script>
-import {getMyAddress,getProvinceList,getCityList,getCountyList} from './../../api/mine'
+import {getMyAddress,getProvinceList,getCityList,getCountyList,addMyAddress} from './../../api/mine'
 export default {
   components: {},
   data () {
@@ -77,9 +77,13 @@ export default {
       editState: false,
       tableData: [],
       form: {
-        provinceList: '',
-        cityList: '',
-        countyList: ''
+        province: '',
+        city: '',
+        county: '',
+        name: '',
+        desc: '',
+        mobile: '',
+        isdefalut: false,
       },
       provinceList: [],
       cityList: [],
@@ -93,6 +97,7 @@ export default {
   mounted() {
     this.user = this.$cookies.get('user')
     this._getProvinceList()
+    this.getData()
   },
   methods: {
     getData () {
@@ -112,7 +117,30 @@ export default {
     resetForm (formName) {
       this.$refs[formName].resetFields();
     },    
-    onSubmit () {},
+    onSubmit () {
+      let params = {
+        user_id: this.user.uid,
+        provinceId: this.form.province,
+        cityId: this.form.city,
+        countyId: this.form.county,
+        name: this.form.name,
+        detail_addr: this.form.desc,
+        mobile: this.form.mobile,
+        isdefalut: this.form.isdefalut
+      }
+      addMyAddress(params).then(res => {
+        if (res.data.code == 0) {
+          this.editState = false
+          this.$toasted.show('添加成功', {
+            type : 'success',
+          })
+        } else {
+         this.$toasted.show('res.data.msg', {
+            type : 'error',
+          })
+        }
+      })
+    },
     handleEditAddress () {
       this.editState = true
       this._getProvinceList()
@@ -123,8 +151,8 @@ export default {
     handleChangeCity (val) {
       this._getCountyList(val)
     },
-    _getProvinceList () {
-      getProvinceList().then(res => {
+    _getProvinceList (val) {
+      getProvinceList(val).then(res => {
         if (res.data.code == 0) {
           this.provinceList = res.data.data.items
         }
@@ -140,7 +168,7 @@ export default {
         }
       })
     },
-    _getCountyList () {
+    _getCountyList (val) {
       let params = {
         cityId: val
       }
@@ -149,6 +177,9 @@ export default {
           this.countyList = res.data.data.items
         }
       })
+    },
+    modifyAddress (row) {
+
     }
   }
 }
@@ -191,7 +222,7 @@ export default {
   .list {
     position: relative;
     padding-left: 120px;
-    color: #e6e6e6;
+    color: #666;
     label {
       position: absolute;
       left: 0;

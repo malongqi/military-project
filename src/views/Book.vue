@@ -28,8 +28,7 @@
 </template>
 
 <script type="text/ecmascript-6">
-import {getSortType} from './../api/course.js'
-import { getbooks } from './../api/book.js'
+import { getbooks, getSortType } from './../api/book.js'
 export default {
   name: 'Book',
   components: {
@@ -113,13 +112,14 @@ export default {
     box-sizing: border-box;
     padding: 30px 40px 35px;
     height:251px;
+    overflow: hidden;
     img {
       width:100%;
     }
   }
   .list-hd {
     font-size: 18px;
-    padding:  0 30px;
+    padding:  10px 30px 0;
     .list-hd-title {
       margin: 0 0 10px;
       color:#333333;

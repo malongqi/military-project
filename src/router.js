@@ -53,14 +53,14 @@ export default new Router({
         },
         {
           path: '/order',
-          name: '关于我们',
-          meta: {name: 'about'},
+          name: '订单',
+          meta: {name: 'order'},
           component: () => import(/* webpackChunkName: "index" */ './views/Order.vue')
         },
         {
           path: '/mine',
-          name: '会员中心',
-          meta: {name: 'about'},
+          name: '',
+          meta: {name: ''},
           component: () => import(/* webpackChunkName: "index" */ './views/mine/Mine.vue'),
           children: [
             {
@@ -89,7 +89,7 @@ export default new Router({
             },
             {
               path: '/myaddress',
-              name: '我的订单',
+              name: '我的地址',
               meta: {name: 'about'},
               component: () => import(/* webpackChunkName: "index" */ './views/mine/myaddress.vue')
             },
