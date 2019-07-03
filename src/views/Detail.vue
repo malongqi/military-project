@@ -65,14 +65,12 @@
                   {{item.title}}
                 </div>
                 <div class="label">
-                  <a href="" v-if="currentTab === 'courses'">观看视频</a>
+                  <a href="" class="load-btn" v-if="currentTab === 'courses'">观看视频</a>
                   <a v-else class="load-btn" >点击下载</a>
                 </div>
               </li>
             </ul>
-            <div v-else>
-              {{content}}
-            </div>
+            <div class="article" v-else v-html="content"></div>
           </div>
         </div>
       </div>
@@ -178,7 +176,7 @@ export default {
           checked: true
         },{
           name:'详情',
-          type: 'desc',
+          type: 'content',
           checked: false
         },{
           name:'资料下载',
@@ -219,6 +217,7 @@ export default {
   // },
   watch: {
     '$route' () {
+      window.scrollTo(0, 0);
       for (let key in this.$route.query) {
         this.pageType = key
         this.id = this.$route.query[key]
@@ -509,6 +508,11 @@ export default {
   .detail-content {
     padding: 30px 10%;
   }
+}
+.article {
+  padding: 30px 0;
+  line-height: 1.6;
+  word-break: break-all;
 }
 .sidebar {
   width: 30%;

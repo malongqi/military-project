@@ -1,7 +1,7 @@
 <template>
   <dialog-bar
     class="login-dialog"
-    v-model="visibile"
+    v-model="$store.state.showLogin"
     :width="720"
     type="danger"
     title="登录"

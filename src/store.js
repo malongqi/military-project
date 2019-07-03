@@ -6,7 +6,8 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
     loading: true,
-    user: ''
+    user: '',
+    showLogin: false,
 
   },
   mutations: {
@@ -15,6 +16,9 @@ export default new Vuex.Store({
     },
     setUser(state, val) {
       state.user = val
+    },
+    setLoginState(state, val) {
+      state.showLogin = val
     }
   },
   actions: {
