@@ -32,7 +32,15 @@
             </router-link>
           </li>
         </ul>
-        <am-pagination :total="100" align="center" v-model="filterParam.pageIndex" @change="changePages"></am-pagination>
+      </div>
+      <div class="pagination-box">
+        <el-pagination
+          prev-text="上一页"
+          next-text="下一页"
+          layout="prev, pager, next"
+          :total="pageTotal"
+          @current-change="handleChange">
+        </el-pagination>
       </div>
     </div>
   </div>
@@ -40,18 +48,17 @@
 
 <script type="text/ecmascript-6">
 import BreadCrumbs from './../components/BreadCrumbs'
-import AmPagination from './../components/Pagination'
 import {getCourses, getSortType} from './../api/course.js'
 export default {
   name: 'Course',
   components: {
-    BreadCrumbs,
-    AmPagination
+    BreadCrumbs
   },
   data () {
     return {
       sortTypes: [],
       courseLists: [],
+      pageTotal: 100,
       filterParam: {
         catId: '',
         sortId: '',
@@ -90,7 +97,9 @@ export default {
       // this.paramsEdit(params)
       getCourses(params).then(res=> {
         if (res.data.code == 0) {
+          window.scrollTo(0, 0);
           let data = res.data.data
+          this.pageTotal = data.total_num
           this.courseLists = data.items
           this.$store.commit('handleLoad', false)
         }
@@ -103,7 +112,7 @@ export default {
       this.filterParam[val == 'sort' ? 'sortId' : 'catId'] = item[val == 'sort' ? 'sort_id' : 'cat_id']
       this.getCourseList()
     },
-    changePages (val) {
+    handleChange (val) {
       this.filterParam.pageIndex = val
       this.getCourseList()
     }

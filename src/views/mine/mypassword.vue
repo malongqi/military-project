@@ -62,7 +62,6 @@ export default {
       this.$refs[formName].validate((valid) => {
         if (valid) {
           let params = {
-            user_id: this.$parent.user.uid,
             old_password: this.form.oldPwd,
             password: this.form.newPwd
           }

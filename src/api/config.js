@@ -22,6 +22,7 @@ const instance = axios.create({
   transformRequest:[function(data){
     let Params = {
       ...data,
+      token: store.state.user ? store.state.user.token : '',
       client: 'pc-h5',
       request_time: new Date().getTime(),
       api_sign: paramsEdit(Params)

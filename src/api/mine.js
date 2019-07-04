@@ -4,7 +4,10 @@ import axios from './config'
 export const postpayConfirm = (params) => {
   return axios.post('Buy/confirm', params)
 }
-
+// 微信支付
+export const postWxpay = (params) => {
+  return axios.post('WxPay/pay', params)
+}
 // 会员相关接口 如下
 export const getOrderList = (params) => {
   return axios.post('Mine/order_list', params)
@@ -27,6 +30,9 @@ export const getMyAddress = (params) => {
 }
 export const editMyAddress = (params) => {
   return axios.post('Mine/modify_Addr', params)
+}
+export const deletMyAddress = (params) => {
+  return axios.post('Mine/delete_Addr', params)
 }
 export const modifyUser = (params) => {
   return axios.post('User/modify', params)

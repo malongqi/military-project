@@ -52,12 +52,12 @@
           <div class="order-form">
             <h4>确认付款方式</h4>
             <div class="radio-group">
-              <radio name="zfb" :value="1" v-model="radioValue">
+              <el-radio v-model="radioValue" label="1">
                 <img width="100" src="./../assets/images/zfb.jpg" alt="">
-              </radio>
-              <radio name="wx" :value="2" v-model="radioValue">
+              </el-radio>
+              <el-radio v-model="radioValue" label="2">
                 <img width="130" src="./../assets/images/wx.png" alt="">
-              </radio>
+              </el-radio>
             </div>
             <p class="order-tips">为了保证及时处理您的订单，请下单24小时内付款</p>
             <div class="order-section">
@@ -79,29 +79,35 @@
             </div>
             <div class="clearfix">
               <div class="submit-box">
-                <span class="submit-btn">提交订单</span>
+                <span class="submit-btn" @click="onSubmit">提交订单</span>
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
+    <el-dialog
+      :visible.sync="payVisible"
+      width="30%"
+      :before-close="handleClose">
+      <div>
+        <div>{{payParam.order_id}}</div>
+        <img :src="payParam.code_url" alt="">
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
-import { getOrderList,postpayConfirm } from './../api/mine'
+import { getOrderList, postpayConfirm, postWxpay } from './../api/mine'
 import {getCourseDetail} from './../api/course.js'
 import {getBookDetail} from './../api/book.js'
-import {Checkbox, Radio} from 'vue-checkbox-radio';
 export default {
   name: 'Order',
-  components: {
-    Checkbox,
-    Radio
-  },
+  components: {},
   data () {
     return {
+      payVisible: false,
       adressShow: false,
       checkboxValue: '',
       radioValue: 1,
@@ -127,21 +133,38 @@ export default {
     this.getDetail()
   },
   methods: {
-    submit () {
-      let params = {
-        product_id: this.orderDetail.id,
-        product_type: 1,
-        pay_type: this.radioValue
-      }
-      postpayConfirm().then(res => {
+    onSubmit () {
+      // 支付宝支付
+      if (this.radioValue === 1) {
+        let params = {
+          product_id: this.orderDetail.id,
+          product_type: 1,
+          pay_type: this.radioValue
+        }
+        postpayConfirm(params).then(res => {
 
-      })
+        })
+      }
+      // 微信支付
+      if (this.radioValue === 2) {
+        let params = {
+          product_id: this.orderDetail.id,
+          product_type: 1
+        }
+        postWxpay(params).then(res => {
+          if (res.data.code == 0) {
+            this.payVisible = true
+            this.payParam = res.data.data
+          }
+        })
+      }
     },
     getDetail () {
       this.$store.commit('handleLoad', false)
       switch (this.pageType) {
         case 'bookId':
-           this._getBookdetail()
+          this._getBookdetail()
+          break
         case 'courseId':
           this._getCoursedetail()
           break

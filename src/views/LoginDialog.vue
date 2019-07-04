@@ -88,9 +88,9 @@ export default {
       login(params).then(res => {
         if(res.data.code == 0) {
           let data = res.data.data
-          this.$cookies.set('user', data);
+          this.$cookies.set('user', data, '1d');
           this.$store.commit('setUser', data)
-          this.$parent.$refs.login.visibile = false
+          this.$store.commit('setLoginState', false)
           this.$toasted.show('登录成功', {
             type : 'success',
           })

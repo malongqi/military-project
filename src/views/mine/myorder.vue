@@ -71,7 +71,6 @@ export default {
   methods: {
     getData () {
       let params = {
-        user_id: this.user.uid,
         page_index: 1,
         page_size: 20
       }

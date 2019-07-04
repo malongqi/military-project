@@ -11,6 +11,10 @@ export const getNewsDetail = (params) => {
   return axios.post('News/detail', params)
 }
 
-export const getOrderList = (params) => {
-  return axios.post('Mine/order_list', params)
+export const getNewsPrev = (params) => {
+  return axios.post('News/last_news', params)
 }
+export const getNewsNext = (params) => {
+  return axios.post('News/next_news', params)
+}
+

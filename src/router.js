@@ -54,7 +54,7 @@ export default new Router({
         {
           path: '/order',
           name: '订单',
-          meta: {name: 'order', needUser: false},
+          meta: {name: 'order', needUser: true},
           component: () => import(/* webpackChunkName: "index" */ './views/Order.vue')
         },
         {

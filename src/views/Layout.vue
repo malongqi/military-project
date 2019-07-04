@@ -114,10 +114,14 @@ export default {
       })
     },
     handleUser (val) {
-      this.$refs[val].visibile = true
+      if (val === 'login') {
+        this.$store.commit('setLoginState', true)
+      } else {
+        this.$refs[val].visibile = true
+      }
     },
     quite () {
-       this.$store.commit('setUser', '' )
+      this.$store.commit('setUser', '' )
       this.$cookies.remove("user");
     }
   }

@@ -16,7 +16,10 @@
             <div class="list-tit">{{item.name}}</div>
             <div class="list-sub">{{item.mobile}}</div>
             <div class="list-adress">{{item.addr_detail}}</div>
-            <div class="list-edit" @click="modifyAddress">修改</div>
+            <div class="list-edit">
+              <span @click="modifyAddress(item)" class="btn">修改</span>
+              <span @click="deletAddress(item)" class="btn">删除</span>
+            </div>
           </li>
         </ul>
       </div>
@@ -69,7 +72,7 @@
 </template>
 
 <script>
-import {getMyAddress,getProvinceList,getCityList,getCountyList,addMyAddress,editMyAddress} from './../../api/mine'
+import {getMyAddress,getProvinceList,getCityList,getCountyList,addMyAddress,editMyAddress,deletMyAddress} from './../../api/mine'
 export default {
   components: {},
   data () {
@@ -77,6 +80,7 @@ export default {
       editState: false,
       tableData: [],
       form: {
+        addr_id: '',
         province: '',
         city: '',
         county: '',
@@ -86,6 +90,7 @@ export default {
         isdefalut: false,
       },
       provinceList: [],
+      modify: 0,
       cityList: [],
       countyList: [],
       pagination: {
@@ -102,7 +107,6 @@ export default {
   methods: {
     getData () {
       let params = {
-        user_id: this.user.uid,
         page_index: 1,
         page_size: 20
       }
@@ -118,8 +122,8 @@ export default {
       this.$refs[formName].resetFields();
     },    
     onSubmit () {
+      
       let params = {
-        user_id: this.user.uid,
         provinceId: this.form.province,
         cityId: this.form.city,
         countyId: this.form.county,
@@ -128,18 +132,38 @@ export default {
         mobile: this.form.mobile,
         isdefalut: this.form.isdefalut
       }
-      addMyAddress(params).then(res => {
-        if (res.data.code == 0) {
-          this.editState = false
-          this.$toasted.show('添加成功', {
-            type : 'success',
-          })
-        } else {
-          this.$toasted.show(res.data.msg, {
-            type : 'error',
-          })
-        }
-      })
+      if (this.modify === 0) {
+        addMyAddress(params).then(res => {
+          if (res.data.code == 0) {
+            this.editState = false
+            this.modify = 0
+            this.getData()
+            this.$toasted.show('添加成功', {
+              type : 'success',
+            })
+          } else {
+            this.$toasted.show(res.data.msg, {
+              type : 'error',
+            })
+          }
+        })
+      } else {
+        params.addr_id = this.form.addr_id
+        addMyAddress(params).then(res => {
+          if (res.data.code == 0) {
+            this.editState = false
+            this.modify = 0
+            this.getData()
+            this.$toasted.show('修改成功', {
+              type : 'success',
+            })
+          } else {
+            this.$toasted.show(res.data.msg, {
+              type : 'error',
+            })
+          }
+        })
+      }
     },
     handleEditAddress () {
       this.editState = true
@@ -179,16 +203,45 @@ export default {
       })
     },
     modifyAddress (row) {
+      this.modify = 1
       this.editState = true
       this.form =  {
-        province: '',
-        city: '',
-        county: '',
-        name: '',
-        desc: '',
-        mobile: '',
-        isdefalut: false
+        addr_id: row.addr_id,
+        province: row.provinceid,
+        city: row.cityid,
+        county: row.countyid,
+        name: row.name,
+        desc: row.addr_detail,
+        mobile: row.mobile,
+        isdefalut: row.status == 1
       }
+      this.form.province && this._getCityList(this.form.province)
+      this.form.city && this._getCountyList(this.form.city)
+    },
+    deletAddress (row) {
+      this.$confirm('此操作将永久删除该地址, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          let params = {
+            addr_id: row.addr_id
+          }
+          deletMyAddress(params).then(res => {
+            if (res.data.code == 0) {
+              this.getData()
+              this.$message({
+                type: 'success',
+                message: '删除成功!'
+              })
+            } else {
+              this.$message({
+                type: 'error',
+                message: res.data.msg
+              })
+            }
+          })
+        })
     }
   }
 }
@@ -254,9 +307,15 @@ export default {
         width: 20%;
       }
       .list-edit {
-        width: 10%;
+        width: 15%;
         text-align: center;
         color: #e62626;
+        .btn {
+          display: inline-block;
+          padding: 0 4px;
+          margin: 0 5px;
+          cursor: pointer;
+        }
       }
       .list-adress {
         width: 40%;
