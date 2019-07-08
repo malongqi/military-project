@@ -41,12 +41,12 @@
         </ul>
         <ul class="footer-list">
           <li class="title">联系我们</li>
-          <li>公司地址：北京市石景山古城金融城</li>
-          <li>联系电话：010-88710220</li>
+          <li>公司地址：{{company.address}}</li>
+          <li>联系电话：{{company.contact}}</li>
         </ul>
-        <ul class="footer-list last">
-          <li>微信公众号</li>
-          <li><img src="./../assets/images/code.png" alt=""></li>
+        <ul class="footer-list last" v-for="(item, index) in company.qrcodes" :key="'qrcode' + index">
+          <li>{{item.title}}</li>
+          <li><img :src="item.url" alt=""></li>
         </ul>
       </div>
     </div>
@@ -57,7 +57,7 @@
 <script>
 import LoginDialog from './LoginDialog'
 import RegisterDialog from './RegisterDialog'
-import { getCompany } from './../api/mine'
+import { getDetail } from './../api/mine'
 export default {
   name: 'Layout',
   components: {
@@ -106,7 +106,7 @@ export default {
   },
   methods: {
     _getCompany() {
-      getCompany().then(res => {
+      getDetail().then(res => {
         if (res.data.code ==0) {
           let data = res.data.data
           this.company = data
@@ -189,10 +189,16 @@ export default {
     margin-right: 180px;
     color:#b0b0b0;
     font-size: 14px;
+    max-width: 300px;
     &.last {
       float: right;
       margin-right: 0;
+      margin-left: 18px;
       text-align: right;
+      img {
+        width: 112px;
+        height: 112px;
+      }
     }
     a {
       color:#b0b0b0;

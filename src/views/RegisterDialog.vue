@@ -62,7 +62,7 @@
   
 import dialogBar from './../components/DialogBar'
 import FormItem from './../components/FormItem'
-import { register, getCode } from './../api/login'
+import { register, getCode, login } from './../api/login'
 export default {
   name: 'RegisterDialog',
   components: {
@@ -127,24 +127,32 @@ export default {
       if (!this.$vuerify.check()) {
         return
       }
-      let formData = new FormData()
-      formData.append('nickname', this.form.nickname)
-      formData.append('mobile', this.form.mobile)
-      formData.append('password', this.form.password)
-      formData.append('verify_code', this.form.verify_code)
-      let config = {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+      let params = {
+        nickname: this.form.nickname,
+        mobile: this.form.mobile,
+        password: this.form.password,
+        verify_code: this.form.verify_code
       }
-      register(formData, config).then(res => {
+      register(params).then(res => {
         if(res.data.code == 0) {
-          this.$toasted.show('注册成功', {
-            type : 'success',
-          })
-        } else {
-          this.$toasted.show(res.data.msg, {
-            type : 'error',
+         this.goLogin()
+        }
+      })
+    },
+    goLogin () {
+      let params = {
+        mobile: this.form.mobile,
+        password: this.form.password
+      }
+      login(params).then(res => {
+        if(res.data.code == 0) {
+          let data = res.data.data
+          this.$cookies.set('user', data, '1d');
+          this.$store.commit('setUser', data)
+          this.visibile = false
+          this.$message({
+            type: 'success',
+            message: '注册成功,已自动登录'
           })
         }
       })
@@ -153,15 +161,19 @@ export default {
      this.visibile = false
     },
     getVerifyCode () {
-      let formData = new FormData()
-      formData.append('mobile', this.form.mobile)
-      let config = {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+      if (!this.$vuerify.check(['form.mobile'])) {
+        return
       }
-      getCode(formData, config).then(res => {
-
+      let params = {
+        mobile: this.form.mobile
+      }
+      getCode(params).then(res => {
+        if (res.data.code == 0) {
+          this.$message({
+            type: 'success',
+            message: '已发送'
+          })
+        }
       })
     }
   }
@@ -192,7 +204,10 @@ export default {
   font-size: 20px;
   line-height: 58px;
 }
-.register-dialog {
+.register-dialog{
+  &.dialog {
+    z-index: 999;
+  }
   /deep/ .content {
     height: 440px;
     padding: 40px 0 30px;

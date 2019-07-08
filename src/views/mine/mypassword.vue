@@ -67,12 +67,9 @@ export default {
           }
           modifyPwd(params).then(res => {
             if (res.data.code == 0){
-              this.$toasted.show('修改成功', {
-                type : 'success',
-              })
-            } else {
-              this.$toasted.show(res.data.msg, {
-                type : 'error',
+              this.$message({
+                type: 'success',
+                message: '修改成功'
               })
             }
           })

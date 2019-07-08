@@ -1,9 +1,14 @@
 <template>
   <div class="news">
     <div class="container">
-      <div class="catalog">
-        <span v-for="(item,index) in category" :class="{'active': item.checked}" :key="'cat' + index" @click="getFilter('category',item)">{{item.name}}</span>
+      <div class="catalog" v-if="sortTypes.category">
+        <label for="">分类：</label>
+        <span v-for="(item,index) in sortTypes.category" :class="{'active': item.checked}" :key="'cat' + index" @click="getFilter('category',item)">{{item.name}}</span>
       </div>
+      <ul class="list-course-title" v-if="sortTypes.sort">
+        <!-- <li class="active">综合排序</li> -->
+        <li v-for="(item,index) in sortTypes.sort" :class="{'active': item.checked}" :key="'sort' + index" @click="getFilter('sort',item)">{{item.name}}</li>
+      </ul>
       <div class="list-news-wrapper">
         <ul class="list-news">
           <li class="list-news-item" v-for="(item,index) in newsList" :key="'new' + index">
@@ -16,7 +21,15 @@
             </router-link>
           </li>
         </ul>
-        <am-pagination :total="100" align="center" v-model="filterParam.pageIndex" @change="changePages"></am-pagination>
+        <div class="pagination-box">
+          <el-pagination
+            prev-text="上一页"
+            next-text="下一页"
+            layout="prev, pager, next"
+            :total="pageTotal"
+            @current-change="handleChange">
+          </el-pagination>
+        </div>
       </div>
     </div>
   </div>
@@ -29,9 +42,11 @@ export default {
   components: {},
   data () {
     return {
-      category: [],
+      sortTypes: [],
       newsList: [],
+      pageTotal: 100,
       filterParam: {
+        catId: '',
         pageIndex: 1,
         pageSize: 15
       }
@@ -39,11 +54,11 @@ export default {
   },
   computed: {},
   mounted () {
-    this.getSort()
+    this.getSorts()
     this.getList()
   },
   methods: {
-    getSort () {
+    getSorts () {
       getSortType().then(res => {
         if (res.data.code == 0) {
           let data = res.data.data
@@ -52,7 +67,7 @@ export default {
               index === 0 ? item.checked = true :  item.checked = false
             })
           }
-          this.category = data.category
+          this.sortTypes = data
         }
       })
     },
@@ -66,14 +81,15 @@ export default {
       getNewsList(params).then(res => {
         if (res.data.code == 0) {
           let data = res.data.data
+          this.pageTotal = data.total_num
           this.newsList = data.items
           this.$store.commit('handleLoad', false)
         }
       })
     },
-    changePages (val) {
+    handleChange (val) {
       this.filterParam.pageIndex = val
-      this.getList()
+      this.getbookList()
     }
   }
 }
@@ -98,6 +114,9 @@ export default {
       margin: 0;
       font-size: 24px;
       color: #333;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .list-news-text {
       font-size:16px;

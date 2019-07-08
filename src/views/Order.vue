@@ -4,17 +4,89 @@
       <div class="order-wrapper">
         <div class="order-head">请填写核对订单信息</div>
         <div class="order-main">
-          <div class="order-section">
-            <span class="tit">收获管理</span>
-            
-            <div class="label">收获管理：</div>
-            <div>
-              <div class="adress" @click="handleAdress">(管理收获地址)</div>
-              <div>
-                
+          <div v-if="pageType =='bookId'">
+             <div class="adress-section">
+              <div class="label">默认地址：</div>
+              <div class="block">
+                <span>{{defaultAddr}} </span>
+                <span class="list-edit" @click="handleEditAddress">修改默认地址</span>
+              </div>
+            </div>
+            <div class="adress-section">
+              <div class="label">收获管理：</div>
+              <div class="block" v-if="editState">
+                <div v-if="addrList.length==0" class="red block" @click="handleEditAddress">(管理收获地址)</div>
+                <div style="width:100%">
+                  <div class="tit">
+                    <span>收货地址</span>
+                    <span class="list-edit" @click="handleEditAddress">添加地址</span>
+                  </div>
+                  <!-- <div>
+                      <ul class="address-list">
+                        <li
+                          class="list-item"
+                          v-for="(item, index) in addrList"
+                          :key="index"
+                          >
+                          <div class="list-tit">{{item.name}}</div>
+                          <div class="list-sub">{{item.mobile}}</div>
+                          <div class="list-adress">{{item.addr_detail}}</div>
+                          <div class="list-edit">
+                            <span @click="modifyAddress(item)" class="btn">修改</span>
+                            <span @click="deletAddress(item)" class="btn">删除</span>
+                          </div>
+                        </li>
+                      </ul>
+                  </div> -->
+                  <el-form class="form-list" ref="form" :model="form" label-width="130px">
+                    <el-form-item label="地址" class="form-inner">
+                      <el-select v-model="form.province" placeholder="请选择省" @change="handleChangeProvince">
+                        <el-option
+                          v-for="(item,index) in provinceList"
+                          :key="'province' + index"
+                          :label="item.name"
+                          :value="item.provinceId">
+                        </el-option>
+                      </el-select>
+                      <el-select v-model="form.city" placeholder="请选择市" @change="handleChangeCity">
+                        <el-option
+                          v-for="(item,index) in cityList"
+                          :key="'city' + index"
+                          :label="item.name"
+                          :value="item.cityId">
+                        </el-option>
+                      </el-select>
+                      <el-select v-model="form.county" placeholder="请选择县">
+                        <el-option
+                          v-for="(item,index) in countyList"
+                          :key="'county' + index"
+                          :label="item.name"
+                          :value="item.countyId">
+                        </el-option>
+                      </el-select>
+                    </el-form-item>
+                    <el-form-item label="收件人姓名">
+                      <el-input v-model="form.name"></el-input>
+                    </el-form-item>
+                    <el-form-item label="详细地址">
+                      <el-input type="textarea" v-model="form.desc"></el-input>
+                    </el-form-item>
+                    <el-form-item label="电话">
+                      <el-input type="" v-model="form.mobile"></el-input>
+                    </el-form-item>
+                    <el-form-item label="是否设为常用地址">
+                      <el-switch v-model="form.isdefalut"></el-switch>
+                    </el-form-item>
+                    <el-form-item>
+                      <el-button type="primary" @click="addAddr">立即创建</el-button>
+                      <el-button @click="resetForm('form'); editState = false">取消</el-button>
+                    </el-form-item>
+                  </el-form>
+                </div>
               </div>
             </div>
           </div>
+         
           <div class="order-section">
             <span class="tit">商品信息</span>
           </div>
@@ -88,18 +160,22 @@
     </div>
     <el-dialog
       :visible.sync="payVisible"
-      width="30%"
-      :before-close="handleClose">
-      <div>
-        <div>{{payParam.order_id}}</div>
-        <img :src="payParam.code_url" alt="">
+      width="50%">
+      <div class="dialog-content">
+        <div>
+          <div>订单号：{{payParam.order_id}}</div>
+          <img :src="payParam.code_url" alt="">
+        </div>
+        <div>
+          <img src="./../assets/images/weixin-qrcode.jpg" alt="">
+        </div>
       </div>
     </el-dialog>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
-import { getOrderList, postpayConfirm, postWxpay } from './../api/mine'
+import { getOrderList, postWxpay, postAlipay, checkWxPay, getMyAddress, getProvinceList, getCityList, getCountyList, addMyAddress} from './../api/mine'
 import {getCourseDetail} from './../api/course.js'
 import {getBookDetail} from './../api/book.js'
 export default {
@@ -110,13 +186,32 @@ export default {
       payVisible: false,
       adressShow: false,
       checkboxValue: '',
-      radioValue: 1,
+      radioValue: '1',
       checkall: '',
       orderDetail: {
         price: 0
       },
+      addrList: [],
+      defaultAddr: '',
+      provinceList: [],
+      cityList: [],
+      countyList: [],
+      form: {
+        addr_id: '',
+        province: '',
+        city: '',
+        county: '',
+        name: '',
+        desc: '',
+        mobile: '',
+        isdefalut: false,
+      },
+      pageType: '',
+      editState: false,
       transfer: 12,
       number: 1,
+      payParam: '',
+      timer: null
     }
   },
   computed: {
@@ -131,33 +226,59 @@ export default {
       this.id = this.$route.query[key]
     }
     this.getDetail()
+    this._getProvinceList()
+    this.getAdress()
+  },
+  destroyed(){
+    clearInterval(this.timer)
+    this.timer = null;
+    console.log("beforeDestroy");
   },
   methods: {
+    // 提交订单 走支付接口
     onSubmit () {
       // 支付宝支付
-      if (this.radioValue === 1) {
+      if (this.radioValue === '1') {
         let params = {
           product_id: this.orderDetail.id,
-          product_type: 1,
-          pay_type: this.radioValue
+          product_type: this.pageType == 'courseId' ? 1 : 2, // product_type 1: 课程 2:教材
         }
-        postpayConfirm(params).then(res => {
-
+        postAlipay(params).then(res => {
+          if (res.data.code == 0) {
+            let data = res.data.data
+             window.location.href = data.confirm_url + '?order_id=' + data.order_id + '&token=' + this.$store.state.user.token
+          }
         })
       }
       // 微信支付
-      if (this.radioValue === 2) {
+      if (this.radioValue === '2') {
         let params = {
           product_id: this.orderDetail.id,
-          product_type: 1
+          product_type: this.pageType =='courseId' ? 1 : 2, // product_type 1: 课程 2:教材
         }
         postWxpay(params).then(res => {
           if (res.data.code == 0) {
             this.payVisible = true
             this.payParam = res.data.data
+            this.timer = setInterval(() => {
+              this.checkPay()
+            },2000)
           }
         })
       }
+    },
+    checkPay () {
+      let params = {
+        order_id: this.payParam.order_id
+      }
+      checkWxPay(params).then(res => {
+        if (res.data.code == 0) {
+          this.payVisible = false
+          clearInterval(this.timer)
+          this.timer = null;
+          this.$router.push({path:'/mycourse'})
+        }
+      })
     },
     getDetail () {
       this.$store.commit('handleLoad', false)
@@ -194,9 +315,64 @@ export default {
         }
       })
     },
-    handleAdress () {
+    getAdress () {
+      let params = {
+        page_index: 1,
+        page_size: 20
+      }
+      getMyAddress(params).then(res => {
+        if (res.data.code == 0) {
+          let data = res.data.data
+          this.addrList = data.items
+          this.defaultAddr = this.addrList[0].addr_detail
+          
+          // this.addrList.map((item => {
+          //   debugger
+          //   if (item.isdefalut == 1) {
+          //     return item
+          //   }
+          // })
+          this.$store.commit('handleLoad', false)
+        }
+      })
+    },
+    addAddr () {},
+    handleEditAddress () {
 
-    }
+    },
+    handleChangeProvince (val) {
+      this._getCityList(val)
+    },
+    handleChangeCity (val) {
+      this._getCountyList(val)
+    },
+    _getProvinceList (val) {
+      getProvinceList(val).then(res => {
+        if (res.data.code == 0) {
+          this.provinceList = res.data.data.items
+        }
+      })
+    },
+    _getCityList (val) {
+      let params = {
+        provinceId: val
+      }
+      getCityList(params).then(res => {
+        if (res.data.code == 0) {
+          this.cityList = res.data.data.items
+        }
+      })
+    },
+    _getCountyList (val) {
+      let params = {
+        cityId: val
+      }
+      getCountyList(params).then(res => {
+        if (res.data.code == 0) {
+          this.countyList = res.data.data.items
+        }
+      })
+    },
   }
 }
 </script>
@@ -217,6 +393,28 @@ export default {
     border-bottom: 1px solid #a6a6a6;
   }
 }
+.radio-group {
+  display: flex;
+  .el-radio {
+    display: flex;
+    align-items: center;
+  }
+}
+.dialog-content {
+  display: flex;
+  justify-content: space-between;
+  .code {
+    margin-top: 40px;
+    width: 300px;
+    img{
+      width: 100%;
+    }
+  }
+}
+.red {
+  padding-left: 20px;
+  color: #e26262;
+}
 .order-section {
   padding-top: 20px;
   display: flex;
@@ -224,10 +422,6 @@ export default {
   line-height: 60px;
   &.align-end {
     justify-content: space-between;
-  }
-  .adress {
-    padding-left: 20px;
-    color: #e26262;
   }
   .textarea {
     flex: .6;
@@ -245,6 +439,34 @@ export default {
       color: #e26262;
       font-size: 30px;
     }
+  }
+}
+.adress-section {
+  display: flex;
+  .tit {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #a6a6a6;
+    margin-bottom: 30px;
+  }
+  .block  {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    .list-edit {
+      background: #2b93c6;
+      color: #fff;
+      padding:4px 16px;
+      height: 30px;
+      line-height: 30px;
+      text-align: center;
+      cursor: pointer;
+    }
+  }
+  .block,.label,.tit {
+    line-height: 60px;
   }
 }
 .order-list {
@@ -295,6 +517,36 @@ export default {
     -webkit-box-orient:vertical;
   }
 }
+.address-list {
+  .list-item {
+    display: flex;
+    color: #2c2222;
+    line-height: 40px;
+    justify-content: space-between;
+    >div {
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+    .list-tit, .list-sub {
+      width: 20%;
+    }
+    .list-edit {
+      width: 15%;
+      text-align: center;
+      color: #e62626;
+      .btn {
+        display: inline-block;
+        padding: 0 4px;
+        margin: 0 5px;
+        cursor: pointer;
+      }
+    }
+    .list-adress {
+      width: 40%;
+    }
+  }
+}
 .order-form {
   .order-tips {
     font-size: 16px;
@@ -315,16 +567,15 @@ export default {
     text-align: center;
   }
 }
-.radio-group {
-  padding: 20px 0;
-  display: flex;
-  /deep/ label {
-    display: flex;
-    align-items: center;
+.form-list {
+  .el-form-item {
+    width: 600px;
   }
-}
-.checkbox-component
-/deep/ .input-box {
-  line-height: 18px;
+  .form-inner {
+    width: auto;
+    .el-select {
+      margin-right: 30px;
+    }
+  }
 }
 </style>

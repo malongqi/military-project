@@ -25,16 +25,16 @@
             {{section.title}}
           </h2>
           <nav class="titlebar-nav">
-              <router-link :to="{path: (section.view_type == '2') && 'course' || (section.view_type == '3' && 'book')}" class="">更多 <i class="am-icon-angle-right"></i></router-link>
+            <router-link :to="{path: section.data_type}" class="">更多 <i class="am-icon-angle-right"></i></router-link>
           </nav>
         </div>
         <!-- 课程列表 -->
         <div class="list-wrapper" v-if="section.view_type == '2'" >
           <ul class="lists clearfix" :class="{'has-cover': section.cover_data}">
             <li  class="list cover-item" v-if="section.cover_data">
-              <a :href="section.cover_data.target_url">
+              <router-link :to="{path: '/detail?' + section.data_type + 'Id=' + section.cover_data.id}">
                 <img :src="section.cover_data.img_url" alt="">
-              </a>
+              </router-link>
             </li>
             <li class="list" v-for="(listItem,index) in section.data" :key="'listItem' + index">
               <router-link :to="{path:'detail',query:{courseId: listItem.id}}">
@@ -45,7 +45,7 @@
                   <h5 class="tit">{{listItem.title}}</h5>
                   <div class="clearfix">
                     <div class="infor-left">
-                      <p class="label">{{listItem.sub_title}}</p>
+                      <p class="label">{{listItem.class_num}}课时</p>
                     </div>
                     <div class="infor-right">
                       <div class="list-btn">{{listItem.course_type}}</div>
@@ -89,7 +89,7 @@
                   {{twoItem.title}}
                 </h2>
                 <nav class="titlebar-nav">
-                    <router-link to="/news" class="">更多 <i class="am-icon-angle-right"></i></router-link>
+                  <router-link :to="{path: 'news'}" class="">更多 <i class="am-icon-angle-right"></i></router-link>
                 </nav>
               </li>
               <li class="list-item clearfix" v-for="(listsubItem,index) in twoItem.items" :key="'listsubItem' + index">
@@ -123,6 +123,7 @@
 </template>
 
 <script>
+// data_type 区分类型： 1:课程 2:教材 3:资讯
 import { swiper, swiperSlide } from 'vue-awesome-swiper'
 import { getBanner, getHomeList, getHomeLinks } from './../api/home'
 export default {
@@ -180,6 +181,17 @@ export default {
         }
       })
     }
+    // getPath(val) {
+    //   debugger
+    //   switch (val) {
+    //     case 1:
+    //       return 'course'
+    //     case 2:
+    //       return 'book'
+    //     case 3:
+    //       return 'news'
+    //   }
+    // }
   }
 }
 </script>

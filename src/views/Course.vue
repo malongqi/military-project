@@ -141,10 +141,16 @@ export default {
   }
   .list-main {
     .list-item-hd {
+      display: flex;
       margin-bottom:30px;
       font-size: 24px;
       a {
+        max-width: 60%;
+        display: inline-block;
+        overflow: hidden;
+        text-overflow: ellipsis;
         color: #333333;
+        white-space: nowrap;
       }
     }
     .list-item-text {

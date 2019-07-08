@@ -1,12 +1,16 @@
 import axios from './config'
 
 // 支付接口
-export const postpayConfirm = (params) => {
-  return axios.post('Buy/confirm', params)
-}
 // 微信支付
 export const postWxpay = (params) => {
   return axios.post('WxPay/pay', params)
+}
+// 支付宝支付
+export const postAlipay = (params) => {
+  return axios.post('Alipay/pay', params)
+}
+export const checkWxPay = (params) => {
+  return axios.post('WxPay/check_order', params)
 }
 // 会员相关接口 如下
 export const getOrderList = (params) => {
@@ -15,8 +19,8 @@ export const getOrderList = (params) => {
 export const getCompany = (params) => {
   return axios.post('Company/info', params)
 }
-export const getAbout = (params) => {
-  return axios.post('Company/about', params)
+export const getDetail = (params) => {
+  return axios.post('Company/detail', params)
 }
 
 export const getMyCourse = (params) => {

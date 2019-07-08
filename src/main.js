@@ -19,29 +19,19 @@ Vue.use(ElementUI);
 Vue.use(ModalDialogs)  
 Vue.use(VueCookies) 
 Vue.use(Vuerify)
-// Vue.use(Menu)
-// Vue.use(Submenu)
-// Vue.use(MenuItem)
-// Vue.use(MenuItemGroup)
-// Vue.use(Table)
-// Vue.use(Select)
-// Vue.use(TableColumn)
 Vue.use(Toasted, {
   position:'top-center',
   duration: 1000
 })
-// const name = 'qq'
-// debugger
+
 Vue.config.productionTip = false
 // 路由跳转拦截//test
 store.commit('setUser', VueCookies.get('user'))
 router.beforeEach((to, from, next) => {
-  console.log(store.state.user)
   if (to.meta.needUser) {
     if (store.state.user) {
       next()
     } else {
-      console.log(22)
       next({path: from.path})
       store.commit('setLoginState', true)
     }

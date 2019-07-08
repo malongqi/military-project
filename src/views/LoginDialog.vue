@@ -89,14 +89,12 @@ export default {
         if(res.data.code == 0) {
           let data = res.data.data
           this.$cookies.set('user', data, '1d');
+          // this.$cookies.set('token', data.token, '1d');
           this.$store.commit('setUser', data)
           this.$store.commit('setLoginState', false)
-          this.$toasted.show('登录成功', {
-            type : 'success',
-          })
-        } else {
-          this.$toasted.show(res.data.msg, {
-            type : 'error',
+          this.$message({
+            type: 'success',
+            message: '登录成功'
           })
         }
       })
@@ -134,6 +132,9 @@ export default {
   line-height: 58px;
 }
 .login-dialog {
+  &.dialog {
+    z-index: 999;
+  }
   /deep/ .content {
     height: 320px;
     padding: 40px 0 30px;

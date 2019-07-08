@@ -100,7 +100,7 @@ export default {
     },
     handleChange (val) {
       this.filterParam.pageIndex = val
-      this.getCourseList()
+      this.getbookList()
     }
   }
 }

@@ -1,5 +1,6 @@
 import store from './../store.js'
 import axios from 'axios'
+import { Message } from 'element-ui';
 var md5 = require('md5')
 // import cookies from 'vue-cookies'
 const paramsEdit = (params) => {
@@ -12,10 +13,8 @@ const paramsEdit = (params) => {
   let msg =  paramList.substring(1) + '_1Ftjv0bfpVmqbE38'
   return md5(msg)
 }
-// let token = getCookie('user')
-// debugger
 const instance = axios.create({
-  baseURL: '/api',
+  baseURL: '/Api',
   headers: {
     'Content-Type': 'multipart/form-data'
   },
@@ -29,15 +28,29 @@ const instance = axios.create({
     }
 
     let formData = new FormData()
-    if (data) {
-      for (let key in Params) {
-        formData.append(key, Params[key])
-      }
+    for (let key in Params) {
+      formData.append(key, Params[key])
     }
     return formData
   }]
 })
-// instance.interceptors.request.use(config => {
-  
-// })
+instance.interceptors.response.use(res => {
+  // 对响应数据做些什么
+  //  1000 需要登录
+  // 1001 token失效
+  res.config.url = res.config.url + '?t=' + new Date().getTime()
+  if (res.data.code == 1001) {
+    store.commit('setLoginState', true)
+    Message({
+      message: '登录信息已失效请登录',
+      type: 'error'
+    })
+  } else if (res.data.code != 0 && res.data.code != -1){
+    Message({
+      message: res.data.msg,
+      type: 'error'
+    })
+  }
+  return res
+})
 export default instance

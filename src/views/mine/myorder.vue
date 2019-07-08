@@ -33,6 +33,10 @@
           prop="pay_status"
           width="80"
           label="订单状态">
+           <template slot-scope="scope">
+              <span class="blue" v-if="scope.row.pay_status == 1">已支付</span>
+              <span class="red" v-if="scope.row.pay_status == 0">未支付</span>
+           </template>
         </el-table-column>
         <el-table-column
           prop="address"
@@ -42,7 +46,7 @@
           <template slot-scope="scope">
             <router-link class="btn-text" :to="{path: 'detail', query:{courseId: scope.row.id}}">查看</router-link>
             <router-link class="btn-text" :to="{path: 'detail', query:{courseId: scope.row.id}}">删除</router-link>
-            <router-link class="btn-text" :to="{path: 'detail', query:{courseId: scope.row.id}}">去付款</router-link>
+            <router-link v-if="scope.row.pay_status == 0" class="btn-text red" :to="{path: 'detail', query:{courseId: scope.row.id}}">去付款</router-link>
           </template>
         </el-table-column>
       </el-table>
@@ -75,6 +79,7 @@ export default {
         page_size: 20
       }
       getOrderList(params).then(res => {
+        // pay_status 0:未支付 1:已支付
         if (res.data.code == 0) {
           let data = res.data.data
           this.tableData = data.items
@@ -96,6 +101,9 @@ export default {
   }
   a {
     color: #333;
+    &.red {
+      color: #e26262;
+    }
   }
   .btn-text {
     padding: 0 5px;
@@ -109,5 +117,11 @@ export default {
       white-space: nowrap;
     }
   }
+}
+.red {
+  color: #e26262;
+}
+.blue {
+  color: #2b93c6;
 }
 </style>

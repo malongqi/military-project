@@ -15,8 +15,7 @@
             {{navItem.name}}
           </li>
         </ul>
-        <div class="tabbar-content">
-          {{content}}
+        <div class="tabbar-content" v-html="content">
         </div>
       </div>
     </div>
@@ -24,7 +23,7 @@
 </template>
 
 <script>
-import { getAbout } from './../api/mine'
+import { getCompany } from './../api/mine'
 export default {
   components: {},
   data () {
@@ -47,7 +46,7 @@ export default {
       this.content = item.content
     },
     getAboutMe() {
-      getAbout().then(res => {
+      getCompany().then(res => {
         if (res.data.code == 0) {
           this.oursDetail = res.data.data
           let detail = this.oursDetail.category

@@ -42,7 +42,7 @@ export default new Router({
         {
           path: '/news',
           name: '资讯',
-          meta: {name: 'book', needUser: false},
+          meta: {name: 'home', needUser: false},
           component: () => import(/* webpackChunkName: "index" */ './views/News.vue')
         },
         {
@@ -56,6 +56,12 @@ export default new Router({
           name: '订单',
           meta: {name: 'order', needUser: true},
           component: () => import(/* webpackChunkName: "index" */ './views/Order.vue')
+        },
+        {
+          path: '/player',
+          name: '播放器',
+          meta: {name: 'player', needUser: false},
+          component: () => import(/* webpackChunkName: "index" */ './views/Player.vue')
         },
         {
           path: '/mine',

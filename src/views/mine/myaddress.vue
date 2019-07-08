@@ -15,7 +15,7 @@
             >
             <div class="list-tit">{{item.name}}</div>
             <div class="list-sub">{{item.mobile}}</div>
-            <div class="list-adress">{{item.addr_detail}}</div>
+            <div class="list-adress">{{item.addr_all}}{{item.addr_detail}}</div>
             <div class="list-edit">
               <span @click="modifyAddress(item)" class="btn">修改</span>
               <span @click="deletAddress(item)" class="btn">删除</span>
@@ -24,7 +24,7 @@
         </ul>
       </div>
       <el-form v-else class="form-list" ref="form" :model="form" label-width="130px">
-        <el-form-item label="活动名称" class="form-inner">
+        <el-form-item label="地址" class="form-inner">
           <el-select v-model="form.province" placeholder="请选择省" @change="handleChangeProvince">
             <el-option
               v-for="(item,index) in provinceList"
@@ -57,7 +57,7 @@
           <el-input type="textarea" v-model="form.desc"></el-input>
         </el-form-item>
         <el-form-item label="电话">
-          <el-input type="" v-model="form.mobile"></el-input>
+          <el-input type="" v-model="form.mobile" disabled></el-input>
         </el-form-item>
         <el-form-item label="是否设为常用地址">
           <el-switch v-model="form.isdefalut"></el-switch>
@@ -130,7 +130,7 @@ export default {
         name: this.form.name,
         detail_addr: this.form.desc,
         mobile: this.form.mobile,
-        isdefalut: this.form.isdefalut
+        isdefalut: this.form.isdefalut ? 1 : 0
       }
       if (this.modify === 0) {
         addMyAddress(params).then(res => {
@@ -138,12 +138,9 @@ export default {
             this.editState = false
             this.modify = 0
             this.getData()
-            this.$toasted.show('添加成功', {
-              type : 'success',
-            })
-          } else {
-            this.$toasted.show(res.data.msg, {
-              type : 'error',
+            this.$message({
+              type: 'success',
+              message: '添加成功'
             })
           }
         })
@@ -154,12 +151,9 @@ export default {
             this.editState = false
             this.modify = 0
             this.getData()
-            this.$toasted.show('修改成功', {
-              type : 'success',
-            })
-          } else {
-            this.$toasted.show(res.data.msg, {
-              type : 'error',
+            this.$message({
+              type: 'success',
+              message: '修改成功'
             })
           }
         })

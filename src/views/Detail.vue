@@ -10,7 +10,7 @@
           <img :src="courseDetail.img_url" />
         </div>
         <div class="list-main">
-          <h3 class="list-item-hd">
+          <h3 class="list-item-hd title">
             {{courseDetail.title}}
           </h3>
           <div class="list-item-hd border-bt">
@@ -65,7 +65,7 @@
                   {{item.title}}
                 </div>
                 <div class="label">
-                  <a href="" class="load-btn" v-if="currentTab === 'courses'">观看视频</a>
+                  <router-link :to="{path:'player'}" class="load-btn" v-if="currentTab === 'courses'">观看视频</router-link>
                   <a v-else class="load-btn" >点击下载</a>
                 </div>
               </li>
@@ -110,7 +110,7 @@
             <p>{{bookDetail.desc}}</p>
           </div>
           <div class="list-item-text clearfix">
-            <div class="list-btn">提交订单</div>
+            <router-link class="list-btn" :to="{path:'order',query:{bookId: id}}">提交订单</router-link>
           </div>
         </div>
       </li>
@@ -153,7 +153,6 @@ import { swiper, swiperSlide } from 'vue-awesome-swiper'
 import {getCourseDetail, getCourseRecommend} from './../api/course.js'
 import {getBookDetail} from './../api/book.js'
 import {getNewsDetail} from './../api/news.js'
-import { debuglog } from 'util';
 export default {
   name: 'Detail',
   components: {
@@ -184,7 +183,7 @@ export default {
           checked: false
         }
       ],
-      currentTab: '',
+      currentTab: 'courses',
       content: '',
       swiperSlides: [],
       swiperOptionTop: {
@@ -217,6 +216,7 @@ export default {
   // },
   watch: {
     '$route' () {
+      debugger
       window.scrollTo(0, 0);
       for (let key in this.$route.query) {
         this.pageType = key
@@ -226,6 +226,7 @@ export default {
     }
   },
   mounted () {
+    window.scrollTo(0, 0);
     for (let key in this.$route.query) {
       this.pageType = key
       this.id = this.$route.query[key]
@@ -348,11 +349,17 @@ export default {
     }
   }
   .list-main {
+    width: 52%;
     .list-item-hd {
       margin-bottom: 50px;
       font-size: 24px;
       color: #333333;
       padding-bottom: 10px;
+      &.title{
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow:ellipsis;
+      }
       .item-sub{
         display: inline-block;
         margin-right: 20px;
@@ -544,9 +551,10 @@ export default {
       }
     }
     .list-hd {
-      // white-space: nowrap;
-      // text-overflow: ellipsis;
-      // overflow: hidden;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      overflow: hidden;
       font-size: 16px;
       line-height: 30px;
       color: #666666;
@@ -591,6 +599,9 @@ export default {
       font-size: 33px;
       color: #333333;
       text-align: center;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
     .label {
       text-align: center;
