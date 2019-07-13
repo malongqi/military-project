@@ -7,8 +7,7 @@ export default new Vuex.Store({
   state: {
     loading: false,
     user: '',
-    showLogin: false,
-
+    showLogin: false
   },
   mutations: {
     handleLoad(state, val) {

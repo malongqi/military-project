@@ -66,7 +66,7 @@
                   {{item.title}}
                 </div>
                 <div class="label">
-                  <router-link :to="{path:'player', query: {id: id, class:item.class_id}}" class="load-btn" v-if="currentTab === 'courses'">观看视频</router-link>
+                  <span class="load-btn" v-if="currentTab === 'courses'" @click="goPlayer(item)">观看视频</span>
                   <a v-else class="load-btn" @click="downLoad(item)">点击下载</a>
                 </div>
               </li>
@@ -152,6 +152,7 @@
 import 'social-share.js/dist/js/social-share.min.js'
 import BreadCrumbs from './../components/BreadCrumbs'
 import { swiper, swiperSlide } from 'vue-awesome-swiper'
+import {setLocalStorage} from './../assets/js/storage.js'
 import {getCourseDetail, getCourseRecommend, getCourseDown} from './../api/course.js'
 import {getBookDetail} from './../api/book.js'
 import {getNewsDetail} from './../api/news.js'
@@ -315,6 +316,10 @@ export default {
       this.currentTab = item.type
       item.checked  = true
       this.content = this.courseDetail[item.type]
+    },
+    goPlayer (item) {
+      setLocalStorage('class', item.class_id)
+      this.$router.push({path:'player', query: {id: this.id}})
     },
     downLoad (item) {
       debugger

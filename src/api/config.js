@@ -40,11 +40,11 @@ instance.interceptors.response.use(res => {
   // 1001 token失效
   res.config.url = res.config.url + '?t=' + new Date().getTime()
   if (res.data.code == 1001) {
-    store.commit('setLoginState', true)
     Message({
       message: '登录信息已失效请登录',
       type: 'error'
     })
+    store.commit('setLoginState', true)
   } else if (res.data.code != 0 && res.data.msg !== '订单未支付成功'){
     Message({
       message: res.data.msg,

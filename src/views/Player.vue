@@ -3,11 +3,22 @@
     <div class="title">{{title}}</div>
     <div class="wrapper">
       <div class="video-box">
-        <dhf-player
-          v-if="showPlayer"
-          ref="player"
-          :videoOptions = "videoOptions">
-        </dhf-player>
+        <video-player  class="vjs-custom-skin"
+          ref="videoPlayer"
+          :options="playerOptions"
+          :playsinline="true"
+          @play="onPlayerPlay($event)"
+          @pause="onPlayerPause($event)"
+          @ended="onPlayerEnded($event)"
+          @loadeddata="onPlayerLoadeddata($event)"
+          @waiting="onPlayerWaiting($event)"
+          @playing="onPlayerPlaying($event)"
+          @timeupdate="onPlayerTimeupdate($event)"
+          @canplay="onPlayerCanplay($event)"
+          @canplaythrough="onPlayerCanplaythrough($event)"
+          @ready="playerReadied"
+          @statechanged="playerStateChanged($event)">
+        </video-player>
       </div>
       <div class="sidebar">
         <div class="sidebar-content">
@@ -49,63 +60,37 @@
         </ul>
       </div>
     </div>
-    
+    <login-dialog ref="login"></login-dialog>
+    <register-dialog ref="register"></register-dialog>
   </div>
 </template>
 <script src="./../assets/js/dhfPlayer.min.js"></script>
 <script>
-// debugger
-// import DhfPlayer from './../assets/js/dhfPlayer.min.js'
-// console.log(DhfPlayer)
-import {getCourseDetail,getPlay} from './../api/course.js'
-import '../../node_modules/video.js/dist/video-js.css'
-// import dhfPlayer from 'dhfplayer'
+import LoginDialog from './LoginDialog'
+import RegisterDialog from './RegisterDialog'
+import {getLocalStorage, setLocalStorage} from './../assets/js/storage.js'
+import 'video.js/dist/video-js.css'
+import 'vue-video-player/src/custom-theme.css'
+import { videoPlayer } from 'vue-video-player'
+import videojs from 'video.js'
+import 'videojs-contrib-hls.js/src/videojs.hlsjs'
+import {getCourseDetail,getPlay,getComments} from './../api/course.js'
 export default {
-  // components: {dhfPlayer},
+  components: {
+    videoPlayer,
+    LoginDialog,
+    RegisterDialog
+    },
   data () {
     return {
-      videoOptions: {
-        // 宽度
-        width: 400,
-        // 高度
-        height: 400,
-        // 视频播放后是否循环播放
-        loop: false,
-        // 是否静音
-        muted: true,
-        // 是否自动播放
-        autoplay: false,
-        // 当true时，Video.js player将拥有流体大小。换句话说，它将按比例缩放以适应其容器。设置为true，宽度和高度以父盒子为准
-        fluid: true,
-        // 视频m3u8地址
-        source: '',
-        // 传入的网校ID
-        // agencyId: '1',
-        // // //视频id
-        // videoId: '79313',
-        // // //后台分配的app_id
-        // app_id: 'LB6nIZoJj8DjFYwGtkkOoQ',
-        // 视频播放事件
-        onplay: function () {
-          console.log('onplaybegin event')
-        },
-        // 视频报错事件
-        onerror: function () {
-          console.log('onplayerror event')
-        },
-        // 视频结束事件
-        onended: function () {
-          console.log('onplayend event')
-        },
-        // 视频暂停事件
-        onpause: function () {
-          console.log('onplaypause event')
-        }
-      },
+      id: '',
+      class: '',
+      videoOptions: {},
       showPlayer: false,
       title: '星军课程',
       courses: [],
       books: [],
+      messageList: [],
       list: [],
       menu: [
         {
@@ -123,17 +108,35 @@ export default {
       ],
       textarea: '', //留言内容
       activeMenu: 1,
+      playerOptions: {
+        muted: true,
+        autoplay: true,
+        preload: 'auto',
+        language: 'en',
+        sources: [{
+          type: "video/mp4",
+          // mp4
+          src: "https://video-dev.github.io/streams/x36xhzz/x36xhzz.m3u8",
+          // webm
+          // src: "https://cdn.theguardian.tv/webM/2015/07/20/150716YesMen_synd_768k_vp8.webm"
+        }],
+        // poster: "https://surmon-china.github.io/vue-quill-editor/static/images/surmon-1.jpg",
+      }
     }
   },
-  computed: {},
   mounted() {
     // debugger
     this.id = this.$route.query.id
-    this.class = this.$route.query.class
     this._getCoursedetail()
     this.getPlaying()
   },
+  computed: {
+    player() {
+      return this.$refs.videoPlayer.player
+    }
+  },
   methods: {
+    // 课程详情数据
     _getCoursedetail () {
       let params = {
         course_id: this.id 
@@ -141,23 +144,52 @@ export default {
       getCourseDetail(params).then(res => {
         if (res.data.code == 0) {
           let data = res.data.data
+          data.courses.map(item => {
+            if (item.class_id == getLocalStorage('class')) {
+              item.isPlay = true
+            } else {
+              item.isPlay = false
+            }
+          })
           this.list = this.courses = data.courses
           this.books = data.downs
           this.$store.commit('handleLoad', false)
         }
       })
     },
+    // 获取播放数据
     getPlaying () {
       let params = {
         course_id: this.id,
-        class_id: this.class
+        class_id: getLocalStorage('class')
       }
       getPlay(params).then(res => {
         if (res.data.code == 0) {
-          debugger
           let data = res.data.data
-          this.videoOptions.source =  data.play_url // 'https://video-dev.github.io/streams/x36xhzz/x36xhzz.m3u8 '// data.play_url
+          this.$set(this.playerOptions.sources, 0, {
+            type: "video/mp4",
+            src: data.play_url
+          });
           this.showPlayer = true
+          // this.play(this.options)
+          this.$store.commit('handleLoad', false)
+        }
+      })
+    },
+    // 获取评论数据
+    // 获取评论数据
+    getCommentsList () {
+      let params = {
+        course_id: this.id,
+        class_id: this.class,
+        page_index: 0,
+        page_size: 15
+      }
+      getComments(params).then(res => {
+        if (res.data.code == 0) {
+          let data = res.data.data
+          this.messageList = data.items
+          // this.play(this.options)
           this.$store.commit('handleLoad', false)
         }
       })
@@ -171,9 +203,147 @@ export default {
         this.list = this.books
       }
       if (id == 3) {
-        this.list = []
+        this.getCommentsList()
       }
-    }
+    },
+     // listen event
+      onPlayerPlay(player) {
+        // console.log('player play!', player)
+      },
+      onPlayerPause(player) {
+        // console.log('player pause!', player)
+      },
+      onPlayerEnded(player) {
+        debugger
+        for (let i = 0; i < this.courses.length; i++) {
+          let item = this.courses[i]
+          item.isPlay = false
+          if (item.class_id = this.class) {
+            if (i == this.courses.length -1) {
+              setLocalStorage('class', this.courses[0].class_id)
+              this.$set(this.list[0], 'isPlay', true)
+            } else {
+              setLocalStorage('class', this.courses[i + 1].class_id)
+              this.$set(this.list[i + 1], 'isPlay', true)
+            }
+          }
+        }
+        this.getPlaying()
+        debugger
+        // this.playerOptions.sources[0].src = 'https://cdn.theguardian.tv/webM/2015/07/20/150716YesMen_synd_768k_vp8.webm';
+        // console.log('player ended!', player)
+      },
+      onPlayerLoadeddata(player) {
+        // console.log('player Loadeddata!', player)
+      },
+      onPlayerWaiting(player) {
+        // console.log('player Waiting!', player)
+      },
+      onPlayerPlaying(player) {
+        // console.log('player Playing!', player)
+      },
+      onPlayerTimeupdate(player) {
+        // console.log('player Timeupdate!', player.currentTime())
+      },
+      onPlayerCanplay(player) {
+        // console.log('player Canplay!', player)
+      },
+      onPlayerCanplaythrough(player) {
+        // console.log('player Canplaythrough!', player)
+      },
+      // or listen state event
+      playerStateChanged(playerCurrentState) {
+        // console.log('player current update state', playerCurrentState)
+      },
+      // player is ready
+      playerReadied(player) {
+       this.player.play()
+      },
+     play(options){
+       debugger
+      var me = this,url;
+      if(options.source){
+        this.player.ready(function() {
+          this.src({
+            src: options.source,
+            type: 'application/x-mpegURL',
+          });
+        });
+        this.player.play();
+        return;
+      }
+      if(options.videoId&&options.app_id&&options.agencyId){
+        axios.get('http://testweb.360drm.com/index.php?app=api&mod=Player&act=GetPlay&app_id=' + encodeURIComponent(this.videoOptions.app_id) + '&agencyId=' + this.videoOptions.agencyId +
+          '&fid=' + this.videoOptions.videoId).then((res) => {
+          if (res.data.code === 0) {
+            console.log(this.decode(res.data.data))
+            //url = 'https://video-dev.github.io/streams/x36xhzz/x36xhzz.m3u8';
+            url = this.decode(res.data.data)
+          } else {
+            alert(res.data.msg)
+          }
+        }).then(function () {
+          me.player.ready(function() {
+            this.src({
+              src: url,
+              type: 'application/x-mpegURL',
+            });
+          });
+          me.player.play();
+        })
+      }
+    },
+    decode (input) {
+      var _keyStr = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/='
+      var output = ''
+      var chr1, chr2, chr3
+      var enc1, enc2, enc3, enc4
+      var i = 0
+      var re = /[^A-Za-z0-9\+\/\=]/g;
+      input = input.replace(re, '')
+      while (i < input.length) {
+        enc1 = _keyStr.indexOf(input.charAt(i++))
+        enc2 = _keyStr.indexOf(input.charAt(i++))
+        enc3 = _keyStr.indexOf(input.charAt(i++))
+        enc4 = _keyStr.indexOf(input.charAt(i++))
+        chr1 = (enc1 << 2) | (enc2 >> 4)
+        chr2 = ((enc2 & 15) << 4) | (enc3 >> 2)
+        chr3 = ((enc3 & 3) << 6) | enc4
+        output = output + String.fromCharCode(chr1)
+        if (enc3 !== 64) {
+          output = output + String.fromCharCode(chr2)
+        }
+        if (enc4 !== 64) {
+          output = output + String.fromCharCode(chr3)
+        }
+      }
+      output = this._utf8_decode(output)
+      return output
+    },
+    _utf8_decode(utftext) {
+      let string = ''
+      let i = 0
+      let c = 0
+      let c2 = 0
+      let c3 = 0
+      while (i < utftext.length) {
+        c = utftext.charCodeAt(i)
+        if (c < 128) {
+          string += String.fromCharCode(c)
+          i++
+        } else if ((c > 191) && (c < 224)) {
+          c2 = utftext.charCodeAt(i + 1)
+          string += String.fromCharCode(((c & 31) << 6) | (c2 & 63))
+          i += 2
+        } else {
+          c2 = utftext.charCodeAt(i + 1)
+          c3 = utftext.charCodeAt(i + 2)
+          string += String.fromCharCode(((c & 15) << 12) | ((c2 & 63) << 6) | (c3 & 63))
+          i += 3
+        }
+      }
+      return string
+    },
   }
 }
 </script>
@@ -185,6 +355,8 @@ export default {
 // }
 .player {
   position: absolute;
+  left: 0;
+  top: 0;
   width: 100%;
   height: 100%;
   background: #36373b;

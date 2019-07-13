@@ -18,4 +18,8 @@ export const getCourseDown = (params) => {
 export const getPlay = (params) => {
   return axios.post('Play/url', params)
 }
+// 评论
+export const getComments= (params) => {
+  return axios.post('Comment/lists', params)
+}
 
