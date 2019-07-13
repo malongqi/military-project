@@ -3,12 +3,7 @@
     class="register-dialog"
     v-model="visibile"
     :width="720"
-    type="danger"
-    title="注册"
-    v-on:cancel="clickCancel()"
-    @danger="clickDanger()"
-    @confirm="clickConfirm()"
-    dangerText="Delete">
+    title="注册">
     <div>
       <form-item
       class="log-form-item"
@@ -48,7 +43,8 @@
       icon-left="icon-lock"
       :error-tips="errors['verify_code']"
       placeholder="短信验证码">
-      <span class="yzm-btn" slot="iconRight" @click="getVerifyCode">获取验证码</span>
+      <span v-if="!showTime" class="yzm-btn" slot="iconRight" @click="getVerifyCode">获取验证码</span>
+      <span v-else class="time yzm-btn" slot="iconRight">{{cutdown}}S</span>
       </form-item>
     </div>
     <div slot="foot">
@@ -63,6 +59,7 @@
 import dialogBar from './../components/DialogBar'
 import FormItem from './../components/FormItem'
 import { register, getCode, login } from './../api/login'
+import { clearInterval } from 'timers';
 export default {
   name: 'RegisterDialog',
   components: {
@@ -74,6 +71,9 @@ export default {
       visibile: false,
       showLogin: false,
       modalVisible: false,
+      cutdown: 60,
+      showTime: false,
+      timmer: null,
       form: {
         nickname: '',
         mobile: '',
@@ -86,9 +86,9 @@ export default {
   vuerify: {
     'form.nickname': {
         test (val) {
-          return val !== ''
+          return val !== '' && val.length < 15
         },
-        message: '请输入用户名'
+        message: '请输入正确用户名'
     },
     'form.mobile': {
       test: /^1[3456789]\d{9}$/,
@@ -120,6 +120,15 @@ export default {
         errorsMsg[key.split('.')[1]] = this.$vuerify.$errors[key]
       }
       return errorsMsg
+    }
+  },
+  watch: {
+    'visibile' (val) {
+      if (!val) {
+        this.showTime = false
+        window.clearInterval(this.timmer)
+        this.timmer = null
+      }
     }
   },
   methods: {
@@ -169,6 +178,16 @@ export default {
       }
       getCode(params).then(res => {
         if (res.data.code == 0) {
+          this.showTime = true
+          this.timmer = setInterval(() => {
+            if (this.cutdown === 0) {
+              this.showTime = false
+              window.clearInterval(this.timmer)
+              this.timmer = null
+            } else {
+              this.cutdown--
+            }
+          },1000)
           this.$message({
             type: 'success',
             message: '已发送'

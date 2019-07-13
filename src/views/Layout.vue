@@ -19,7 +19,7 @@
               </router-link>
             </li>
           </ul>
-          <div class="navbar-right"  v-if="$store.state.user">
+          <div class="navbar-right"  v-if="$store.state.user.nickname">
             <router-link :to="{path: 'mine'}" class="item">【{{$store.state.user.nickname}}】</router-link>
             <span class="item" @click="quite">退出</span>
           </div>
@@ -33,11 +33,11 @@
     <router-view/>
     <div class="footer">
       <div class="container clearfix">
-        <ul class="footer-list">
+        <ul class="footer-list first">
           <li class="title">关于我们</li>
-          <li><router-link to="">星军联合（北京）教育科技有限公司</router-link></li>
-          <li><router-link to="">企业文化</router-link></li>
-          <li><router-link to="">公司简介</router-link></li>
+          <li><router-link to="/about">星军联合（北京）教育科技有限公司</router-link></li>
+          <li><router-link to="/about?tab=1">企业文化</router-link></li>
+          <li><router-link to="/about?tab=2">公司简介</router-link></li>
         </ul>
         <ul class="footer-list">
           <li class="title">联系我们</li>
@@ -186,10 +186,12 @@ export default {
   .footer-list {
     list-style: none;
     float: left;
-    margin-right: 180px;
     color:#b0b0b0;
     font-size: 14px;
     max-width: 300px;
+    &.first {
+      margin-right: 180px;
+    }
     &.last {
       float: right;
       margin-right: 0;

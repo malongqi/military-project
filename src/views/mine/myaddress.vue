@@ -10,6 +10,21 @@
         <ul class="address-list">
           <li
             class="list-item"
+            v-for="(item, index) in defaultAddr"
+            :key="index"
+            >
+            <div class="list-tit">{{item.name}}</div>
+            <div class="list-sub">{{item.mobile}}</div>
+            <div class="list-adress">{{item.addr_all}}{{item.addr_detail}}</div>
+            <div class="list-edit">
+              <span @click="modifyAddress(item)" class="btn">修改</span>
+              <span @click="deletAddress(item)" class="btn">删除</span>
+            </div>
+          </li>
+        </ul>
+        <ul class="address-list">
+          <li
+            class="list-item"
             v-for="(item, index) in tableData"
             :key="index"
             >
@@ -23,7 +38,7 @@
           </li>
         </ul>
       </div>
-      <el-form v-else class="form-list" ref="form" :model="form" label-width="130px">
+      <el-form v-else class="form-list" :rules="rules" ref="form" :model="form" label-width="130px">
         <el-form-item label="地址" class="form-inner">
           <el-select v-model="form.province" placeholder="请选择省" @change="handleChangeProvince">
             <el-option
@@ -56,14 +71,14 @@
         <el-form-item label="详细地址">
           <el-input type="textarea" v-model="form.desc"></el-input>
         </el-form-item>
-        <el-form-item label="电话">
-          <el-input type="" v-model="form.mobile" disabled></el-input>
+        <el-form-item label="电话" prop="mobile">
+          <el-input type="" v-model="form.mobile"></el-input>
         </el-form-item>
         <el-form-item label="是否设为常用地址">
           <el-switch v-model="form.isdefalut"></el-switch>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="onSubmit">立即创建</el-button>
+          <el-button type="primary" @click="onSubmit('form')">立即创建</el-button>
           <el-button @click="resetForm('form'); editState = false">取消</el-button>
         </el-form-item>
       </el-form>
@@ -89,13 +104,28 @@ export default {
         mobile: '',
         isdefalut: false,
       },
+      rules: {
+        mobile: [
+          {
+            required: true,
+            validator: (rule, value, callback) => {
+              if (value === '') {
+                callback(new Error('请输入手机号'));
+              } else if (!/^1[3456789]\d{9}$/.test(value)) {
+                callback(new Error('请输入正确的手机号'));
+              } else {
+                callback();
+              }
+            },
+            trigger: 'change'
+          }
+        ]
+      },
       provinceList: [],
       modify: 0,
       cityList: [],
       countyList: [],
-      pagination: {
-
-      }
+      pagination: {}
     }
   },
   computed: {},
@@ -114,6 +144,7 @@ export default {
         if (res.data.code == 0) {
           let data = res.data.data
           this.tableData = data.items
+          this.defaultAddr = this.tableData.some(item => {})
           this.$store.commit('handleLoad', false)
         }
       })
@@ -121,45 +152,62 @@ export default {
     resetForm (formName) {
       this.$refs[formName].resetFields();
     },    
-    onSubmit () {
-      
-      let params = {
-        provinceId: this.form.province,
-        cityId: this.form.city,
-        countyId: this.form.county,
-        name: this.form.name,
-        detail_addr: this.form.desc,
-        mobile: this.form.mobile,
-        isdefalut: this.form.isdefalut ? 1 : 0
-      }
-      if (this.modify === 0) {
-        addMyAddress(params).then(res => {
-          if (res.data.code == 0) {
-            this.editState = false
-            this.modify = 0
-            this.getData()
-            this.$message({
-              type: 'success',
-              message: '添加成功'
+    onSubmit (formName) {
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          let params = {
+            provinceId: this.form.province,
+            cityId: this.form.city,
+            countyId: this.form.county,
+            name: this.form.name,
+            detail_addr: this.form.desc,
+            mobile: this.form.mobile,
+            isdefalut: this.form.isdefalut ? 1 : 0
+          }
+          if (this.modify === 0) {
+            addMyAddress(params).then(res => {
+              if (res.data.code == 0) {
+                this.editState = false
+                this.modify = 0
+                this.getData()
+                this.$message({
+                  type: 'success',
+                  message: '添加成功'
+                })
+              }
+            })
+          } else {
+            params.addr_id = this.form.addr_id
+            editMyAddress(params).then(res => {
+              if (res.data.code == 0) {
+                this.editState = false
+                this.modify = 0
+                this.getData()
+                this.$message({
+                  type: 'success',
+                  message: '修改成功'
+                })
+              }
             })
           }
-        })
-      } else {
-        params.addr_id = this.form.addr_id
-        addMyAddress(params).then(res => {
-          if (res.data.code == 0) {
-            this.editState = false
-            this.modify = 0
-            this.getData()
-            this.$message({
-              type: 'success',
-              message: '修改成功'
-            })
-          }
-        })
-      }
+        } else {
+          console.log('error submit!!');
+          return false
+        }
+      })
     },
     handleEditAddress () {
+      this.form = {
+        addr_id: '',
+        province: '',
+        city: '',
+        county: '',
+        name: '',
+        desc: '',
+        mobile: '',
+        isdefalut: false,
+      }
+      this.modify = 0
       this.editState = true
       this._getProvinceList()
     },
@@ -207,7 +255,7 @@ export default {
         name: row.name,
         desc: row.addr_detail,
         mobile: row.mobile,
-        isdefalut: row.status == 1
+        isdefalut: row.isdefalut == 1
       }
       this.form.province && this._getCityList(this.form.province)
       this.form.city && this._getCountyList(this.form.city)

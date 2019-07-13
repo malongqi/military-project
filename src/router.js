@@ -58,12 +58,6 @@ export default new Router({
           component: () => import(/* webpackChunkName: "index" */ './views/Order.vue')
         },
         {
-          path: '/player',
-          name: '播放器',
-          meta: {name: 'player', needUser: false},
-          component: () => import(/* webpackChunkName: "index" */ './views/Player.vue')
-        },
-        {
           path: '/mine',
           name: '',
           meta: {name: '', needUser: false},
@@ -107,6 +101,12 @@ export default new Router({
               component: () => import(/* webpackChunkName: "index" */ './views/mine/mypassword.vue')
             },
             {
+              path: '/mymobile',
+              name: '修改手机号',
+              meta: {name: '', needUser: true},
+              component: () => import(/* webpackChunkName: "index" */ './views/mine/mymobile.vue')
+            },
+            {
               path: '/myinfor',
               name: '完善资料',
               meta: {name: '', needUser: true},
@@ -115,6 +115,12 @@ export default new Router({
           ]
         }
       ]
+    },
+    {
+      path: '/player',
+      name: '播放器',
+      meta: {name: 'player', needUser: false},
+      component: () => import(/* webpackChunkName: "index" */ './views/Player.vue')
     },
     {
       path: '/*',

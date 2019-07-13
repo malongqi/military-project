@@ -9,7 +9,8 @@ import * as ModalDialogs from 'vue-modal-dialogs'
 import Toasted from 'vue-toasted';
 import VueCookies from 'vue-cookies'
 import Vuerify from 'vuerify'
-
+import dhfPlayer from 'dhfplayer'
+Vue.use(dhfPlayer)
 import ElementUI from 'element-ui'
 import 'swiper/dist/css/swiper.css'
 import 'element-ui/lib/theme-chalk/index.css';
@@ -28,6 +29,7 @@ Vue.config.productionTip = false
 // 路由跳转拦截//test
 store.commit('setUser', VueCookies.get('user'))
 router.beforeEach((to, from, next) => {
+  window.scrollTo(0,0)
   if (to.meta.needUser) {
     if (store.state.user) {
       next()

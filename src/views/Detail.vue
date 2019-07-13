@@ -7,7 +7,7 @@
       <!--缩略图在标题左边-->
       <li class="list-news-item clearfix">
         <div class="list-thumb">
-          <img :src="courseDetail.img_url" />
+          <img width="560" height="420" :src="courseDetail.img_url" />
         </div>
         <div class="list-main">
           <h3 class="list-item-hd title">
@@ -24,7 +24,8 @@
           </div>
           <div class="list-item-text clearfix">
             <span class="price">¥{{courseDetail.price}}</span>
-            <router-link class="list-btn" :to="{path:'order',query:{courseId: id}}">购买</router-link>
+            <router-link v-if="courseDetail.is_buy==0" class="list-btn" :to="{path:'order',query:{courseId: id}}">购买</router-link>
+            <router-link v-if="courseDetail.is_buy==1" class="list-btn" :to="{path:'mycourse'}">已购买</router-link>
           </div>
         </div>
       </li>
@@ -65,8 +66,8 @@
                   {{item.title}}
                 </div>
                 <div class="label">
-                  <router-link :to="{path:'player'}" class="load-btn" v-if="currentTab === 'courses'">观看视频</router-link>
-                  <a v-else class="load-btn" >点击下载</a>
+                  <router-link :to="{path:'player', query: {id: id, class:item.class_id}}" class="load-btn" v-if="currentTab === 'courses'">观看视频</router-link>
+                  <a v-else class="load-btn" @click="downLoad(item)">点击下载</a>
                 </div>
               </li>
             </ul>
@@ -104,13 +105,14 @@
             {{bookDetail.title}}
           </h3>
           <div class="list-item-hd">
-              <span class="price">¥{{bookDetail.price}}</span>
+              <span class="price">¥{{bookDetail.price}}22</span>
           </div>
           <div class="list-item-text">
             <p>{{bookDetail.desc}}</p>
           </div>
           <div class="list-item-text clearfix">
-            <router-link class="list-btn" :to="{path:'order',query:{bookId: id}}">提交订单</router-link>
+            <router-link v-if="bookDetail.is_buy==0" class="list-btn" :to="{path:'order',query:{bookId: id}}">提交订单</router-link>
+            <router-link v-if="bookDetail.is_buy==1" class="list-btn" :to="{path:'mycourse'}">已购买</router-link>
           </div>
         </div>
       </li>
@@ -150,7 +152,7 @@
 import 'social-share.js/dist/js/social-share.min.js'
 import BreadCrumbs from './../components/BreadCrumbs'
 import { swiper, swiperSlide } from 'vue-awesome-swiper'
-import {getCourseDetail, getCourseRecommend} from './../api/course.js'
+import {getCourseDetail, getCourseRecommend, getCourseDown} from './../api/course.js'
 import {getBookDetail} from './../api/book.js'
 import {getNewsDetail} from './../api/news.js'
 export default {
@@ -216,8 +218,6 @@ export default {
   // },
   watch: {
     '$route' () {
-      debugger
-      window.scrollTo(0, 0);
       for (let key in this.$route.query) {
         this.pageType = key
         this.id = this.$route.query[key]
@@ -226,7 +226,6 @@ export default {
     }
   },
   mounted () {
-    window.scrollTo(0, 0);
     for (let key in this.$route.query) {
       this.pageType = key
       this.id = this.$route.query[key]
@@ -316,6 +315,19 @@ export default {
       this.currentTab = item.type
       item.checked  = true
       this.content = this.courseDetail[item.type]
+    },
+    downLoad (item) {
+      debugger
+      let params = {
+        course_id: this.id,
+        class_id: item.class_id
+      }
+      getCourseDown(params).then(res => {
+        if (res.data.code == 0) {
+          location.href = res.data.data.down_url
+        }
+      })
+      
     }
   }
 }

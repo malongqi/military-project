@@ -75,6 +75,7 @@ export default {
       this.$store.commit('handleLoad', true)
       this.newsList = []
       let params = {
+        cat_id: this.filterParam.catId,
         page_index: this.filterParam.pageIndex,
         page_size: this.filterParam.pageSize
       }
@@ -87,15 +88,23 @@ export default {
         }
       })
     },
+    getFilter (val,item) {
+      this.sortTypes[val].map(item => {item.checked = false})
+      item.checked = true
+      this.filterParam.pageIndex = 1
+      this.filterParam[val == 'sort' ? 'sortId' : 'catId'] = item[val == 'sort' ? 'sort_id' : 'cat_id']
+      this.getList()
+    },
     handleChange (val) {
       this.filterParam.pageIndex = val
-      this.getbookList()
+      this.getList()
     }
   }
 }
 </script>
 <style lang='scss' scoped>
 .news {
+  margin-bottom: 50px;
   .catalog {
     background: #f5f5f5;
     margin-bottom: 0;

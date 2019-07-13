@@ -45,7 +45,7 @@ instance.interceptors.response.use(res => {
       message: '登录信息已失效请登录',
       type: 'error'
     })
-  } else if (res.data.code != 0 && res.data.code != -1){
+  } else if (res.data.code != 0 && res.data.msg !== '订单未支付成功'){
     Message({
       message: res.data.msg,
       type: 'error'

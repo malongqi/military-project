@@ -30,10 +30,10 @@
       </div>
       <div class="main">
         <div class="user-infor">
-          <img class="avatar" :src="user.head_pic" alt="">
+          <img class="avatar" :src="user.head_pic_small" alt="">
           <div class="user-hd">
             <p>账号：{{user.nickname}}</p>
-            <p>上次登录时间：dsss</p>
+            <p>上次登录时间：{{user.last_login_time}}</p>
           </div>
         </div>
         <router-view></router-view>
@@ -62,7 +62,7 @@ export default {
             },
             {
               path: '/myview',
-              menu: '我的浏览',
+              menu: '我的足迹',
             }
           ]
         },
@@ -76,6 +76,10 @@ export default {
             {
               path: '/mypassword',
               menu: '修改密码',
+            },
+            {
+              path: '/mymobile',
+              menu: '修改手机号',
             },
             {
               path: '/myaddress',
@@ -92,13 +96,15 @@ export default {
             }
           ]
         }
-      ],
-      user: ''
+      ]
     }
   },
-  computed: {},
+  computed: {
+    user () {
+      return this.$store.state.user
+    }
+  },
   mounted() {
-    this.user = this.$cookies.get('user')
     this.defaultActive = this.$route.path
     this.$store.commit('handleLoad', false)
   },

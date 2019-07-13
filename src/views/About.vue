@@ -29,18 +29,27 @@ export default {
   data () {
     return {
       oursDetail: '',
-      content: ''
+      content: '',
+      tab: ''
     };
   },
   computed: {},
   mounted() {
+    this.tab = this.$route.query.tab || ''
     this.$store.commit('handleLoad', false)
     this.getAboutMe()
   },
+  watch: {
+    '$router' (to) {
+      this.tab = this.$route.query.tab
+      this.getAboutMe()
+    }
+  },
   methods: {
     handleClickNav (item) {
-      this.oursDetail.category.map(item => {
+      this.oursDetail.category.map((item,index) => {
         item.checked = false
+        this.$route.query.tab = index
       })
       item.checked = true
       this.content = item.content
@@ -51,12 +60,22 @@ export default {
           this.oursDetail = res.data.data
           let detail = this.oursDetail.category
           detail.map((item,index) => {
-            if (index == 0) {
-              item.checked = true
-              this.content = item.content
+            if (this.tab === '') {
+              if (index == 0) {
+                item.checked = true
+                this.content = item.content
+              } else {
+                item.checked = false
+              }
             } else {
-              item.checked = false
+              if (index == this.tab) {
+                item.checked = true
+                this.content = item.content
+              } else {
+                item.checked = false
+              }
             }
+            
           })
         }
       })

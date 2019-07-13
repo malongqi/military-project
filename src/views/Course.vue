@@ -1,6 +1,6 @@
 <template>
   <div class="course">
-    <bread-crumbs></bread-crumbs>
+    <!-- <bread-crumbs></bread-crumbs> -->
     <div class="container">
       <div class="catalog" v-if="sortTypes.category">
         <label for="">分类：</label>
@@ -97,7 +97,6 @@ export default {
       // this.paramsEdit(params)
       getCourses(params).then(res=> {
         if (res.data.code == 0) {
-          window.scrollTo(0, 0);
           let data = res.data.data
           this.pageTotal = data.total_num
           this.courseLists = data.items

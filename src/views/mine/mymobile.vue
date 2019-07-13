@@ -1,18 +1,18 @@
 <template>
   <div class="table-container">
     <div class="table-header">
-      <span>修改密码</span>
+      <span>修改手机号</span>
     </div>
     <div class="table-content">
       <el-form class="form-list" :rules="rules" ref="form" :model="form" label-width="130px">
-        <el-form-item label="原密码" prop="oldPwd">
-          <el-input type="password" v-model="form.oldPwd"></el-input>
+        <el-form-item label="旧手机号" prop="oldMobile">
+          <div class="inner-block">
+            <el-input type="password" v-model="form.oldMobile"></el-input>
+            <el-button @click.prevent="removeDomain(domain)">获取验证吗</el-button>
+          </div>
         </el-form-item>
-        <el-form-item label="新密码" prop="newPwd">
-          <el-input type="password" v-model="form.newPwd"></el-input>
-        </el-form-item>
-        <el-form-item label="确认密码" prop="pwdConfirm">
-          <el-input type="password" v-model="form.pwdConfirm"></el-input>
+        <el-form-item label="新手机号" prop="newMobile">
+          <el-input type="password" v-model="form.newMobile"></el-input>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="onSubmit('form')">保存</el-button>
@@ -30,27 +30,16 @@ export default {
     return {
       editState: false,
       form: {
-        oldPwd: '',
-        newPwd: '',
+        oldMobile: '',
+        newMobile: '',
         pwdConfirm: '',
       },
       rules: {
-        oldPwd: [
+        oldMobile: [
           { required: true, message: '请填写旧密码', trigger: 'blur' }
         ],
-        newPwd: [
+        newMobile: [
           { required: true, message: '请填写新密码', trigger: 'blur' }
-        ],
-        pwdConfirm: [
-          { validator: (rule, value, callback) => {
-            if (value === '') {
-              callback(new Error('请再次输入密码'));
-            } else if (value !== this.form.newPwd) {
-              callback(new Error('两次输入密码不一致!'));
-            } else {
-              callback();
-            }
-          }, required: true, message: '请再次输入密码', trigger: 'change' }
         ]
       }
     }
@@ -126,6 +115,9 @@ export default {
       left: 0;
       line-height: 40px;
     }
+  }
+  .inner-block {
+    display: flex;
   }
   .address-list {
     .list-item {

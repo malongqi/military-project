@@ -2,6 +2,7 @@
   <div class="home">
     <swiper
       class="banner-slider"
+      v-if="bannerList.length > 0"
       :options="swiperOption">
       <swiper-slide
         v-for="(banner, index) in bannerList"
@@ -15,7 +16,7 @@
     </swiper>
     <div class="container">
       <div class="section" v-for="(section,index) in homeList" :key="'section' + index">
-        <div class="advert" v-if="section.view_type == '1'">
+        <div class="advert" v-if="section.view_type == '1' && section.data">
           <a :href="section.data.target_url">
             <img :src="section.data.img_url" alt="">
           </a>
@@ -29,7 +30,7 @@
           </nav>
         </div>
         <!-- 课程列表 -->
-        <div class="list-wrapper" v-if="section.view_type == '2'" >
+        <div class="list-wrapper" v-if="section.view_type == '2' && section.data.length > 0" >
           <ul class="lists clearfix" :class="{'has-cover': section.cover_data}">
             <li  class="list cover-item" v-if="section.cover_data">
               <router-link :to="{path: '/detail?' + section.data_type + 'Id=' + section.cover_data.id}">
@@ -65,7 +66,7 @@
           </ul>
         </div>
         <!-- 图书列表 -->
-        <div class="list-wrapper" v-if="section.view_type == '3'" >
+        <div class="list-wrapper" v-if="section.view_type == '3' && section.data.length > 0" >
           <ul class="lists clearfix">
             <li class="list-book" v-for="(listItem,index) in section.data" :key="'listItem' + index">
               <router-link :to="{path:'detail',query:{bookId: listItem.id}}">
@@ -81,7 +82,7 @@
           </ul>
         </div>
         <!--军政list列表 -->
-        <div class="list-wrapper" v-if="section.view_type == '4'" >
+        <div class="list-wrapper" v-if="section.view_type == '4' && section.data.length > 0" >
           <div class="list-item-wrapper clearfix">
             <ul class="lists list-two" v-for="(twoItem,index) in section.data" :key="'twoItem' + index">
               <li class="titlebar">
@@ -107,7 +108,7 @@
         </div>
       </div>
     </div>
-    <div class="list-links">
+    <div class="list-links" v-if="links.length > 0">
       <div class="links-title">
         友情链接
       </div>
@@ -135,11 +136,12 @@ export default {
   data () {
     return {
       swiperOption: {
+        autoplay: {
+          delay: 3000,
+          disableOnInteraction: false
+        },
+        loop: true,
         pagination: {
-          autoplay: {
-            delay: 2500,
-            disableOnInteraction: false
-          },
           el: '.swiper-pagination',
           clickable: true
         }

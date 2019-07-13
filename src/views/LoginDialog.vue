@@ -9,7 +9,7 @@
     @danger="clickDanger()"
     @confirm="clickConfirm()"
     dangerText="Delete">
-    <div>
+    <div class="form">
       <form-item
       class="log-form-item"
       icon-left="icon-user"
@@ -25,6 +25,9 @@
       icon-left="icon-lock"
       placeholder="请输入密码">
       </form-item>
+      <div class="password">
+        <router-link to="">忘记密码</router-link>
+      </div>
     </div>
     <div slot="foot">
       <span class="login-btn" @click="submit">登录</span>
@@ -92,6 +95,7 @@ export default {
           // this.$cookies.set('token', data.token, '1d');
           this.$store.commit('setUser', data)
           this.$store.commit('setLoginState', false)
+          location.reload()
           this.$message({
             type: 'success',
             message: '登录成功'
@@ -132,6 +136,9 @@ export default {
   line-height: 58px;
 }
 .login-dialog {
+  .form {
+    position: relative;
+  }
   &.dialog {
     z-index: 999;
   }
@@ -146,6 +153,12 @@ export default {
     .input-inner {
       line-height: 30px;
     }
+  }
+  .password {
+    position: absolute;
+    right: 0;
+    bottom: -30px;
+    z-index: 9
   }
 }
 

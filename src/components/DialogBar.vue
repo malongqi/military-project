@@ -1,7 +1,10 @@
 <template>
     <div class="dialog" v-show="showMask" @click="handleClose">
         <div class="dialog-container" :style="{'width': width + 'px'}" @click.stop="">
-            <div class="dialog-title">{{title}}</div>
+            <div class="dialog-title">
+                {{title}}
+                <i class="dialog-close icons icon-close" @click="handleClose"></i>
+            </div>
             <div class="content">
                 <slot></slot>
             </div>
@@ -108,6 +111,12 @@ export default {
                 background: #2b93c6;
                 padding: 16px 50px 0 20px;
                 box-sizing: border-box;
+                position: relative;
+            }
+            .dialog-close {
+                position: absolute;
+                right: 20px;
+                top: 20px;
             }
             .content{
                 color: #797979;

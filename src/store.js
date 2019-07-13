@@ -15,7 +15,7 @@ export default new Vuex.Store({
       state.loading = val
     },
     setUser(state, val) {
-      state.user = val
+      state.user = Object.assign({}, val)
     },
     setLoginState(state, val) {
       state.showLogin = val

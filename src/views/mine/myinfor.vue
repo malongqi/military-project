@@ -1,35 +1,39 @@
 <template>
   <div class="table-container">
     <div class="table-header">
-      <span>修改秘密</span>
+      <span>完善资料</span>
     </div>
     <div class="table-content">
-      <el-form class="form-list" ref="form" :model="form" label-width="130px">
+      <el-form class="form-list" :rules="rules" ref="form" :model="form" label-width="130px">
         <el-form-item label="头像" class="form-inner">
-          <el-input v-model="form.avatar"></el-input>
-          <el-upload
-            class="upload-btn"
-            action="https://jsonplaceholder.typicode.com/posts/"
-            >
-            <el-button size="small" type="primary">点击上传</el-button>
-          </el-upload>
+          <!-- <el-input v-model="form.avatar"></el-input> -->
+          <el-input ref="avatar" v-model="pic"></el-input>
+          
+          <el-button class="upload-btn" size="small" type="primary">
+            <!-- <el-input type="file"></el-input> -->
+            <input class="upload" type="file" @change="getFile">
+            点击上传
+          </el-button>
+          
         </el-form-item>
-        <el-form-item label="昵称">
-          <el-input v-model="form.nikename"></el-input>
+        <el-form-item label="昵称" prop="nickname">
+          <el-input v-model="form.nickname"></el-input>
         </el-form-item>
-        <el-form-item label="邮箱">
+        <el-form-item label="邮箱" prop="email">
           <el-input v-model="form.email"></el-input>
         </el-form-item>
-        <el-form-item label="邮箱">
-          <el-radio label="男"></el-radio>
-          <el-radio label="女"></el-radio>
+        <el-form-item label="性别">
+          <el-radio-group v-model="form.sex">
+            <el-radio label="0">男</el-radio>
+            <el-radio label="1">女</el-radio>
+          </el-radio-group>
         </el-form-item>
         <el-form-item label="手机号">
           <span>{{mobile}}</span>
           <span>修改联系客服</span>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="onSubmit">保存</el-button>
+          <el-button type="primary" @click="onSubmit('form')">保存</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -37,30 +41,85 @@
 </template>
 
 <script>
-import {modifyUser} from './../../api/mine'
+import {modifyUser, getUser} from './../../api/mine'
 export default {
   components: {},
   data () {
     return {
       editState: false,
       mobile: '',
+      file: '',
+      pic: '',
       form: {
-        oldPassword: '',
-        newPassword: '',
-        passwordConfirm: '',
+        head_pic: '',
+        nickname: '',
+        email: '',
+        sex: '',
+      },
+      rules: {
+        nickname: [
+          { required: true, message: '请输入昵称', trigger: 'blur' },
+          { max: 5, message: '不可超过15个字符', trigger: 'blur' }
+        ],
+        email: [
+          {
+            validator: (rule, value, callback) => {
+              if (!/^\w+@[a-z0-9]+\.[a-z]{2,4}$/.test(value)) {
+                callback(new Error('请输入正确的邮箱!'));
+              } else {
+                callback();
+              }
+            },
+            trigger: 'blur' 
+          }
+        ]
       }
     }
   },
   computed: {},
-  mounted() {},
+  mounted() {
+    this.getUserInfor()
+  },
   methods: {
-    onSubmit () {
-      modifyUser(params).then(res => {
+    getUserInfor () {
+      getUser().then(res => {
         if (res.data.code == 0) {
-          this.$message({
-            type: 'success',
-            message: '修改成功'
+          let user = res.data.data
+          this.form =  {
+            head_pic: user.head_pic,
+            nickname: user.nickname,
+            email: user.email,
+            sex: user.sex,
+          }
+          // this.$store.commit('setUser', res.data.data)
+        }
+      })
+    },
+    getFile (e) {
+      this.file = e.target.files[0]
+      this.pic = this.file.name
+    },
+    onSubmit (formName) {
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          let params = {
+            head_pic: this.file,
+            nickname: this.form.nickname,
+            email: this.form.email,
+            sex: this.form.sex,
+          }
+          modifyUser(params).then(res => {
+            if (res.data.code == 0) {
+              this.getUserInfor()
+              this.$message({
+                type: 'success',
+                message: '修改成功'
+              })
+            }
           })
+        } else {
+          console.log('error submit!!')
+          return false;
         }
       })
     },
@@ -135,6 +194,15 @@ export default {
         width: 40%;
       }
     }
+  }
+}
+.upload-btn {
+  position: relative;
+  .upload {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
   }
 }
 .form-list {

@@ -5,24 +5,31 @@
         <div class="order-head">请填写核对订单信息</div>
         <div class="order-main">
           <div v-if="pageType =='bookId'">
-             <div class="adress-section">
+            <div class="adress-section" v-if="defaultAddr !== ''">
               <div class="label">默认地址：</div>
               <div class="block">
-                <span>{{defaultAddr}} </span>
+                <ul class="address-list">
+                  <li>
+                    <div class="item">{{defaultAddr.name}}</div>
+                    <div class="item">{{defaultAddr.mobile}}</div>
+                    <div class="item">{{defaultAddr.addr_all}}</div>
+                    <div class="item">{{defaultAddr.addr_detail}}</div>
+                  </li>
+                </ul>
                 <span class="list-edit" @click="handleEditAddress">修改默认地址</span>
               </div>
             </div>
-            <div class="adress-section">
-              <div class="label">收获管理：</div>
-              <div class="block" v-if="editState">
-                <div v-if="addrList.length==0" class="red block" @click="handleEditAddress">(管理收获地址)</div>
-                <div style="width:100%">
+            <div class="adress-section" v-else>
+              <div class="label">收货管理：</div>
+              <div style="flex:1">
+                <div v-if="defaultAddr === ''" class="red block" @click="handleEditAddress">(管理收货地址)</div>
+                <div style="width:100%" v-if="showAddrList">
                   <div class="tit">
                     <span>收货地址</span>
-                    <span class="list-edit" @click="handleEditAddress">添加地址</span>
+                    <span class="list-edit"  @click="handleAddAddress">添加地址</span>
                   </div>
-                  <!-- <div>
-                      <ul class="address-list">
+                  <div v-if="!editState">
+                      <ul class="address-list" v-if="addrList.length > 0">
                         <li
                           class="list-item"
                           v-for="(item, index) in addrList"
@@ -32,13 +39,15 @@
                           <div class="list-sub">{{item.mobile}}</div>
                           <div class="list-adress">{{item.addr_detail}}</div>
                           <div class="list-edit">
-                            <span @click="modifyAddress(item)" class="btn">修改</span>
-                            <span @click="deletAddress(item)" class="btn">删除</span>
+                            <span @click="setDefaultAddress(item)" class="btn">设置为收货地址</span>
                           </div>
                         </li>
                       </ul>
-                  </div> -->
-                  <el-form class="form-list" ref="form" :model="form" label-width="130px">
+                      <div v-else>
+                        暂时没有收货地址，去添加吧
+                      </div>
+                  </div>
+                  <el-form v-else class="form-list" :rules="rules" ref="form" :model="form" label-width="130px">
                     <el-form-item label="地址" class="form-inner">
                       <el-select v-model="form.province" placeholder="请选择省" @change="handleChangeProvince">
                         <el-option
@@ -71,15 +80,15 @@
                     <el-form-item label="详细地址">
                       <el-input type="textarea" v-model="form.desc"></el-input>
                     </el-form-item>
-                    <el-form-item label="电话">
+                    <el-form-item label="电话" prop="mobile">
                       <el-input type="" v-model="form.mobile"></el-input>
                     </el-form-item>
                     <el-form-item label="是否设为常用地址">
                       <el-switch v-model="form.isdefalut"></el-switch>
                     </el-form-item>
                     <el-form-item>
-                      <el-button type="primary" @click="addAddr">立即创建</el-button>
-                      <el-button @click="resetForm('form'); editState = false">取消</el-button>
+                      <el-button type="primary" @click="addAddrSubmit('form')">立即创建</el-button>
+                      <el-button @click="resetForm('form'); editState = false; showAddrList= false">取消</el-button>
                     </el-form-item>
                   </el-form>
                 </div>
@@ -117,7 +126,7 @@
               <div class="order-list-sub">{{number}}</div>
               <div class="order-list-sub">¥ {{total}}</div>
               <div class="order-list-sub">
-                <router-link to="">查看</router-link>
+                <router-link :to="{path:'/detail?' + pageType + '=' + id}">查看</router-link>
               </div>
             </li>
           </ul>
@@ -134,14 +143,19 @@
             <p class="order-tips">为了保证及时处理您的订单，请下单24小时内付款</p>
             <div class="order-section">
               <div class="label">订单赠言：</div>
-              <textarea class="textarea" name="" id="" cols="30" rows="10"></textarea>
+              <el-input
+                type="textarea"
+                class="textarea"
+                placeholder="请输入内容"
+                v-model="remark">
+              </el-input>
             </div>
             <div class="order-section align-end">
               <div class="label">金额总计：</div>
               <div class="total">
                 <p>
                   <span>商品总金额： <span class="num">{{total}}</span>元</span>
-                  <span>配送费用： <span class="num">{{transfer}}</span>元</span>
+                  <span v-if="pageType == 'bookId'">配送费用： <span class="num">{{transfer}}</span>元</span>
                 </p>
                 <p>
                   <span>应付金额： <span class="num">{{total + transfer}}</span>元</span>
@@ -160,7 +174,7 @@
     </div>
     <el-dialog
       :visible.sync="payVisible"
-      width="50%">
+      width="800px">
       <div class="dialog-content">
         <div>
           <div>订单号：{{payParam.order_id}}</div>
@@ -175,7 +189,7 @@
 </template>
 
 <script type="text/ecmascript-6">
-import { getOrderList, postWxpay, postAlipay, checkWxPay, getMyAddress, getProvinceList, getCityList, getCountyList, addMyAddress} from './../api/mine'
+import { getOrderList, postWxpay, postAlipay, checkWxPay, getMyAddress, getProvinceList, getCityList, getCountyList, addMyAddress, editMyAddress} from './../api/mine'
 import {getCourseDetail} from './../api/course.js'
 import {getBookDetail} from './../api/book.js'
 export default {
@@ -192,7 +206,7 @@ export default {
         price: 0
       },
       addrList: [],
-      defaultAddr: '',
+      defaultAddr: {}, // 默认收货地址
       provinceList: [],
       cityList: [],
       countyList: [],
@@ -206,10 +220,31 @@ export default {
         mobile: '',
         isdefalut: false,
       },
-      pageType: '',
+      rules: {
+        mobile: [
+          {
+            required: true,
+            validator: (rule, value, callback) => {
+              if (value === '') {
+                callback(new Error('请输入手机号'));
+              } else if (!/^1[3456789]\d{9}$/.test(value)) {
+                callback(new Error('请输入正确的手机号'));
+              } else {
+                callback();
+              }
+            },
+            trigger: 'change'
+          }
+        ]
+      },
+      remark: '', // 订单备注
+      pageType: '', // 页面类型
+      id: '',
       editState: false,
-      transfer: 12,
+      showAddrList: false,
+      transfer: 0, // 物流价格
       number: 1,
+      modify: 0,
       payParam: '',
       timer: null
     }
@@ -230,7 +265,7 @@ export default {
     this.getAdress()
   },
   destroyed(){
-    clearInterval(this.timer)
+    window.clearInterval(this.timer)
     this.timer = null;
     console.log("beforeDestroy");
   },
@@ -240,8 +275,10 @@ export default {
       // 支付宝支付
       if (this.radioValue === '1') {
         let params = {
-          product_id: this.orderDetail.id,
+          addr_id: this.defaultAddr.addr_id,
+          product_id: this.id,
           product_type: this.pageType == 'courseId' ? 1 : 2, // product_type 1: 课程 2:教材
+          remark: this.remark
         }
         postAlipay(params).then(res => {
           if (res.data.code == 0) {
@@ -253,8 +290,10 @@ export default {
       // 微信支付
       if (this.radioValue === '2') {
         let params = {
-          product_id: this.orderDetail.id,
+          addr_id: this.defaultAddr.addr_id,
+          product_id: this.id,
           product_type: this.pageType =='courseId' ? 1 : 2, // product_type 1: 课程 2:教材
+          remark: this.remark
         }
         postWxpay(params).then(res => {
           if (res.data.code == 0) {
@@ -274,7 +313,7 @@ export default {
       checkWxPay(params).then(res => {
         if (res.data.code == 0) {
           this.payVisible = false
-          clearInterval(this.timer)
+          window.clearInterval(this.timer)
           this.timer = null;
           this.$router.push({path:'/mycourse'})
         }
@@ -299,6 +338,7 @@ export default {
         if (res.data.code == 0) {
           let data = res.data.data
           this.orderDetail = data
+          this.productId = data.book_id
           this.$store.commit('handleLoad', false)
         }
       })
@@ -324,21 +364,70 @@ export default {
         if (res.data.code == 0) {
           let data = res.data.data
           this.addrList = data.items
-          this.defaultAddr = this.addrList[0].addr_detail
-          
-          // this.addrList.map((item => {
-          //   debugger
-          //   if (item.isdefalut == 1) {
-          //     return item
-          //   }
-          // })
           this.$store.commit('handleLoad', false)
+          this.defaultAddr = ''
+          this.addrList.map((item, index) => {
+            if (item.isdefalut == 1) {
+             this.defaultAddr = item
+            }
+          })
         }
       })
     },
-    addAddr () {},
+    handleAddAddress () {
+      this.editState = true
+      this.showAddrList = true
+    },
+    addAddrSubmit (formName) {
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          let params = {
+            provinceId: this.form.province,
+            cityId: this.form.city,
+            countyId: this.form.county,
+            name: this.form.name,
+            detail_addr: this.form.desc,
+            mobile: this.form.mobile,
+            isdefalut: this.form.isdefalut ? 1 : 0
+          }
+          if (this.modify === 0) {
+            addMyAddress(params).then(res => {
+              if (res.data.code == 0) {
+                this.editState = false
+                this.modify = 0
+                this.getAdress()
+                this.$message({
+                  type: 'success',
+                  message: '添加成功'
+                })
+              }
+            })
+          } else {
+            params.addr_id = this.form.addr_id
+            editMyAddress(params).then(res => {
+              if (res.data.code == 0) {
+                this.editState = false
+                this.modify = 0
+                this.getAdress()
+                this.$message({
+                  type: 'success',
+                  message: '修改成功'
+                })
+              }
+            })
+          }
+        } else {
+          console.log('error submit!!');
+          return false
+        }
+      })
+    },
+    setDefaultAddress (item) {
+      this.defaultAddr = item
+    },
     handleEditAddress () {
-
+      this.defaultAddr = ''
+      this.showAddrList = true
     },
     handleChangeProvince (val) {
       this._getCityList(val)
@@ -443,6 +532,15 @@ export default {
 }
 .adress-section {
   display: flex;
+  .address-list {
+    li {
+      display: flex;
+      &>.item  {
+        margin-right: 20px;
+      }
+    }
+    flex: 1;
+  }
   .tit {
     display: flex;
     justify-content: space-between;
@@ -455,18 +553,21 @@ export default {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    .list-edit {
-      background: #2b93c6;
-      color: #fff;
-      padding:4px 16px;
-      height: 30px;
-      line-height: 30px;
-      text-align: center;
-      cursor: pointer;
-    }
   }
   .block,.label,.tit {
     line-height: 60px;
+  }
+  .list-edit {
+    background: #2b93c6;
+    color: #fff;
+    padding:4px 16px;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+    cursor: pointer;
+    .btn {
+      color: #fff;
+    }
   }
 }
 .order-list {

@@ -30,13 +30,22 @@ export const getMyView = (params) => {
   return axios.post('Mine/course_visit', params)
 }
 export const getMyAddress = (params) => {
-  return axios.post('Mine/addr_list', params)
+  return axios.post('Addr/addr_list', params)
+}
+export const addMyAddress = (params) => {
+  return axios.post('Addr/add_Addr', params)
 }
 export const editMyAddress = (params) => {
-  return axios.post('Mine/modify_Addr', params)
+  return axios.post('Addr/modify_Addr', params)
 }
 export const deletMyAddress = (params) => {
-  return axios.post('Mine/delete_Addr', params)
+  return axios.post('Addr/delete_Addr', params)
+}
+export const getDefaultAddr = () => {
+  return axios.post('Addr/default_addr')
+}
+export const getUser = (params) => {
+  return axios.post('User/info', params)
 }
 export const modifyUser = (params) => {
   return axios.post('User/modify', params)
@@ -52,8 +61,4 @@ export const getCityList = (params) => {
 }
 export const getCountyList = (params) => {
   return axios.post('District/countyList', params)
-}
-// 地址新增
-export const addMyAddress = (params) => {
-  return axios.post('Mine/add_Addr', params)
 }
