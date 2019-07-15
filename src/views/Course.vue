@@ -21,7 +21,7 @@
               </div>
               <div class="list-main">
                 <h3 class="list-item-hd">
-                  <a :href="item.href" class="">{{item.title}}</a>
+                  <router-link :to="item.href" class="">{{item.title}}</router-link>
                   <span class="price">¥{{item.price}}</span>
                 </h3>
                 <div class="list-item-text">课程简介：{{item.desc}}</div>
@@ -33,12 +33,13 @@
           </li>
         </ul>
       </div>
-      <div class="pagination-box">
+      <div class="pagination-box" v-if="Math.floor(pagination.pageTotal/pagination.pageSize) > 0">
         <el-pagination
           prev-text="上一页"
           next-text="下一页"
           layout="prev, pager, next"
-          :total="pageTotal"
+          :page-size="pagination.pageSize"
+          :total="pagination.pageTotal"
           @current-change="handleChange">
         </el-pagination>
       </div>
@@ -58,12 +59,14 @@ export default {
     return {
       sortTypes: [],
       courseLists: [],
-      pageTotal: 100,
       filterParam: {
         catId: '',
         sortId: '',
+      },
+      pagination: {
         pageIndex: 1,
-        pageSize: 15
+        pageSize: 15,
+        pageTotal: 100,
       }
     }
   },
@@ -90,15 +93,15 @@ export default {
       this.courseLists = []
       let params = {
         cat_id: this.filterParam.catId,
-        page_index: this.filterParam.pageIndex,
-        page_size: this.filterParam.pageSize,
+        page_index: this.pagination.pageIndex,
+        page_size: this.pagination.pageSize,
         sort_id: this.filterParam.sortId,
       }
       // this.paramsEdit(params)
       getCourses(params).then(res=> {
         if (res.data.code == 0) {
           let data = res.data.data
-          this.pageTotal = data.total_num
+          this.pagination.pageTotal = data.total_num
           this.courseLists = data.items
           this.$store.commit('handleLoad', false)
         }
@@ -107,12 +110,12 @@ export default {
     getFilter (val,item) {
       this.sortTypes[val].map(item => {item.checked = false})
       item.checked = true
-      this.filterParam.pageIndex = 1
+      this.pagination.pageIndex = 1
       this.filterParam[val == 'sort' ? 'sortId' : 'catId'] = item[val == 'sort' ? 'sort_id' : 'cat_id']
       this.getCourseList()
     },
     handleChange (val) {
-      this.filterParam.pageIndex = val
+      this.pagination.pageIndex = val
       this.getCourseList()
     }
   }

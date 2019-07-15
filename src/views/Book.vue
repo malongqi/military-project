@@ -23,12 +23,13 @@
           </router-link>
         </div>
       </div>
-      <div class="pagination-box">
+      <div class="pagination-box" v-if="Math.floor(pagination.pageTotal/pagination.pageSize) > 0">
         <el-pagination
           prev-text="上一页"
           next-text="下一页"
           layout="prev, pager, next"
-          :total="pageTotal"
+          :page-size="pagination.pageSize"
+          :total="pagination.pageTotal"
           @current-change="handleChange">
         </el-pagination>
       </div>
@@ -50,8 +51,12 @@ export default {
       pageTotal: 100,
       filterParam: {
         catId: '',
+      
+      },
+      pagination: {
         pageIndex: 1,
-        pageSize: 4
+        pageSize: 40,
+        pageTotal: 100,
       }
     }
   },
@@ -78,14 +83,14 @@ export default {
       this.bookLists = []
       let params = {
         cat_id: this.filterParam.catId,
-        page_index: this.filterParam.pageIndex,
-        page_size: this.filterParam.pageSize,
+        page_index: this.pagination.pageIndex,
+        page_size: this.pagination.pageSize,
         sort_id: this.filterParam.sortId,
       }
       getbooks(params).then(res => {
         if (res.data.code == 0) {
           let data = res.data.data
-          // this.pageTotal = data
+          this.pagination.pageTotal = data.total_num
           this.bookLists = data.items
           this.$store.commit('handleLoad', false)
         }

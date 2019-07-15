@@ -182,6 +182,7 @@ export default {
           this.timmer = setInterval(() => {
             if (this.cutdown === 0) {
               this.showTime = false
+              this.cutdown = 60
               window.clearInterval(this.timmer)
               this.timmer = null
             } else {

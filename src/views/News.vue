@@ -26,6 +26,7 @@
             prev-text="上一页"
             next-text="下一页"
             layout="prev, pager, next"
+            :page-size="pagination.pageSize"
             :total="pageTotal"
             @current-change="handleChange">
           </el-pagination>
@@ -47,8 +48,11 @@ export default {
       pageTotal: 100,
       filterParam: {
         catId: '',
+      },
+      pagination: {
         pageIndex: 1,
-        pageSize: 15
+        pageSize: 15,
+        pageTotal: 100,
       }
     };
   },
@@ -76,8 +80,8 @@ export default {
       this.newsList = []
       let params = {
         cat_id: this.filterParam.catId,
-        page_index: this.filterParam.pageIndex,
-        page_size: this.filterParam.pageSize
+        page_index: this.pagination.pageIndex,
+        page_size: this.pagination.pageSize
       }
       getNewsList(params).then(res => {
         if (res.data.code == 0) {
@@ -91,12 +95,12 @@ export default {
     getFilter (val,item) {
       this.sortTypes[val].map(item => {item.checked = false})
       item.checked = true
-      this.filterParam.pageIndex = 1
+      this.pagination.pageIndex = 1
       this.filterParam[val == 'sort' ? 'sortId' : 'catId'] = item[val == 'sort' ? 'sort_id' : 'cat_id']
       this.getList()
     },
     handleChange (val) {
-      this.filterParam.pageIndex = val
+      this.pagination.pageIndex = val
       this.getList()
     }
   }

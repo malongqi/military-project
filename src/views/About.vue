@@ -40,8 +40,8 @@ export default {
     this.getAboutMe()
   },
   watch: {
-    '$router' (to) {
-      this.tab = this.$route.query.tab
+    '$route.query' (to) {
+      this.tab = this.$route.query.tab || 0
       this.getAboutMe()
     }
   },

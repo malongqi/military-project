@@ -138,11 +138,6 @@
         <span>{{newsDetail.source}}</span>
       </div>
       <div class="artical" v-html="newsDetail.content"></div>
-      <ul class="down-list">
-        <li v-for="(item, index) in newsDetail.attach" :key="'down' + index">
-          <a :href="item.down_url">{{item.name}}</a>
-        </li>
-      </ul>
     </div>
   </div>
  </div>
@@ -318,11 +313,24 @@ export default {
       this.content = this.courseDetail[item.type]
     },
     goPlayer (item) {
+      if (this.courseDetail.is_buy == 0) {
+        this.$message({
+          type: 'warning',
+          message: '请先购买该课程'
+        })
+        return
+      }
       setLocalStorage('class', item.class_id)
       this.$router.push({path:'player', query: {id: this.id}})
     },
     downLoad (item) {
-      debugger
+      if (this.courseDetail.is_buy == 0) {
+        this.$message({
+          type: 'warning',
+          message: '请先购买该课程'
+        })
+        return
+      }
       let params = {
         course_id: this.id,
         class_id: item.class_id
@@ -631,6 +639,7 @@ export default {
     }
     .artical {
       margin-top: 60px;
+      overflow: hidden;
     }
   }
 </style>

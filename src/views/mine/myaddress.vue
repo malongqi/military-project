@@ -6,37 +6,25 @@
     </div>
     <div class="table-content">
       <div class="list" v-if="!editState">
-        <label for="">默认收货地址</label>
-        <ul class="address-list">
-          <li
-            class="list-item"
-            v-for="(item, index) in defaultAddr"
-            :key="index"
-            >
-            <div class="list-tit">{{item.name}}</div>
-            <div class="list-sub">{{item.mobile}}</div>
-            <div class="list-adress">{{item.addr_all}}{{item.addr_detail}}</div>
-            <div class="list-edit">
-              <span @click="modifyAddress(item)" class="btn">修改</span>
-              <span @click="deletAddress(item)" class="btn">删除</span>
-            </div>
-          </li>
-        </ul>
-        <ul class="address-list">
-          <li
-            class="list-item"
-            v-for="(item, index) in tableData"
-            :key="index"
-            >
-            <div class="list-tit">{{item.name}}</div>
-            <div class="list-sub">{{item.mobile}}</div>
-            <div class="list-adress">{{item.addr_all}}{{item.addr_detail}}</div>
-            <div class="list-edit">
-              <span @click="modifyAddress(item)" class="btn">修改</span>
-              <span @click="deletAddress(item)" class="btn">删除</span>
-            </div>
-          </li>
-        </ul>
+        <div 
+          v-for="(item, index) in tableData"
+          :key="index">
+          <label v-if="item.isdefault == 1" for="">默认地址</label>
+          <ul class="address-list">
+            <li
+              class="list-item"
+              >
+              <div class="list-tit">{{item.name}}</div>
+              <div class="list-sub">{{item.mobile}}</div>
+              <div class="list-adress">{{item.addr_all}}{{item.addr_detail}}</div>
+              <div class="list-edit">
+                <span @click="modifyAddress(item)" class="btn">修改</span>
+                <span @click="deletAddress(item)" class="btn">删除</span>
+              </div>
+            </li>
+          </ul>
+        </div>
+        
       </div>
       <el-form v-else class="form-list" :rules="rules" ref="form" :model="form" label-width="130px">
         <el-form-item label="地址" class="form-inner">
@@ -75,7 +63,7 @@
           <el-input type="" v-model="form.mobile"></el-input>
         </el-form-item>
         <el-form-item label="是否设为常用地址">
-          <el-switch v-model="form.isdefalut"></el-switch>
+          <el-switch v-model="form.isdefault"></el-switch>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="onSubmit('form')">立即创建</el-button>
@@ -93,6 +81,7 @@ export default {
   data () {
     return {
       editState: false,
+      defaultAddr: {},
       tableData: [],
       form: {
         addr_id: '',
@@ -102,7 +91,7 @@ export default {
         name: '',
         desc: '',
         mobile: '',
-        isdefalut: false,
+        isdefault: false,
       },
       rules: {
         mobile: [
@@ -144,7 +133,11 @@ export default {
         if (res.data.code == 0) {
           let data = res.data.data
           this.tableData = data.items
-          this.defaultAddr = this.tableData.some(item => {})
+          this.tableData.map(item => {
+            if (item.isdefault == 0) {
+               this.defaultAddr = item
+            }
+          })
           this.$store.commit('handleLoad', false)
         }
       })
@@ -162,7 +155,7 @@ export default {
             name: this.form.name,
             detail_addr: this.form.desc,
             mobile: this.form.mobile,
-            isdefalut: this.form.isdefalut ? 1 : 0
+            isdefault: this.form.isdefault ? 1 : 0
           }
           if (this.modify === 0) {
             addMyAddress(params).then(res => {
@@ -255,7 +248,7 @@ export default {
         name: row.name,
         desc: row.addr_detail,
         mobile: row.mobile,
-        isdefalut: row.isdefalut == 1
+        isdefault: row.isdefault == 1
       }
       this.form.province && this._getCityList(this.form.province)
       this.form.city && this._getCountyList(this.form.city)

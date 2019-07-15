@@ -1,6 +1,6 @@
 <template>
   <div class="mine">
-    <bread-crumbs></bread-crumbs>
+    <!-- <bread-crumbs></bread-crumbs> -->
     <div class="container wrapper">
       <div class="sidebar">
         <div class="nenu-title">会员管理中心</div>
