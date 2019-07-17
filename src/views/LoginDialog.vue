@@ -91,7 +91,7 @@ export default {
       login(params).then(res => {
         if(res.data.code == 0) {
           let data = res.data.data
-          this.$cookies.set('user', data, '1d');
+          this.$cookies.set('user', data, '5h');
           // this.$cookies.set('token', data.token, '1d');
           this.$store.commit('setUser', data)
           this.$store.commit('setLoginState', false)

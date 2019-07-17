@@ -34,7 +34,7 @@ router.beforeEach((to, from, next) => {
     if (store.state.user) {
       next()
     } else {
-      next({path: from.path})
+      next({path: 'home'})
       store.commit('setLoginState', true)
     }
   } else {

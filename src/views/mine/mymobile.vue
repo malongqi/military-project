@@ -8,7 +8,8 @@
         <el-form-item label="旧手机号" prop="oldMobile">
           <div class="inner-block">
             <el-input type="password" v-model="form.oldMobile"></el-input>
-            <el-button @click.prevent="removeDomain(domain)">获取验证吗</el-button>
+            <el-button v-if="!showTime" @click.prevent="getVerifyCode">获取验证码</el-button>
+            <span v-else class="time yzm-btn" slot="iconRight">{{cutdown}}S</span>
           </div>
         </el-form-item>
         <el-form-item label="新手机号" prop="newMobile">
@@ -66,8 +67,35 @@ export default {
           console.log('error submit!!');
           return false;
         }
-      });
+      })
     },
+    getVerifyCode () {
+      if (!this.$vuerify.check(['form.oldMobile'])) {
+        return
+      }
+      let params = {
+        mobile: this.form.oldMobile
+      }
+      getCode(params).then(res => {
+        if (res.data.code == 0) {
+          this.showTime = true
+          this.timmer = setInterval(() => {
+            if (this.cutdown === 0) {
+              this.showTime = false
+              this.cutdown = 60
+              window.clearInterval(this.timmer)
+              this.timmer = null
+            } else {
+              this.cutdown--
+            }
+          },1000)
+          this.$message({
+            type: 'success',
+            message: '已发送'
+          })
+        }
+      })
+    }
   }
 }
 </script>

@@ -8,9 +8,9 @@
         v-for="(banner, index) in bannerList"
         :key="'banner' + index"
         >
-        <router-link :to="banner.target_url">
+        <a :href="banner.target_url">
           <img :src="banner.img_url" alt="">
-        </router-link>
+        </a>
       </swiper-slide>
       <div class="swiper-pagination swiper-pagination-bullets" slot="pagination"></div>
     </swiper>
@@ -127,6 +127,7 @@
 // data_type 区分类型： 1:课程 2:教材 3:资讯
 import { swiper, swiperSlide } from 'vue-awesome-swiper'
 import { getBanner, getHomeList, getHomeLinks } from './../api/home'
+import {setLocalStorage} from './../assets/js/storage.js'
 export default {
   name: 'home',
   components: {
@@ -152,6 +153,7 @@ export default {
     }
   },
   mounted () {
+    setLocalStorage('channel', this.$route.query.channel || '')
     this.getBannerData()
     this.getHomeListData()
     this.getLinks()

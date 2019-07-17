@@ -60,7 +60,7 @@ export default {
           this.oursDetail = res.data.data
           let detail = this.oursDetail.category
           detail.map((item,index) => {
-            if (this.tab === '') {
+            if (this.tab != 1) {
               if (index == 0) {
                 item.checked = true
                 this.content = item.content

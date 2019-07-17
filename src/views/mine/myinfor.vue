@@ -33,7 +33,7 @@
           <span>修改联系客服</span>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="onSubmit('form')">保存</el-button>
+          <el-button type="primary" @click="onSubmit('form')" :loading="loading">保存</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -47,6 +47,7 @@ export default {
   data () {
     return {
       editState: false,
+      loading: false,
       mobile: '',
       file: '',
       pic: '',
@@ -102,6 +103,7 @@ export default {
     onSubmit (formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
+          this.loading = true
           let params = {
             head_pic: this.file,
             nickname: this.form.nickname,
@@ -111,6 +113,7 @@ export default {
           modifyUser(params).then(res => {
             if (res.data.code == 0) {
               this.getUserInfor()
+              this.loading = false
               this.$message({
                 type: 'success',
                 message: '修改成功'

@@ -59,7 +59,7 @@
 import dialogBar from './../components/DialogBar'
 import FormItem from './../components/FormItem'
 import { register, getCode, login } from './../api/login'
-import { clearInterval } from 'timers';
+import {getLocalStorage} from './../assets/js/storage.js'
 export default {
   name: 'RegisterDialog',
   components: {
@@ -74,6 +74,7 @@ export default {
       cutdown: 60,
       showTime: false,
       timmer: null,
+      channel: '',
       form: {
         nickname: '',
         mobile: '',
@@ -125,6 +126,7 @@ export default {
   watch: {
     'visibile' (val) {
       if (!val) {
+        this.channel = getLocalStorage('channel')
         this.showTime = false
         window.clearInterval(this.timmer)
         this.timmer = null
@@ -142,6 +144,9 @@ export default {
         password: this.form.password,
         verify_code: this.form.verify_code
       }
+      if (this.channel) {
+        params.channel = this.channel
+      } 
       register(params).then(res => {
         if(res.data.code == 0) {
          this.goLogin()

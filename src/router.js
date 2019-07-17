@@ -123,6 +123,12 @@ export default new Router({
       component: () => import(/* webpackChunkName: "index" */ './views/Player.vue')
     },
     {
+      path: '/player1',
+      name: '播放器',
+      meta: {name: 'player', needUser: false},
+      component: () => import(/* webpackChunkName: "index" */ './views/Player1.vue')
+    },
+    {
       path: '/*',
       name: '404',
       // route level code-splitting

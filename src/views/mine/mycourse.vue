@@ -14,12 +14,12 @@
           label="课程名称">
         </el-table-column>
         <el-table-column
-          prop="update_time"
+          prop="buy_time"
           label="购买时间"
           width="180">
-          <template slot-scope="scope">
+          <!-- <template slot-scope="scope">
             {{timestampToTime(scope.row.update_time)}}
-          </template>
+          </template> -->
         </el-table-column>
         <el-table-column
           prop="address"

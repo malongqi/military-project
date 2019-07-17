@@ -90,7 +90,7 @@ export default {
       getbooks(params).then(res => {
         if (res.data.code == 0) {
           let data = res.data.data
-          this.pagination.pageTotal = data.total_num
+          this.pagination.pageTotal = parseInt(data.total_num)
           this.bookLists = data.items
           this.$store.commit('handleLoad', false)
         }

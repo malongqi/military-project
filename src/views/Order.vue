@@ -84,7 +84,7 @@
                       <el-input type="" v-model="form.mobile"></el-input>
                     </el-form-item>
                     <el-form-item label="是否设为常用地址">
-                      <el-switch v-model="form.isdefalut"></el-switch>
+                      <el-switch v-model="form.isdefault"></el-switch>
                     </el-form-item>
                     <el-form-item>
                       <el-button type="primary" @click="addAddrSubmit('form')">立即创建</el-button>
@@ -218,7 +218,7 @@ export default {
         name: '',
         desc: '',
         mobile: '',
-        isdefalut: false,
+        isdefault: false,
       },
       rules: {
         mobile: [
@@ -367,7 +367,7 @@ export default {
           this.$store.commit('handleLoad', false)
           this.defaultAddr = ''
           this.addrList.map((item, index) => {
-            if (item.isdefalut == 1) {
+            if (item.isdefault == 1) {
              this.defaultAddr = item
             }
           })
@@ -388,7 +388,7 @@ export default {
             name: this.form.name,
             detail_addr: this.form.desc,
             mobile: this.form.mobile,
-            isdefalut: this.form.isdefalut ? 1 : 0
+            isdefault: this.form.isdefault ? 1 : 0
           }
           if (this.modify === 0) {
             addMyAddress(params).then(res => {

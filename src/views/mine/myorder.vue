@@ -16,30 +16,32 @@
         </el-table-column>
         <el-table-column
           prop="order_number"
-          width="300"
+          width="280"
           label="订单号">
         </el-table-column>
         <el-table-column
           prop="name"
-          width="300"
+          width="200"
+          show-overflow-tooltip
           label="商品名称">
         </el-table-column>
         <el-table-column
           prop="price"
-          width="100"
+          width="90"
           label="应付金额">
         </el-table-column>
         <el-table-column
-          prop="create_time"
+          prop="order_time"
           label="订单产生时间"
-          width="200">
-          <template slot-scope="scope">
+          width="170">
+          <!-- <template slot-scope="scope">
             {{timestampToTime(scope.row.create_time)}}
-          </template>
+          </template> -->
         </el-table-column>
         <el-table-column
           prop="pay_status"
           width="80"
+          align="center"
           label="订单状态">
            <template slot-scope="scope">
               <span class="blue" v-if="scope.row.pay_status == 1">已支付</span>
@@ -48,8 +50,8 @@
         </el-table-column>
         <el-table-column
           prop="address"
-          align="center"
-          width="100"
+          align="left"
+          width="160"
           label="操作">
           <template slot-scope="scope">
             <router-link class="btn-text" :to="{path: 'detail', query:{courseId: scope.row.id}}">查看</router-link>
@@ -103,13 +105,13 @@ export default {
         if (res.data.code == 0) {
           let data = res.data.data
           this.tableData = data.items
-          this.pagination.pageTotal = data.total_num
+          this.pagination.pageTotal = parseInt(data.total_num)
           this.$store.commit('handleLoad', false)
         }
       })
     },
     deleteOrderItem (item) {
-      this.$confirm('此操作将永久删除该地址, 是否继续?', '提示', {
+      this.$confirm('此操作将永久删除该订单, 是否继续?', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'

@@ -123,6 +123,7 @@ export default {
     quite () {
       this.$store.commit('setUser', '' )
       this.$cookies.remove("user");
+      location.reload()
     }
   }
 }

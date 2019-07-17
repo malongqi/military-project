@@ -21,7 +21,7 @@
               </div>
               <div class="list-main">
                 <h3 class="list-item-hd">
-                  <router-link :to="item.href" class="">{{item.title}}</router-link>
+                  <router-link :to="{path: item.href}" class="">{{item.title}}</router-link>
                   <span class="price">¥{{item.price}}</span>
                 </h3>
                 <div class="list-item-text">课程简介：{{item.desc}}</div>
@@ -101,7 +101,7 @@ export default {
       getCourses(params).then(res=> {
         if (res.data.code == 0) {
           let data = res.data.data
-          this.pagination.pageTotal = data.total_num
+          this.pagination.pageTotal = parseInt(data.total_num)
           this.courseLists = data.items
           this.$store.commit('handleLoad', false)
         }
