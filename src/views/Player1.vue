@@ -57,9 +57,9 @@
 import {getLocalStorage, setLocalStorage} from './../assets/js/storage.js'
 import {getCourseDetail,getPlay} from './../api/course.js'
 import '../../node_modules/video.js/dist/video-js.css'
-import dhfPlayer from 'dhfPlayer'
+// import dhfPlayer from 'dhfPlayer'
 export default {
-  components: {dhfPlayer},
+  components: {},
   data () {
     return {
       player: null,
@@ -205,7 +205,7 @@ export default {
   }
 }
 </script>
-<style link="./../assets/css/dhfPlayer.css">
+// <style link="./../assets/css/dhfPlayer.css">
 </style>
 <style lang="scss">
 // body {

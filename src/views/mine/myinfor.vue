@@ -60,7 +60,7 @@ export default {
       rules: {
         nickname: [
           { required: true, message: '请输入昵称', trigger: 'blur' },
-          { max: 5, message: '不可超过15个字符', trigger: 'blur' }
+          { max: 16, message: '不可超过16个字符', trigger: 'blur' }
         ],
         email: [
           {

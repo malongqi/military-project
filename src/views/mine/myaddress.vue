@@ -66,7 +66,7 @@
           <el-switch v-model="form.isdefault"></el-switch>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="onSubmit('form')">立即创建</el-button>
+          <el-button type="primary" @click="onSubmit('form')">保存</el-button>
           <el-button @click="resetForm('form'); editState = false">取消</el-button>
         </el-form-item>
       </el-form>

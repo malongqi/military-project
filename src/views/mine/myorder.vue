@@ -21,7 +21,7 @@
         </el-table-column>
         <el-table-column
           prop="name"
-          width="200"
+          width="200" 
           show-overflow-tooltip
           label="商品名称">
         </el-table-column>

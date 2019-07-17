@@ -64,7 +64,7 @@
     <register-dialog ref="register"></register-dialog>
   </div>
 </template>
-<script src="./../assets/js/dhfPlayer.min.js"></script>
+// <script src="./../assets/js/dhfPlayer.min.js"></script>
 <script>
 import LoginDialog from './LoginDialog'
 import RegisterDialog from './RegisterDialog'
@@ -347,7 +347,7 @@ export default {
   }
 }
 </script>
-<style link="./../assets/css/dhfPlayer.css">
+// <style link="./../assets/css/dhfPlayer.css">
 </style>
 <style lang="scss">
 // body {
