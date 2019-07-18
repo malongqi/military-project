@@ -17,7 +17,10 @@ export const getOrderList = (params) => {
   return axios.post('Mine/order_list', params)
 }
 export const deleteOrder = (params) => {
-  return axios.post('Order/delete_order', params)
+  return axios.post('Order/detail', params)
+}
+export const getOrderDetail = (params) => {
+  return axios.post('Order/detail', params)
 }
 export const getCompany = (params) => {
   return axios.post('Company/info', params)

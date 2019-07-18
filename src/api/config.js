@@ -45,12 +45,13 @@ instance.interceptors.response.use(res => {
       type: 'error'
     })
     store.commit('setLoginState', true)
-  } else if (res.data.code != 0 && res.data.msg !== '订单未支付成功'){
-    Message({
-      message: res.data.msg,
-      type: 'error'
-    })
-  }
+  } 
+  // else if (res.data.code != 0 && res.data.msg !== '订单未支付成功'){
+  //   Message({
+  //     message: res.data.msg,
+  //     type: 'error'
+  //   })
+  // }
   return res
 })
 export default instance

@@ -54,7 +54,7 @@
           width="160"
           label="操作">
           <template slot-scope="scope">
-            <router-link class="btn-text" :to="{path: 'detail', query:{courseId: scope.row.id}}">查看</router-link>
+            <router-link class="btn-text" :to="{path: 'mydetail', query:{id: scope.row.order_id}}">查看</router-link>
             <span class="btn-text" @click="deleteOrderItem(scope.row)">删除</span>
             <router-link v-if="scope.row.pay_status == 0" class="btn-text red" :to="{path: 'detail', query:{courseId: scope.row.id}}">去付款</router-link>
           </template>

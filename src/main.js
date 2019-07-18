@@ -9,8 +9,8 @@ import * as ModalDialogs from 'vue-modal-dialogs'
 import Toasted from 'vue-toasted';
 import VueCookies from 'vue-cookies'
 import Vuerify from 'vuerify'
-// import dhfPlayer from 'dhfplayer'
-// Vue.use(dhfPlayer)
+import dhfPlayer from 'dhfplayer'
+Vue.use(dhfPlayer)
 import ElementUI from 'element-ui'
 import 'swiper/dist/css/swiper.css'
 import 'element-ui/lib/theme-chalk/index.css';

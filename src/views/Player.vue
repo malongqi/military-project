@@ -4,6 +4,7 @@
     <div class="wrapper">
       <div class="video-box">
         <video-player  class="vjs-custom-skin"
+          v-if="playerOptions.sources[0].src"
           ref="videoPlayer"
           :options="playerOptions"
           :playsinline="true"
@@ -23,7 +24,7 @@
       <div class="sidebar">
         <div class="sidebar-content">
           <ul class="list-tit" v-if= "activeMenu !== 3">
-            <li class="tit" v-for="(item,index) in list" :key="'list'+index">
+            <li class="tit" v-for="(item,index) in list" :key="'list'+index" @click="getPlaying(item.class_id)">
               <div class="playname">{{item.title}}</div>
               <span class="btn" :class="{'active': item.isPlay}">观看视频</span>
             </li>
@@ -84,7 +85,6 @@ export default {
   data () {
     return {
       id: '',
-      class: '',
       videoOptions: {},
       showPlayer: false,
       title: '星军课程',
@@ -115,12 +115,8 @@ export default {
         language: 'en',
         sources: [{
           type: "video/mp4",
-          // mp4
-          src: "https://video-dev.github.io/streams/x36xhzz/x36xhzz.m3u8",
-          // webm
-          // src: "https://cdn.theguardian.tv/webM/2015/07/20/150716YesMen_synd_768k_vp8.webm"
+          src: "",
         }],
-        // poster: "https://surmon-china.github.io/vue-quill-editor/static/images/surmon-1.jpg",
       }
     }
   },
@@ -128,7 +124,7 @@ export default {
     // debugger
     this.id = this.$route.query.id
     this._getCoursedetail()
-    this.getPlaying()
+    this.getPlaying(getLocalStorage('class'))
   },
   computed: {
     player() {
@@ -158,11 +154,19 @@ export default {
       })
     },
     // 获取播放数据
-    getPlaying () {
+    getPlaying (classid) {
       let params = {
         course_id: this.id,
-        class_id: getLocalStorage('class')
+        class_id: classid
       }
+      this.list.map(item => {
+        if (item.class_id == classid) {
+          item.isPlay = true
+        } else {
+          item.isPlay = false
+        }
+      })
+      setLocalStorage('class',classid)
       getPlay(params).then(res => {
         if (res.data.code == 0) {
           let data = res.data.data
@@ -177,12 +181,11 @@ export default {
       })
     },
     // 获取评论数据
-    // 获取评论数据
     getCommentsList () {
       let params = {
         course_id: this.id,
-        class_id: this.class,
-        page_index: 0,
+        class_id: getLocalStorage('class'),
+        page_index: 1,
         page_size: 15
       }
       getComments(params).then(res => {
@@ -373,7 +376,14 @@ export default {
     width: 74%;
     box-sizing: border-box;
     float: left;
+    height: 100%;
     padding:0 20px;
+    /deep/ .video-player {
+      height: 100%;
+      .video-js {
+        height: 100%;
+      }
+    }
   }
   .sidebar {
     width: 26%;

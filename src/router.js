@@ -111,6 +111,12 @@ export default new Router({
               name: '完善资料',
               meta: {name: '', needUser: true},
               component: () => import(/* webpackChunkName: "index" */ './views/mine/myinfor.vue')
+            },
+            {
+              path: '/mydetail',
+              name: '订单详情',
+              meta: {name: '', needUser: true},
+              component: () => import(/* webpackChunkName: "index" */ './views/mine/mydetail.vue')
             }
           ]
         }

@@ -4,15 +4,15 @@
     <div class="wrapper">
       <div class="video-box">
         <dhf-player
-          v-if="showPlayer"
+          v-if="videoOptions.source"
           ref="player"
-          :videoOptions = "videoOptions">
+          :videoOptions="videoOptions">
         </dhf-player>
       </div>
       <div class="sidebar">
         <div class="sidebar-content">
           <ul class="list-tit" v-if= "activeMenu !== 3">
-            <li class="tit" v-for="(item,index) in list" :key="'list'+index">
+            <li class="tit" v-for="(item,index) in list" :key="'list'+index" @click="getPlaying(715)">
               <div class="playname">{{item.title}}</div>
               <span class="btn" :class="{'active': item.isPlay}">观看视频</span>
             </li>
@@ -52,18 +52,53 @@
     
   </div>
 </template>
-<script src="./../assets/js/dhfPlayer.min.js"></script>
 <script>
 import {getLocalStorage, setLocalStorage} from './../assets/js/storage.js'
 import {getCourseDetail,getPlay} from './../api/course.js'
 import '../../node_modules/video.js/dist/video-js.css'
-// import dhfPlayer from 'dhfPlayer'
 export default {
   components: {},
   data () {
     return {
       player: null,
-      videoOptions: {},
+      videoOptions: {
+        // 宽度
+        width: 400,
+        // 高度
+        height: 400,
+        // 视频播放后是否循环播放
+        loop: false,
+        // 是否静音
+        muted: true,
+        // 是否自动播放
+        autoplay: false,
+        // 当true时，Video.js player将拥有流体大小。换句话说，它将按比例缩放以适应其容器。设置为true，宽度和高度以父盒子为准
+        fluid: true,
+        // 视频m3u8地址
+        source: '',
+        // 传入的网校ID
+        // agencyId: '1',
+        // // //视频id
+        // videoId: '79313',
+        // // //后台分配的app_id
+        // app_id: 'LB6nIZoJj8DjFYwGtkkOoQ',
+        // 视频播放事件
+        onplay: function () {
+          console.log('onplaybegin event')
+        },
+        // 视频报错事件
+        onerror: function () {
+          console.log('onplayerror event')
+        },
+        // 视频结束事件
+        onended: function () {
+          console.log('onplayend event')
+        },
+        // 视频暂停事件
+        onpause: function () {
+          console.log('onplaypause event')
+        }
+      },
       showPlayer: false,
       title: '星军课程',
       courses: [],
@@ -93,46 +128,8 @@ export default {
     this.id = this.$route.query.id
     this.class = getLocalStorage('class')
     this._getCoursedetail()
-    this.getPlaying()
+    this.getPlaying(this.class)
     let that = this
-    this.videoOptions = {
-      width: 400,
-      // 高度
-      height: 400,
-      // 视频播放后是否循环播放
-      loop: false,
-      // 是否静音
-      muted: true,
-      // 是否自动播放
-      autoplay: false,
-      // 当true时，Video.js player将拥有流体大小。换句话说，它将按比例缩放以适应其容器。设置为true，宽度和高度以父盒子为准
-      fluid: true,
-      // 视频m3u8地址
-      source: '',
-      // 传入的网校ID
-      // agencyId: '1',
-      // // //视频id
-      // videoId: '79313',
-      // // //后台分配的app_id
-      // app_id: 'LB6nIZoJj8DjFYwGtkkOoQ',
-      // 视频播放事件
-      onplay: function () {
-        console.log('onplaybegin event')
-      },
-      // 视频报错事件
-      onerror: function () {
-        console.log('onplayerror event')
-      },
-      // // 视频结束事件
-      onended: function () {
-          that.playEnd()
-      },
-      // 视频暂停事件
-      onpause: function () {
-        console.log('onplaypause event')
-      }
-    }
-    
   },
   methods: {
     _getCoursedetail () {
@@ -155,10 +152,10 @@ export default {
         }
       })
     },
-    getPlaying () {
+    getPlaying (classid) {
       let params = {
         course_id: this.id,
-        class_id: this.class
+        class_id: classid
       }
       getPlay(params).then(res => {
         if (res.data.code == 0) {
@@ -187,7 +184,7 @@ export default {
         }
       }
       this.videoOptions.source =  'https://video-dev.github.io/streams/x36xhzz/x36xhzz.m3u8 '// data.play_url
-      this.player.init()
+      this.player.play(this.videoOptions)
       // this.getPlaying()
     },
     handleMenu (id) {
