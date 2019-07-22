@@ -71,6 +71,11 @@ export default {
                 type: 'success',
                 message: '修改成功'
               })
+            } else {
+              this.$message({
+                type: 'error',
+                message: res.data.msg
+              })
             }
           })
         } else {

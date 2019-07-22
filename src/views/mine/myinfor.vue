@@ -6,12 +6,12 @@
     <div class="table-content">
       <el-form class="form-list" :rules="rules" ref="form" :model="form" label-width="130px">
         <el-form-item label="头像" class="form-inner">
-          <!-- <el-input v-model="form.avatar"></el-input> -->
-          <el-input ref="avatar" v-model="pic"></el-input>
-          
+          <div class="avatarbox">
+            <span v-if="!pic">选择头像</span>
+            <img v-else width="120" height="120" :src="pic" alt="">
+          </div>
           <el-button class="upload-btn" size="small" type="primary">
-            <!-- <el-input type="file"></el-input> -->
-            <input class="upload" type="file" @change="getFile">
+            <input class="upload" type="file" @change="getFile" accept="image/*">
             点击上传
           </el-button>
           
@@ -27,10 +27,6 @@
             <el-radio label="0">男</el-radio>
             <el-radio label="1">女</el-radio>
           </el-radio-group>
-        </el-form-item>
-        <el-form-item label="手机号">
-          <span>{{mobile}}</span>
-          <span>修改联系客服</span>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="onSubmit('form')" :loading="loading">保存</el-button>
@@ -86,19 +82,25 @@ export default {
       getUser().then(res => {
         if (res.data.code == 0) {
           let user = res.data.data
+          this.$store.commit('setUser', user)
+          this.$cookies.set('user', user, '1d');
           this.form =  {
             head_pic: user.head_pic,
             nickname: user.nickname,
             email: user.email,
             sex: user.sex,
           }
-          // this.$store.commit('setUser', res.data.data)
         }
       })
     },
     getFile (e) {
       this.file = e.target.files[0]
-      this.pic = this.file.name
+      let _this = this
+      var reader = new FileReader();
+        reader.readAsDataURL(this.file );
+        reader.onload = function (e) { 
+          _this.pic = e.target.result
+        }
     },
     onSubmit (formName) {
       this.$refs[formName].validate((valid) => {
@@ -118,9 +120,16 @@ export default {
                 type: 'success',
                 message: '修改成功'
               })
+            } else {
+              this.loading = false
+              this.$message({
+                type: 'error',
+                message: res.data.msg
+              })
             }
           })
         } else {
+          this.loading = false
           console.log('error submit!!')
           return false;
         }
@@ -151,6 +160,13 @@ export default {
   }
   .table-content {
     padding: 30px 0;
+  }
+  .avatarbox{
+    width: 120px;
+    height: 120px;
+    text-align: center;
+    line-height: 120px;
+    border:1px solid #e6e6e6;
   }
   a {
     color: #333;
@@ -200,6 +216,8 @@ export default {
   }
 }
 .upload-btn {
+  width: 118px;
+  height: 40px;
   position: relative;
   .upload {
     position: absolute;

@@ -1,7 +1,9 @@
 import store from './../store.js'
 import axios from 'axios'
+import router from './..//router'
 import { Message } from 'element-ui';
 var md5 = require('md5')
+import VueCookies from 'vue-cookies'
 // import cookies from 'vue-cookies'
 const paramsEdit = (params) => {
   let paramList = ''
@@ -19,9 +21,10 @@ const instance = axios.create({
     'Content-Type': 'multipart/form-data'
   },
   transformRequest:[function(data){
+    store.commit('setUser', VueCookies.get('user'))
     let Params = {
       ...data,
-      token: store.state.user ? store.state.user.token : '',
+      token: VueCookies.get('token'),
       client: 'pc-h5',
       request_time: new Date().getTime(),
       api_sign: paramsEdit(Params)
@@ -34,17 +37,20 @@ const instance = axios.create({
     return formData
   }]
 })
+// instance.interceptors.request.use(config => {
+//   debugger
+// }) 
 instance.interceptors.response.use(res => {
   // 对响应数据做些什么
   //  1000 需要登录
   // 1001 token失效
+  // console.log(store.state.user)
   res.config.url = res.config.url + '?t=' + new Date().getTime()
   if (res.data.code == 1001) {
     Message({
       message: '登录信息已失效请登录',
       type: 'error'
     })
-    store.commit('setLoginState', true)
   } 
   // else if (res.data.code != 0 && res.data.msg !== '订单未支付成功'){
   //   Message({

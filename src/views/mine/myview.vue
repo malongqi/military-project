@@ -54,7 +54,7 @@ export default {
       pagination: {
         pageIndex: 1,
         pageSize: 15,
-        pageTotal: 100,
+        pageTotal: 0,
       }
     }
   },

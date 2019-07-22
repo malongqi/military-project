@@ -19,8 +19,8 @@
               </router-link>
             </li>
           </ul>
-          <div class="navbar-right"  v-if="$store.state.user.nickname">
-            <router-link :to="{path: 'mine'}" class="item">【{{$store.state.user.nickname}}】</router-link>
+          <div class="navbar-right"  v-if="nickname">
+            <router-link :to="{path: 'mine'}" class="item">【{{nickname}}】</router-link>
             <span class="item" @click="quite">退出</span>
           </div>
           <div class="navbar-right" v-else>
@@ -50,19 +50,19 @@
         </ul>
       </div>
     </div>
-    <login-dialog ref="login"></login-dialog>
     <register-dialog ref="register"></register-dialog>
+    <forget ref="forget"></forget>
   </div>
 </template>
 <script>
-import LoginDialog from './LoginDialog'
 import RegisterDialog from './RegisterDialog'
+import Forget from './Forget'
 import { getDetail } from './../api/mine'
 export default {
   name: 'Layout',
   components: {
-    LoginDialog,
-    RegisterDialog
+    RegisterDialog,
+    Forget
   },
   data () {
     return {
@@ -94,11 +94,16 @@ export default {
   },
   mounted () {
     this.currentRoute = this.$route.meta
-    this.$store.commit('setUser', this.$cookies.get('user') )
     this._getCompany()
     // this.getHomeListData()
   
   },
+  computed: {
+    nickname () {
+      return this.$store.state.user.nickname
+    }
+  },
+  
   watch: {
     '$route' (to) {
       this.currentRoute = to.meta
@@ -114,16 +119,16 @@ export default {
       })
     },
     handleUser (val) {
-      if (val === 'login') {
-        this.$store.commit('setLoginState', true)
+      if (val == 'login') {
+        this.$router.push({path: 'login'})
       } else {
-        this.$refs[val].visibile = true
+        this.$refs.register.visibile = true
       }
     },
     quite () {
       this.$store.commit('setUser', '' )
       this.$cookies.remove("user");
-      location.reload()
+      this.$router.push({path: 'home'})
     }
   }
 }

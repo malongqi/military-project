@@ -1,14 +1,5 @@
 <template>
-  <dialog-bar
-    class="login-dialog"
-    v-model="$store.state.showLogin"
-    :width="720"
-    type="danger"
-    title="登录"
-    v-on:cancel="clickCancel()"
-    @danger="clickDanger()"
-    @confirm="clickConfirm()"
-    dangerText="Delete">
+  <div class="login">
     <div class="form">
       <form-item
       class="log-form-item"
@@ -26,14 +17,14 @@
       placeholder="请输入密码">
       </form-item>
       <div class="password">
-        <router-link to="">忘记密码</router-link>
+        <span @click="forget">忘记密码</span>
       </div>
     </div>
     <div slot="foot">
       <span class="login-btn" @click="submit">登录</span>
       <span class="login-btn" @click="register">立即注册</span>
     </div>
-  </dialog-bar>
+  </div>
 </template>
 
 <script>
@@ -79,6 +70,9 @@ export default {
       return errorsMsg
     }
   },
+  mounted() {
+    this.$store.commit('handleLoad', false)
+  },
   methods: {
     submit () {
       if (!this.$vuerify.check()) {
@@ -91,20 +85,25 @@ export default {
       login(params).then(res => {
         if(res.data.code == 0) {
           let data = res.data.data
-          this.$cookies.set('user', data, '5h');
-          // this.$cookies.set('token', data.token, '1d');
-          this.$store.commit('setUser', data)
-          this.$store.commit('setLoginState', false)
-          location.reload()
+          this.$router.push({path: 'home'})
+          this.$cookies.set('user', data, '1d');
+          this.$cookies.set('token', data.token, '1d');
           this.$message({
             type: 'success',
             message: '登录成功'
           })
+        } else {
+          this.$message({
+            type: 'error',
+            message: res.data.msg
+          })
         }
       })
     },
+    forget () {
+      this.$parent.$refs.forget.visibile = true
+    },
     register () {
-      this.$parent.$refs.login.visibile = false
       this.$parent.$refs.register.visibile = true
     }
   }
@@ -133,9 +132,12 @@ export default {
   background: #2b93c6;
   color: #ffffff;
   font-size: 20px;
+  text-align: center;
   line-height: 58px;
 }
-.login-dialog {
+.login {
+  width: 500px;
+  margin: 50px auto;
   .form {
     position: relative;
   }

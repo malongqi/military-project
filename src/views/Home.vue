@@ -17,9 +17,9 @@
     <div class="container">
       <div class="section" v-for="(section,index) in homeList" :key="'section' + index">
         <div class="advert" v-if="section.view_type == '1' && section.data">
-          <router-link :to="section.data.target_url">
+          <a :href="section.data.target_url">
             <img :src="section.data.img_url" alt="">
-          </router-link>
+          </a>
         </div>
         <div v-if="section.view_type == '2' || section.view_type == '3'" class="titlebar">
           <h2 class="titlebar-title">

@@ -1,6 +1,6 @@
 <template>
  <div class="detail">
-  <bread-crumbs></bread-crumbs>
+  <!-- <bread-crumbs></bread-crumbs> -->
   <!-- 课程详情 -->
   <div class="container" v-if="pageType == 'courseId'">
     <ul class="list-news">
@@ -22,7 +22,12 @@
             <p>主讲：{{courseDetail.lecturer}}</p>
             <p>课程有效期：从购买之日起{{courseDetail.period}}天</p>
           </div>
-          <div class="list-item-text clearfix">
+          <div v-if="courseDetail.pre_sale && courseDetail.pre_sale == 1" class="list-item-text clearfix">
+            <span class="price">活动中：{{coupon.desc}}</span>
+            <router-link v-if="courseDetail.is_buy==0" class="list-btn" :to="{path:'order',query:{courseId: id}}">购买</router-link>
+            <router-link v-if="courseDetail.is_buy==1" class="list-btn" :to="{path:'mycourse'}">已购买</router-link>
+          </div>
+          <div v-else class="list-item-text clearfix">
             <span class="price">¥{{courseDetail.price}}</span>
             <router-link v-if="courseDetail.is_buy==0" class="list-btn" :to="{path:'order',query:{courseId: id}}">购买</router-link>
             <router-link v-if="courseDetail.is_buy==1" class="list-btn" :to="{path:'mycourse'}">已购买</router-link>
@@ -66,7 +71,7 @@
                   {{item.title}}
                 </div>
                 <div class="label">
-                  <span class="load-btn" v-if="currentTab === 'courses'" @click="goPlayer(item)">观看视频</span>
+                  <el-button class="load-btn" v-if="currentTab === 'courses'" @click="goPlayer(item)">{{(courseDetail.is_buy =='0' && item.is_trial== 1) ? '试看':'观看视频'}}</el-button>
                   <a v-else class="load-btn" @click="downLoad(item)">点击下载</a>
                 </div>
               </li>
@@ -83,20 +88,6 @@
     <ul class="list-book">
       <!--缩略图在标题左边-->
       <li class="list-news-item clearfix">
-        <!-- <div class="list-thumb">
-          <swiper :options="swiperOptionTop" class="gallery-top" ref="swiperTop">
-            <swiper-slide v-for="(item, index) in swiperSlides" :key="'gallery-top' + index">
-              <img :src="item.url" alt="">
-            </swiper-slide>
-            <div class="swiper-button-next swiper-button-white" slot="button-next"></div>
-            <div class="swiper-button-prev swiper-button-white" slot="button-prev"></div>
-          </swiper>
-          <swiper :options="swiperOptionThumbs" class="gallery-thumbs" ref="swiperThumbs">
-            <swiper-slide v-for="(item, index) in swiperSlides" :key="'gallery-thumbs' + index">
-              <img :src="item.url" alt="">
-            </swiper-slide>
-          </swiper>
-        </div> -->
         <div class="list-thumb">
           <img :src="bookDetail.img_url" />
         </div>
@@ -104,13 +95,18 @@
           <h3 class="list-item-hd">
             {{bookDetail.title}}
           </h3>
-          <div class="list-item-hd">
+          <div class="list-item-hd" v-if="courseDetail.pre_sale != 1">
               <span class="price">¥{{bookDetail.price}}22</span>
           </div>
           <div class="list-item-text">
             <p>{{bookDetail.desc}}</p>
           </div>
-          <div class="list-item-text clearfix">
+          <div v-if="courseDetail.pre_sale && courseDetail.pre_sale == 1" class="list-item-text clearfix">
+            <span class="price">活动中：{{coupon.desc}}</span>
+            <router-link v-if="courseDetail.is_buy==0" class="list-btn" :to="{path:'order',query:{courseId: id}}">购买</router-link>
+            <router-link v-if="courseDetail.is_buy==1" class="list-btn" :to="{path:'mycourse'}">已购买</router-link>
+          </div>
+          <div v-else class="list-item-text clearfix">
             <router-link v-if="bookDetail.is_buy==0" class="list-btn" :to="{path:'order',query:{bookId: id}}">提交订单</router-link>
             <router-link v-if="bookDetail.is_buy==1" class="list-btn" :to="{path:'mycourse'}">已购买</router-link>
           </div>
@@ -166,6 +162,7 @@ export default {
       bookDetail: '',
       newsDetail: '',
       recommend: [],
+      coupon: '',
       tabNavs: [
         {
           name:'课时',
@@ -201,17 +198,8 @@ export default {
         loopedSlides: 5, 
         slideToClickedSlide: true,
       },
-      config: {
-
-      }
     }
   },
-  // computed: {
-  //   swiper(to) {
-
-  //     return this.$refs.mySwiper.swiper
-  //   }
-  // },
   watch: {
     '$route' () {
       for (let key in this.$route.query) {
@@ -235,12 +223,6 @@ export default {
       switch (this.pageType) {
         case 'bookId':
            this._getBookdetail()
-          //  this.$nextTick(() => {
-          //   const swiperTop = this.$refs.swiperTop.swiper
-          //   const swiperThumbs = this.$refs.swiperThumbs.swiper
-          //   swiperTop.controller.control = swiperThumbs
-          //   swiperThumbs.controller.control = swiperTop
-          // })
            break
         case 'courseId':
           this._getCourseRecommend()
@@ -271,7 +253,20 @@ export default {
         if (res.data.code == 0) {
           let data = res.data.data
           this.courseDetail = data
-          this.content = this.courseDetail.courses
+          if (this.courseDetail.pre_sale && this.courseDetail.pre_sale == '1') {
+            this.coupon = this.courseDetail.coupon
+            this.content = this.courseDetail.coupon.desc
+            this.tabNavs.map(item => {
+              if (item.type == 'content') {
+                item.checked = true
+              } else {
+                item.checked = false
+              }
+            })
+          } else {
+            this.content = this.courseDetail.courses
+          }
+         
           this.$store.commit('handleLoad', false)
         }
       })
@@ -292,14 +287,16 @@ export default {
         if (res.data.code == 0) {
           let data = res.data.data
           this.newsDetail = data
-          this.config = {
+          let config = {
+            url: window.location.href,
             title:data.title,
             description: data.title,
+            img: '',
             sites: ['qzone', 'qq', 'weibo','wechat']
           }
           this.$nextTick(() => {
             let sharebox = document.querySelector('.social-share')
-            window.socialShare(sharebox,  this.config)
+            window.socialShare(sharebox,  config)
           })
           this.$store.commit('handleLoad', false)
         }
@@ -310,18 +307,31 @@ export default {
       this.tabNavs.map(item => {item.checked = false})
       this.currentTab = item.type
       item.checked  = true
-      this.content = this.courseDetail[item.type]
+      if (this.courseDetail.pre_sale && this.courseDetail.pre_sale == '1' && this.currentTab == 'content') {
+        this.content = this.courseDetail.coupon.desc
+      } else {
+        this.content = this.courseDetail[item.type]
+      }
     },
     goPlayer (item) {
-      if (this.courseDetail.is_buy == 0) {
-        this.$message({
-          type: 'warning',
-          message: '请先购买该课程'
-        })
-        return
+      if (item.is_trial == '0') {
+        if (JSON.stringify(this.$store.state.user) == '{}' && item.is_trial == '0') {
+          this.$message({
+            type: 'warning',
+            message: '请先登录'
+          })
+          return
+        }
+        if (this.courseDetail.is_buy == 0 && item.is_trial == '0') {
+          this.$message({
+            type: 'warning',
+            message: '请先购买该课程'
+          })
+          return
+        }
       }
       setLocalStorage('class', item.class_id)
-      this.$router.push({path:'player', query: {id: this.id}})
+      this.$router.push({path:'player1', query: {id: this.id}})
     },
     downLoad (item) {
       if (this.courseDetail.is_buy == 0) {
@@ -352,6 +362,13 @@ export default {
 .social-share {
   margin-bottom: 20px;
   text-align: right;
+  /deep/ .icon-wechat .wechat-qrcode {
+    top: 46px;
+    &::after {
+      top: -14px;
+      transform: rotate(180deg);
+    }
+  }
 }
 .detail {
   margin-bottom: 50px;
@@ -498,7 +515,6 @@ export default {
       height: 34px;
       padding: 2px 7px;
       border-radius: 3px;
-      line-height: 34px;
       color: #ef2020;
       text-align: center;
       border: 1px solid #ef2020;

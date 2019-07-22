@@ -22,4 +22,7 @@ export const getPlay = (params) => {
 export const getComments= (params) => {
   return axios.post('Comment/lists', params)
 }
+export const addComments= (params) => {
+  return axios.post('Comment/add', params)
+}
 

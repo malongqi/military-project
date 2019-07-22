@@ -30,30 +30,31 @@
             </li>
           </ul>
           <div v-else class="message-list">
-            <div class="list-item">
+            <div class="list-item" v-for="(msg,index) in messageList" :key="'msg' + index">
               <div class="avatar">
                 <img src="" alt="">
               </div>
               <div class="list-hd">
                 <div class="list-sub">
-                  <span>shoujihao </span>
-                  <span> shijian </span>
+                  <span>{{msg.nickname}} </span>
+                  <span> {{msg.comment_time}} </span>
                 </div>
                 <div class="list-text">
-                    我也不知道学员会流血什么东西呀，随便吧，管他呢。自从上次看到了不一样的结构
+                  {{msg.content}}
                 </div>
               </div>
             </div>
-            <div class="texteara">
-              <el-input
-                type="textarea"
-                :rows="2"
-                style="width:100%"
-                placeholder="请输入内容"
-                v-model="textarea">
-                <el-button slot="append" type="primary">提交</el-button>
-              </el-input>
-            </div>
+            
+          </div>
+          <div class="texteara" v-if= "activeMenu == 3">
+            <el-input
+              type="textarea"
+              style="width:100%, height:40px"
+              resize="none"
+              placeholder="请输入内容"
+              v-model="textarea">
+            </el-input>
+            <el-button slot="append" type="primary" @click="submit">提交</el-button>
           </div>
         </div>
         <ul class="menu-bar">
@@ -67,7 +68,6 @@
 </template>
 // <script src="./../assets/js/dhfPlayer.min.js"></script>
 <script>
-import LoginDialog from './LoginDialog'
 import RegisterDialog from './RegisterDialog'
 import {getLocalStorage, setLocalStorage} from './../assets/js/storage.js'
 import 'video.js/dist/video-js.css'
@@ -75,7 +75,7 @@ import 'vue-video-player/src/custom-theme.css'
 import { videoPlayer } from 'vue-video-player'
 import videojs from 'video.js'
 import 'videojs-contrib-hls.js/src/videojs.hlsjs'
-import {getCourseDetail,getPlay,getComments} from './../api/course.js'
+import {getCourseDetail,getPlay,getComments,addComments} from './../api/course.js'
 export default {
   components: {
     videoPlayer,
@@ -115,13 +115,12 @@ export default {
         language: 'en',
         sources: [{
           type: "video/mp4",
-          src: "",
+          src: "http://dhfspace.360drm.com/1616_25007_1560737976_马哲一.m3u8?e=1563697027&token=gUBmfZgZS5wy4wdQIDZG8UVxlNCyVSjvksIb13K5:Wlrzm5LGvrgk6blFsiE3EDSSf7A=",
         }],
       }
     }
   },
   mounted() {
-    // debugger
     this.id = this.$route.query.id
     this._getCoursedetail()
     this.getPlaying(getLocalStorage('class'))
@@ -182,6 +181,7 @@ export default {
     },
     // 获取评论数据
     getCommentsList () {
+      this.messageList = []
       let params = {
         course_id: this.id,
         class_id: getLocalStorage('class'),
@@ -194,6 +194,30 @@ export default {
           this.messageList = data.items
           // this.play(this.options)
           this.$store.commit('handleLoad', false)
+        }
+      })
+    },
+    submit() {
+      if (this.textarea == '') {
+        this.$message({
+          type: 'error',
+          message: '请输入评论内容'
+        })
+      }
+      let params = {
+        course_id: this.id,
+        class_id: getLocalStorage('class'),
+        content: this.textarea
+      }
+      addComments(params).then(res => {
+        if (res.data.code == 0) {
+          this.textarea = ''
+          // this.play(this.options)
+          this.getCommentsList()
+          this.$message({
+            type: 'sucess',
+            message: '评论已添加'
+          })
         }
       })
     },
@@ -217,7 +241,6 @@ export default {
         // console.log('player pause!', player)
       },
       onPlayerEnded(player) {
-        debugger
         for (let i = 0; i < this.courses.length; i++) {
           let item = this.courses[i]
           item.isPlay = false
@@ -232,7 +255,6 @@ export default {
           }
         }
         this.getPlaying()
-        debugger
         // this.playerOptions.sources[0].src = 'https://cdn.theguardian.tv/webM/2015/07/20/150716YesMen_synd_768k_vp8.webm';
         // console.log('player ended!', player)
       },
@@ -263,7 +285,6 @@ export default {
        this.player.play()
       },
      play(options){
-       debugger
       var me = this,url;
       if(options.source){
         this.player.ready(function() {
@@ -392,6 +413,7 @@ export default {
     display: flex;
   }
   .sidebar-content {
+    position: relative;
     height: 100%;
     flex: 1;
     background: #fff;
@@ -447,13 +469,20 @@ export default {
     padding: 10px 10px 100px;
     box-sizing: border-box;
     height: 100%;
+    overflow-y: auto;
     position: relative;
   }
   .texteara {
     position: absolute;
     bottom: 0;
     left: 0;
+    display: flex;
+    height: 40px;
+    box-sizing: border-box;
     width: 100%;
+    /deep/ .el-textarea__inner {
+      height: 40px;
+    }
   }
   .list-item {
     padding: 20px;

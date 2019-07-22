@@ -28,10 +28,10 @@
         <el-table-column
           prop="price"
           width="90"
-          label="应付金额">
+          label="支付金额">
         </el-table-column>
         <el-table-column
-          prop="order_time"
+          prop="pay_time"
           label="订单产生时间"
           width="170">
           <!-- <template slot-scope="scope">
@@ -44,8 +44,11 @@
           align="center"
           label="订单状态">
            <template slot-scope="scope">
-              <span class="blue" v-if="scope.row.pay_status == 1">已支付</span>
-              <span class="red" v-if="scope.row.pay_status == 0">未支付</span>
+              <span class="red" v-if="scope.row.pay_status == 0">待支付</span>
+              <span class="green" v-if="scope.row.pay_status == 1">支付成功</span>
+              <span class="blue" v-if="scope.row.pay_status == 2">支付失败</span>
+              <span class="red" v-if="scope.row.pay_status == 3">支付过期</span>
+              <span class="red" v-if="scope.row.pay_status == 4">课程已过期</span>
            </template>
         </el-table-column>
         <el-table-column
@@ -84,7 +87,7 @@ export default {
       pagination: {
         pageIndex: 1,
         pageSize: 15,
-        pageTotal: 100,
+        pageTotal: 0,
       },
       user: ''
     }

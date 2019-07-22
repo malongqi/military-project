@@ -14,7 +14,7 @@
           label="课程名称">
         </el-table-column>
         <el-table-column
-          prop="buy_time"
+          prop="pay_time"
           label="购买时间"
           width="180">
           <!-- <template slot-scope="scope">
@@ -55,8 +55,8 @@ export default {
       tableData: [],
       pagination: {
         pageIndex: 1,
-        pageSize: 5,
-        pageTotal: 100,
+        pageSize: 15,
+        pageTotal: 0,
       }
     }
   },

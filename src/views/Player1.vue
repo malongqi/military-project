@@ -12,40 +12,42 @@
       <div class="sidebar">
         <div class="sidebar-content">
           <ul class="list-tit" v-if= "activeMenu !== 3">
-            <li class="tit" v-for="(item,index) in list" :key="'list'+index" @click="getPlaying(715)">
+            <li class="tit" v-for="(item,index) in list" :key="'list'+index">
               <div class="playname">{{item.title}}</div>
-              <span class="btn" :class="{'active': item.isPlay}">观看视频</span>
+              <el-button size="small" v-if="activeMenu == 1" class="btn" :class="{'active': item.isPlay}" :disabled="item.is_trial == '0'"  @click="getPlaying(item.class_id)">{{item.is_trial==1 ? '试看':'观看视频'}}</el-button>
+              <el-button size="small" v-if="activeMenu == 2" class="btn" :loading="item.loading" @click="downLoad(item)">点击下载</el-button>
             </li>
           </ul>
           <div v-else class="message-list">
-            <div class="list-item">
+            <div class="list-item" v-for="(msg,index) in messageList" :key="'msg' + index">
               <div class="avatar">
-                <img src="" alt="">
+                <img :src="msg.head_pic_small" alt="">
               </div>
               <div class="list-hd">
                 <div class="list-sub">
-                  <span>shoujihao </span>
-                  <span> shijian </span>
+                  <p>{{msg.nickname}} </p>
+                  <p> {{msg.comment_time}} </p>
                 </div>
                 <div class="list-text">
-                    我也不知道学员会流血什么东西呀，随便吧，管他呢。自从上次看到了不一样的结构
+                  {{msg.content}}
                 </div>
               </div>
             </div>
-            <div class="texteara">
-              <el-input
-                type="textarea"
-                :rows="2"
-                style="width:100%"
-                placeholder="请输入内容"
-                v-model="textarea">
-                <el-button slot="append" type="primary">提交</el-button>
-              </el-input>
-            </div>
+            
+          </div>
+          <div class="texteara" v-if= "activeMenu == 3">
+            <el-input
+              type="textarea"
+              style="width:100%, height:40px"
+              resize="none"
+              placeholder="请输入内容"
+              v-model="textarea">
+            </el-input>
+            <el-button slot="append" type="primary" @click="submit">提交</el-button>
           </div>
         </div>
         <ul class="menu-bar">
-          <li class="bar-item" v-for="(item,index) in menu" :key="'menu'+index" @click="handleMenu(item.id)">{{item.title}}</li>
+          <li class="bar-item" :class="{'active' : item.active}" v-for="(item,index) in menu" :key="'menu'+index" @click="handleMenu(item.id)">{{item.title}}</li>
         </ul>
       </div>
     </div>
@@ -54,12 +56,13 @@
 </template>
 <script>
 import {getLocalStorage, setLocalStorage} from './../assets/js/storage.js'
-import {getCourseDetail,getPlay} from './../api/course.js'
+import {getCourseDetail,getPlay,getCourseDown,getComments,addComments} from './../api/course.js'
 import '../../node_modules/video.js/dist/video-js.css'
 export default {
   components: {},
   data () {
     return {
+      id: '',
       player: null,
       videoOptions: {
         // 宽度
@@ -101,21 +104,25 @@ export default {
       },
       showPlayer: false,
       title: '星军课程',
+      messageList: [],
       courses: [],
       books: [],
       list: [],
       menu: [
         {
           id: 1,
-          title: '课时'
+          title: '课时',
+          active: true,
         },
         {
           id: 2,
-          title: '资料下载'
+          title: '资料下载',
+          active: false,
         },
         {
           id: 3,
-          title: '学员留言'
+          title: '学员留言',
+          active: false,
         }
       ],
       textarea: '', //留言内容
@@ -128,6 +135,10 @@ export default {
     this.id = this.$route.query.id
     this.class = getLocalStorage('class')
     this._getCoursedetail()
+    let _this = this
+    this.videoOptions.onended = function() {
+      _this.playEnd()
+    }
     this.getPlaying(this.class)
     let that = this
   },
@@ -147,6 +158,9 @@ export default {
             }
           })
           this.list = this.courses = data.courses
+          data.downs.map(item => {
+            item.loading = false
+          })
           this.books = data.downs
           this.$store.commit('handleLoad', false)
         }
@@ -157,35 +171,90 @@ export default {
         course_id: this.id,
         class_id: classid
       }
+      this.list.map(item => {
+        if (item.class_id == classid) {
+          item.isPlay = true
+        } else {
+          item.isPlay = false
+        }
+      })
+      setLocalStorage('class', classid)
+      // this.videoOptions.source =  'http://dhfspace.360drm.com/1616_25007_1560737976_马哲一.m3u8?e=1563697027&token=gUBmfZgZS5wy4wdQIDZG8UVxlNCyVSjvksIb13K5:Wlrzm5LGvrgk6blFsiE3EDSSf7A='
+      // this.showPlayer = true
       getPlay(params).then(res => {
         if (res.data.code == 0) {
-          debugger
           let data = res.data.data
-          this.videoOptions.source =  data.play_url // 'https://video-dev.github.io/streams/x36xhzz/x36xhzz.m3u8 '// data.play_url
+          this.videoOptions.source =  data.play_url 
           this.showPlayer = true
           this.$nextTick(() => {
             this.player = this.$refs.player
+            this.player.play()
           })
-         
+          
           this.$store.commit('handleLoad', false)
         }
       })
     },
     playEnd () {
-      debugger
+      this.showPlayer = false
       for (let i = 0; i < this.courses.length; i++) {
         let item = this.courses[i]
+        item.isPlay = false
         if (item.class_id = this.class) {
           if (i == this.courses.length -1) {
-            this.class = this.courses[0].class_id 
+            setLocalStorage('class', this.courses[0].class_id)
+            this.$set(this.list[0], 'isPlay', true)
           } else {
-            this.class = this.courses[i + 1].class_id 
+            setLocalStorage('class', this.courses[i + 1].class_id)
+            this.$set(this.list[i + 1], 'isPlay', true)
           }
         }
       }
-      this.videoOptions.source =  'https://video-dev.github.io/streams/x36xhzz/x36xhzz.m3u8 '// data.play_url
-      this.player.play(this.videoOptions)
-      // this.getPlaying()
+      // this.videoOptions.source =  // data.play_url
+      // this.player.play(this.videoOptions)
+      this.getPlaying(this.class)
+    },
+    // 获取评论数据
+    getCommentsList () {
+      this.messageList = []
+      let params = {
+        course_id: this.id,
+        class_id: getLocalStorage('class'),
+        page_index: 1,
+        page_size: 15
+      }
+      getComments(params).then(res => {
+        if (res.data.code == 0) {
+          let data = res.data.data
+          this.messageList = data.items
+          // this.play(this.options)
+          this.$store.commit('handleLoad', false)
+        }
+      })
+    },
+    submit() {
+      if (this.textarea == '') {
+        this.$message({
+          type: 'error',
+          message: '请输入评论内容'
+        })
+      }
+      let params = {
+        course_id: this.id,
+        class_id: getLocalStorage('class'),
+        content: this.textarea
+      }
+      addComments(params).then(res => {
+        if (res.data.code == 0) {
+          this.textarea = ''
+          // this.play(this.options)
+          this.getCommentsList()
+          this.$message({
+            type: 'sucess',
+            message: '评论已添加'
+          })
+        }
+      })
     },
     handleMenu (id) {
       this.activeMenu = id
@@ -196,8 +265,21 @@ export default {
         this.list = this.books
       }
       if (id == 3) {
-        this.list = []
+        this.getCommentsList()
       }
+    },
+    downLoad (item) {
+      item.loading = true
+      let params = {
+        course_id: this.id,
+        class_id: item.class_id
+      }
+      getCourseDown(params).then(res => {
+        if (res.data.code == 0) {
+          item.loading = false
+          location.href = res.data.data.down_url
+        }
+      })  
     }
   }
 }
@@ -237,6 +319,7 @@ export default {
     display: flex;
   }
   .sidebar-content {
+    position: relative;
     height: 100%;
     flex: 1;
     background: #fff;
@@ -250,7 +333,7 @@ export default {
     }
     .playname {
       flex: 1;
-      width: 155px;
+      width: 130px;
       text-overflow: ellipsis;
       white-space: nowrap;
       overflow: hidden;
@@ -259,8 +342,6 @@ export default {
       display: inline-block;
       color: #ff0000;
       border: 1px solid #ff0000;
-      width: 108px;
-      line-height: 32px;
       text-align: center;
       border-radius: 4px;
       font-size: 18px;
@@ -292,21 +373,29 @@ export default {
     padding: 10px 10px 100px;
     box-sizing: border-box;
     height: 100%;
+    overflow-y: auto;
     position: relative;
   }
   .texteara {
     position: absolute;
     bottom: 0;
     left: 0;
+    display: flex;
+    height: 40px;
+    box-sizing: border-box;
     width: 100%;
+    /deep/ .el-textarea__inner {
+      height: 40px;
+    }
   }
   .list-item {
-    padding: 20px;
+    padding:20px 10px;
     display: flex;
     border-bottom: 1px solid #a6a6a6;
     .avatar {
       width: 66px;
       height: 66px;
+      margin-right: 10px;
       overflow: hidden;
       border-radius: 8px;
     }
@@ -315,10 +404,14 @@ export default {
       font-size:18px; 
       .list-sub {
         color: #a6a6a6;
+        p {
+          margin: 0
+        }
       }
       .list-text {
-        margin-top: 20px;
+        margin-top: 10px;
         color: #333333;
+        word-break: break-all;
       }
     }
   }

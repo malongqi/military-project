@@ -13,6 +13,15 @@ export default new Router({
       component: () => import(/* webpackChunkName: "index" */ './views/Layout.vue'),
       children: [
         {
+          path: '/login',
+          name: '登录',
+          // route level code-splitting
+          // this generates a separate chunk (about.[hash].js) for this route
+          // which is lazy-loaded when the route is visited.
+          meta: {name: 'login', needUser: false},
+          component: () => import(/* webpackChunkName: "index" */ './views/LoginDialog.vue')
+        },
+        {
           path: '/home',
           name: '首页',
           // route level code-splitting

@@ -21,7 +21,7 @@
               </div>
               <div class="list-main">
                 <h3 class="list-item-hd">
-                  <router-link :to="{path: item.href}" class="">{{item.title}}</router-link>
+                  <a class="">{{item.title}}</a>
                   <span class="price">¥{{item.price}}</span>
                 </h3>
                 <div class="list-item-text">课程简介：{{item.desc}}</div>
@@ -66,7 +66,7 @@ export default {
       pagination: {
         pageIndex: 1,
         pageSize: 15,
-        pageTotal: 100,
+        pageTotal: 0,
       }
     }
   },

@@ -5,8 +5,8 @@
         <div class="order-head">请填写核对订单信息</div>
         <div class="order-main">
           <div v-if="pageType =='bookId'">
-            <div class="adress-section" v-if="defaultAddr !== ''">
-              <div class="label">默认地址：</div>
+            <div class="adress-section" v-if="JSON.stringify(defaultAddr) != '{}'">
+              <div class="label">收货地址：</div>
               <div class="block">
                 <ul class="address-list">
                   <li>
@@ -16,13 +16,13 @@
                     <div class="item">{{defaultAddr.addr_detail}}</div>
                   </li>
                 </ul>
-                <span class="list-edit" @click="handleEditAddress">修改默认地址</span>
+                <span class="list-edit" @click="handleEditAddress">更换地址</span>
               </div>
             </div>
             <div class="adress-section" v-else>
-              <div class="label">收货管理：</div>
+              <div class="label">收货地址：</div>
               <div style="flex:1">
-                <div v-if="defaultAddr === ''" class="red block" @click="handleEditAddress">(管理收货地址)</div>
+                <div v-if="JSON.stringify(defaultAddr) == '{}'" class="red block" @click="handleEditAddress">(管理收货地址)</div>
                 <div style="width:100%" v-if="showAddrList">
                   <div class="tit">
                     <span>收货地址</span>
@@ -37,7 +37,7 @@
                           >
                           <div class="list-tit">{{item.name}}</div>
                           <div class="list-sub">{{item.mobile}}</div>
-                          <div class="list-adress">{{item.addr_detail}}</div>
+                          <div class="list-adress">{{item.addr_all}}{{item.addr_detail}}</div>
                           <div class="list-edit">
                             <span @click="setDefaultAddress(item)" class="btn">设置为收货地址</span>
                           </div>
@@ -88,7 +88,7 @@
                     </el-form-item>
                     <el-form-item>
                       <el-button type="primary" @click="addAddrSubmit('form')">立即创建</el-button>
-                      <el-button @click="resetForm('form'); editState = false; showAddrList= false">取消</el-button>
+                      <el-button @click="cancel">取消</el-button>
                     </el-form-item>
                   </el-form>
                 </div>
@@ -99,7 +99,38 @@
           <div class="order-section">
             <span class="tit">商品信息</span>
           </div>
-          <ul class="order-list">
+          <ul class="order-list" v-if="orderDetail.pre_sale == '1'">
+            <li class="list-item list-title">
+              <div class="order-list-hd">
+                <!-- <checkbox name="food[]" value="hamburger" v-model="checkboxValue">
+                </checkbox> -->
+              </div>
+              <div class="order-list-sub">单价</div>
+              <div class="order-list-sub">数量</div>
+              <div class="order-list-sub">金额</div>
+              <div class="order-list-sub">详情</div>
+            </li>
+            <li
+              class="list-item">
+              <div class="order-list-hd">
+                <!-- <checkbox name="food[]" value="hamburger" v-model="checkboxValue">
+                </checkbox> -->
+                <div class="img-box">
+                  <img :src="orderDetail.img_url" alt="">
+                </div>
+                <div class="order-list-title">
+                   {{coupon.title}}
+                </div>
+              </div>
+              <div class="order-list-sub">¥ {{coupon.actual_pay}}</div>
+              <div class="order-list-sub">{{number}}</div>
+              <div class="order-list-sub">¥ {{coupon.actual_pay}}</div>
+              <div class="order-list-sub">
+                <router-link :to="{path:'/detail?' + pageType + '=' + id}">查看</router-link>
+              </div>
+            </li>
+          </ul>
+          <ul v-else class="order-list">
             <li class="list-item list-title">
               <div class="order-list-hd">
                 <!-- <checkbox name="food[]" value="hamburger" v-model="checkboxValue">
@@ -125,7 +156,7 @@
               <div class="order-list-sub">¥ {{orderDetail.price}}</div>
               <div class="order-list-sub">{{number}}</div>
               <div class="order-list-sub">¥ {{total}}</div>
-              <div class="order-list-sub">
+              <div class="order-list-sub">
                 <router-link :to="{path:'/detail?' + pageType + '=' + id}">查看</router-link>
               </div>
             </li>
@@ -133,11 +164,9 @@
           <div class="order-form">
             <h4>确认付款方式</h4>
             <div class="radio-group">
-              <el-radio v-model="radioValue" label="1">
-                <img width="100" src="./../assets/images/zfb.jpg" alt="">
-              </el-radio>
-              <el-radio v-model="radioValue" label="2">
-                <img width="130" src="./../assets/images/wx.png" alt="">
+              <el-radio v-model="radioValue" :label="check.pay_type" v-for="(check, index) in checkList" :key="'check' + index">
+                <img width="100" v-if="check.pay_type == '1'" src="./../assets/images/zfb.jpg" alt="">
+                <img width="100" v-if="check.pay_type == '2'" src="./../assets/images/wx.png" alt="">
               </el-radio>
             </div>
             <p class="order-tips">为了保证及时处理您的订单，请下单24小时内付款</p>
@@ -155,11 +184,11 @@
               <div class="total">
                 <p>
                   <span>商品总金额： <span class="num">{{total}}</span>元</span>
-                  <span v-if="pageType == 'bookId'">配送费用： <span class="num">{{transfer}}</span>元</span>
+                  <span v-if="pageType == 'bookId'">配送费用： <span class="num">{{express_fee}}</span>元</span>
                 </p>
                 <p>
-                  <span>应付金额： <span class="num">{{total + transfer}}</span>元</span>
-                  <span>实付金额： <span class="num">{{total + transfer}}</span>元</span>
+                  <span v-if="discounts">优惠： <span class="num">{{discounts.discount_amount}}</span>元  <span class="infor">{{discounts.desc}}</span></span>
+                  <span>支付金额： <span class="num">{{payPrice}}</span>元</span>
                 </p>
               </div>
             </div>
@@ -189,7 +218,7 @@
 </template>
 
 <script type="text/ecmascript-6">
-import { getOrderList, postWxpay, postAlipay, checkWxPay, getMyAddress, getProvinceList, getCityList, getCountyList, addMyAddress, editMyAddress} from './../api/mine'
+import { getOrderList, postWxpay, postAlipay, checkWxPay, getMyAddress, getProvinceList, getCityList, getCountyList, addMyAddress, editMyAddress, buyInfor} from './../api/mine'
 import {getCourseDetail} from './../api/course.js'
 import {getBookDetail} from './../api/book.js'
 export default {
@@ -205,6 +234,9 @@ export default {
       orderDetail: {
         price: 0
       },
+      coupon: [],
+      discounts: '',
+      checkList: '',
       addrList: [],
       defaultAddr: {}, // 默认收货地址
       provinceList: [],
@@ -242,7 +274,7 @@ export default {
       id: '',
       editState: false,
       showAddrList: false,
-      transfer: 0, // 物流价格
+      express_fee: 0, // 物流价格
       number: 1,
       modify: 0,
       payParam: '',
@@ -251,7 +283,19 @@ export default {
   },
   computed: {
     total () {
-      return this.orderDetail.price * this.number
+      if (this.orderDetail.pre_sale == '1') {
+        return (this.coupon.actual_pay*100 * this.number)/100
+      } else {
+        return (this.orderDetail.price*100 * this.number)/100
+      }
+    },
+    payPrice () {
+      if (this.pageType == 'bookId') {
+        return (this.total*100 - (this.discounts.discount_amount || 0)*100 + this.express_fee*100)/100
+      } else {
+        return (this.total*100 - (this.discounts.discount_amount || 0)*100)/100
+      }
+      
     }
   },
   mounted () {
@@ -271,19 +315,60 @@ export default {
   },
   methods: {
     // 提交订单 走支付接口
+    getBuyInfor () {
+      let payType = ''
+      if (this.orderDetail.pre_sale == '1') {
+        payType = 3
+      } else {
+        if(this.pageType == 'courseId') {
+          payType = 1
+        } else {
+          payType = 2
+        }
+      }
+      let params = {
+        product_id: this.orderDetail.pre_sale == '1' ? this.coupon.id : this.id,
+        product_type: payType
+      } 
+      buyInfor(params).then(res => {
+        if (res.data.code == 0) {
+          let data = res.data.data
+          if (res.data.data && data.coupon) {
+            this.discounts = data.coupon
+          }
+          this.express_fee = data.express_fee
+          this.checkList = data.pay_list
+        }
+      })
+    },
     onSubmit () {
       // 支付宝支付
+      let payType = ''
+      if (this.orderDetail.pre_sale == '1') {
+        payType = 3
+      } else {
+        if(this.pageType == 'courseId') {
+          payType = 1
+        } else {
+          payType = 2
+        }
+      }
       if (this.radioValue === '1') {
         let params = {
           addr_id: this.defaultAddr.addr_id,
-          product_id: this.id,
-          product_type: this.pageType == 'courseId' ? 1 : 2, // product_type 1: 课程 2:教材
+          product_id: this.orderDetail.pre_sale == '1' ? this.coupon.id : this.id,
+          product_type: payType, // product_type 1: 课程 2:教材 3:优惠券
           remark: this.remark
         }
         postAlipay(params).then(res => {
           if (res.data.code == 0) {
             let data = res.data.data
              window.location.href = data.confirm_url + '?order_id=' + data.order_id + '&token=' + this.$store.state.user.token
+          } else {
+            this.$message({
+              type: 'error',
+              message: res.data.msg
+            })
           }
         })
       }
@@ -291,8 +376,8 @@ export default {
       if (this.radioValue === '2') {
         let params = {
           addr_id: this.defaultAddr.addr_id,
-          product_id: this.id,
-          product_type: this.pageType =='courseId' ? 1 : 2, // product_type 1: 课程 2:教材
+          product_id: this.orderDetail.pre_sale == '1' ? this.coupon.id : this.id,
+          product_type: payType, // product_type 1: 课程 2:教材
           remark: this.remark
         }
         postWxpay(params).then(res => {
@@ -302,10 +387,23 @@ export default {
             this.timer = setInterval(() => {
               this.checkPay()
             },2000)
+          } else {
+            this.$message({
+              type: 'error',
+              message: res.data.msg
+            })
           }
         })
       }
     },
+    cancel () {
+      this.resetForm('form')
+      this.editState = false
+      this.showAddrList= false
+    },
+    resetForm (formName) {
+      this.$refs[formName].resetFields();
+    }, 
     checkPay () {
       let params = {
         order_id: this.payParam.order_id
@@ -339,6 +437,10 @@ export default {
           let data = res.data.data
           this.orderDetail = data
           this.productId = data.book_id
+          if (this.orderDetail.pre_sale && this.orderDetail.pre_sale == '1') {
+
+          }
+          this.getBuyInfor()
           this.$store.commit('handleLoad', false)
         }
       })
@@ -351,6 +453,10 @@ export default {
         if (res.data.code == 0) {
           let data = res.data.data
           this.orderDetail = data
+          if (this.orderDetail.pre_sale && this.orderDetail.pre_sale == '1') {
+            this.coupon = data.coupon
+          }
+          this.getBuyInfor()
           this.$store.commit('handleLoad', false)
         }
       })
@@ -365,7 +471,7 @@ export default {
           let data = res.data.data
           this.addrList = data.items
           this.$store.commit('handleLoad', false)
-          this.defaultAddr = ''
+          this.defaultAddr = {}
           this.addrList.map((item, index) => {
             if (item.isdefault == 1) {
              this.defaultAddr = item
@@ -426,13 +532,16 @@ export default {
       this.defaultAddr = item
     },
     handleEditAddress () {
-      this.defaultAddr = ''
+      this.defaultAddr = {}
       this.showAddrList = true
     },
     handleChangeProvince (val) {
+      this.form.city =  ''
+      this.form.county = ''
       this._getCityList(val)
     },
     handleChangeCity (val) {
+      this.form.county = ''
       this._getCountyList(val)
     },
     _getProvinceList (val) {
@@ -517,6 +626,10 @@ export default {
   }
   .total {
     margin-top: 60px;
+    .infor {
+      color: #e26262;
+      font-size: 14px;
+    }
     p {
       text-align: right;
       margin: 0;

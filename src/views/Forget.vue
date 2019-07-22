@@ -3,15 +3,8 @@
     class="register-dialog"
     v-model="visibile"
     :width="720"
-    title="注册">
+    title="忘记密码">
     <div>
-      <form-item
-      class="log-form-item"
-      icon-left="icon-user"
-      v-model= "form.nickname"
-      :error-tips="errors['nickname']"
-      placeholder="请输入昵称">
-      </form-item>
       <form-item
       class="log-form-item"
       type="icon-user"
@@ -19,6 +12,16 @@
       icon-left="icon-user"
       :error-tips="errors['mobile']"
       placeholder="请输入手机号">
+      </form-item>
+      <form-item
+      class="log-form-item"
+      type="password"
+      v-model= "form.verify_code"
+      icon-left="icon-lock"
+      :error-tips="errors['verify_code']"
+      placeholder="短信验证码">
+      <span v-if="!showTime" class="yzm-btn" slot="iconRight" @click="getVerifyCode">获取验证码</span>
+      <span v-else class="time yzm-btn" slot="iconRight">{{cutdown}}S</span>
       </form-item>
       <form-item
       class="log-form-item"
@@ -36,19 +39,9 @@
       :error-tips="errors['confirm']"
       placeholder="请再次输入密码">
       </form-item>
-      <form-item
-      class="log-form-item"
-      type="password"
-      v-model= "form.verify_code"
-      icon-left="icon-lock"
-      :error-tips="errors['verify_code']"
-      placeholder="短信验证码">
-      <span v-if="!showTime" class="yzm-btn" slot="iconRight" @click="getVerifyCode">获取验证码</span>
-      <span v-else class="time yzm-btn" slot="iconRight">{{cutdown}}S</span>
-      </form-item>
     </div>
     <div slot="foot">
-      <span class="login-btn" @click="submit">注册</span>
+      <span class="login-btn" @click="submit">保存</span>
       <span class="login-btn" @click="cansel">取消</span>
     </div>
   </dialog-bar>
@@ -58,7 +51,8 @@
   
 import dialogBar from './../components/DialogBar'
 import FormItem from './../components/FormItem'
-import { register, getCode, login } from './../api/login'
+import {getCode } from './../api/login'
+import { forgetPwd } from './../api/mine'
 import {getLocalStorage} from './../assets/js/storage.js'
 export default {
   name: 'RegisterDialog',
@@ -76,7 +70,6 @@ export default {
       timmer: null,
       channel: '',
       form: {
-        nickname: '',
         mobile: '',
         password: '',
         confirm: '',
@@ -85,12 +78,6 @@ export default {
     };
   },
   vuerify: {
-    'form.nickname': {
-        test (val) {
-          return val !== '' && val.length < 15
-        },
-        message: '请输入正确用户名'
-    },
     'form.mobile': {
       test: /^1[3456789]\d{9}$/,
       message: '请输入正确的手机号'
@@ -139,31 +126,11 @@ export default {
         return
       }
       let params = {
-        nickname: this.form.nickname,
         mobile: this.form.mobile,
         password: this.form.password,
         verify_code: this.form.verify_code
       }
-      if (this.channel) {
-        params.channel = this.channel
-      } 
-      register(params).then(res => {
-        if(res.data.code == 0) {
-         this.goLogin()
-        } else {
-          this.$message({
-            type: 'error',
-            message: res.data.msg
-          })
-        }
-      })
-    },
-    goLogin () {
-      let params = {
-        mobile: this.form.mobile,
-        password: this.form.password
-      }
-      login(params).then(res => {
+      forgetPwd(params).then(res => {
         if(res.data.code == 0) {
           let data = res.data.data
           this.$cookies.set('user', data, '1d');
@@ -171,7 +138,7 @@ export default {
           this.visibile = false
           this.$message({
             type: 'success',
-            message: '注册成功,已自动登录'
+            message: '修改成功, 去登录'
           })
         } else {
           this.$message({

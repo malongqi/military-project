@@ -59,6 +59,9 @@ export const modifyUser = (params) => {
 export const modifyPwd = (params) => {
   return axios.post('User/modify_pwd', params)
 }
+export const forgetPwd = (params) => {
+  return axios.post('User/forget_pwd', params)
+}
 export const getProvinceList = (params) => {
   return axios.post('District/provinceList', params)
 }
@@ -67,4 +70,7 @@ export const getCityList = (params) => {
 }
 export const getCountyList = (params) => {
   return axios.post('District/countyList', params)
+}
+export const buyInfor = (params) => {
+  return axios.post('Buy/info', params)
 }

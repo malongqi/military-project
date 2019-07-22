@@ -27,7 +27,7 @@
             next-text="下一页"
             layout="prev, pager, next"
             :page-size="pagination.pageSize"
-            :total="pageTotal"
+            :total="pagination.pageTotal"
             @current-change="handleChange">
           </el-pagination>
         </div>
@@ -45,14 +45,13 @@ export default {
     return {
       sortTypes: [],
       newsList: [],
-      pageTotal: 100,
       filterParam: {
         catId: '',
       },
       pagination: {
         pageIndex: 1,
         pageSize: 15,
-        pageTotal: 100,
+        pageTotal: 0,
       }
     };
   },
@@ -86,7 +85,7 @@ export default {
       getNewsList(params).then(res => {
         if (res.data.code == 0) {
           let data = res.data.data
-          this.pageTotal = data.total_num
+          this.pagination.pageTotal = data.total_num
           this.newsList = data.items
           this.$store.commit('handleLoad', false)
         }

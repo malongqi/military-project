@@ -48,7 +48,6 @@ export default {
     return {
       sortTypes: [],
       bookLists: [],
-      pageTotal: 100,
       filterParam: {
         catId: '',
       
@@ -56,7 +55,7 @@ export default {
       pagination: {
         pageIndex: 1,
         pageSize: 40,
-        pageTotal: 100,
+        pageTotal: 0,
       }
     }
   },

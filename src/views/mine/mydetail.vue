@@ -8,52 +8,67 @@
         :data="tableData"
         border
         style="width: 100%">
-        <el-table-column
-          prop="title"
-          width="500"
-          label="课程名称">
+         <el-table-column
+          type="index"
+          width="60"
+          align="center"
+          label="序号">
         </el-table-column>
         <el-table-column
-          prop="buy_time"
-          label="购买时间"
+          prop="product_name"
+          width="300"
+          label="商品名称">
+        </el-table-column>
+        <el-table-column
+          prop="pay_time"
+          label="付款时间"
           width="180">
           <!-- <template slot-scope="scope">
             {{timestampToTime(scope.row.update_time)}}
           </template> -->
         </el-table-column>
         <el-table-column
-          prop="address"
-          align="center"
-          label="课程详情">
-          <template slot-scope="scope">
-            <router-link :to="{path: 'detail', query:{courseId: scope.row.id}}">查看</router-link>
-          </template>
+          prop="product_num"
+          label="商品数量">
         </el-table-column>
+        <el-table-column
+          prop="pay_fee"
+          label="订单金额">
+        </el-table-column>
+        <!-- <el-table-column
+          align="center"
+          label="操作">
+          <template slot-scope="scope">
+            <router-link :to="{path: 'detail', query:{courseId: scope.row.id}}">申请退款</router-link>
+          </template>
+        </el-table-column> -->
       </el-table>
-      <div>
+      <div class="wrapper" v-if="product_type == 2">
         <el-steps finish-status="success">
-          <el-step v-for="item in steps" :key="item.name" :title="item.name" :description="item.time" :icon="item.finished ? 'finished': 'waiting'"></el-step>
+          <el-step v-for="item in steps" :key="item.name" :title="item.name" :description="item.time" :icon="item.status==1 ? 'finished': 'waiting'"></el-step>
         </el-steps>
       </div>
-      <div>
-        订单状态: 带出库
+      <div class="status" v-if="product_type == 2">
+        订单状态: 待出库
       </div>
-      <div class="bottom-lists">
-        <div class="list">
+      <div class="bottom-lists" v-if="product_type == 2">
+        <div class="list" v-for="(list,index) in getList" :key="'list' + index">
           <h4>收货信息   <span>【修改】</span></h4>
           <ul>
-            <li class="list-item"><label for="">姓名</label> <div>孙小静</div></li>
+            <li class="list-item"><label for="">姓名</label> <div>{{list.receive_name}}</div></li>
+            <li class="list-item"><label for="">收货地址</label> <div>{{list.receive_address}}</div></li>
+            <li class="list-item"><label for="">收货电话</label> <div>{{list.receive_mobile}}</div></li>
           </ul>
         </div>
-        <div class="list">
+        <!-- <div class="list">
           <h4>发票信息   <span>【修改】</span></h4>
           <ul>
             <li class="list-item"><label for="">姓名</label> <div>孙小静</div></li>
           </ul>
-        </div>
+        </div> -->
       </div>
       <div class="align-right">
-        <span class="return">返回</span>
+        <router-link :to="{path: 'myorder'}" class="return">返回</router-link>
       </div>
     </div>
   </div>
@@ -67,37 +82,9 @@ export default {
     return {
       id: '',
       tableData: [],
-      steps: [
-        {
-          name: '下单',
-          finished: true,
-          time:121221
-        },
-        {
-          name: '付款',
-          finished: true,
-          time:121221
-        },
-        {
-          name: '配货',
-          finished: false,
-          time:121221
-        }
-      ],
-      editState: false,
-      form: {
-        oldMobile: '',
-        newMobile: '',
-        pwdConfirm: '',
-      },
-      rules: {
-        oldMobile: [
-          { required: true, message: '请填写旧密码', trigger: 'blur' }
-        ],
-        newMobile: [
-          { required: true, message: '请填写新密码', trigger: 'blur' }
-        ]
-      }
+      steps: [],
+      getList: [],
+      product_type: '',
     }
   },
   computed: {},
@@ -112,55 +99,11 @@ export default {
       }
       getOrderDetail(params).then(res => {
         if (res.data.code == 0){
-          this.tableData = res.data.data.items
-        }
-      })
-    },
-    onSubmit (formName) {
-      this.$refs[formName].validate((valid) => {
-        if (valid) {
-          let params = {
-            old_password: this.form.oldPwd,
-            password: this.form.newPwd
-          }
-          modifyPwd(params).then(res => {
-            if (res.data.code == 0){
-              this.$message({
-                type: 'success',
-                message: '修改成功'
-              })
-            }
-          })
-        } else {
-          console.log('error submit!!');
-          return false;
-        }
-      })
-    },
-    getVerifyCode () {
-      if (!this.$vuerify.check(['form.oldMobile'])) {
-        return
-      }
-      let params = {
-        mobile: this.form.oldMobile
-      }
-      getCode(params).then(res => {
-        if (res.data.code == 0) {
-          this.showTime = true
-          this.timmer = setInterval(() => {
-            if (this.cutdown === 0) {
-              this.showTime = false
-              this.cutdown = 60
-              window.clearInterval(this.timmer)
-              this.timmer = null
-            } else {
-              this.cutdown--
-            }
-          },1000)
-          this.$message({
-            type: 'success',
-            message: '已发送'
-          })
+          let data = res.data.data
+          this.product_type = data.product.product_type
+          this.tableData.push(data.product)
+          this.steps = data.express
+          this.getList.push(data.receive)
         }
       })
     }
@@ -214,6 +157,16 @@ export default {
     border-radius: 30px;
     background: #cccccc
   }
+  .wrapper {
+    padding: 30px 20px;
+    border:1px solid #EBEEF5;
+    border-top:0;
+  }
+  .status {
+    padding: 10px 20px;
+    border:1px solid #EBEEF5;
+    border-top:0;
+  }
   .bottom-lists {
     display: flex;
     .list {
@@ -241,6 +194,7 @@ export default {
     display: flex;
   }
   .align-right {
+    margin-top: 30px;
     text-align: right;
   }
   .return {

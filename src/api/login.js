@@ -11,3 +11,6 @@ export const login = (params, config) => {
 export const getCode = (params, config) => {
   return axios.post('User/verifyCode', params, config)
 }
+export const modifyMobile = (params, config) => {
+  return axios.post('User/modify_mobile', params, config)
+}

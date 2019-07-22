@@ -27,7 +27,7 @@
         
       </div>
       <el-form v-else class="form-list" :rules="rules" ref="form" :model="form" label-width="130px">
-        <el-form-item label="地址" class="form-inner">
+        <el-form-item required label="地址" class="form-inner">
           <el-select v-model="form.province" placeholder="请选择省" @change="handleChangeProvince">
             <el-option
               v-for="(item,index) in provinceList"
@@ -66,7 +66,7 @@
           <el-switch v-model="form.isdefault"></el-switch>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="onSubmit('form')">保存</el-button>
+          <el-button type="primary" @click="onSubmit('form')" :loading="loading">保存</el-button>
           <el-button @click="resetForm('form'); editState = false">取消</el-button>
         </el-form-item>
       </el-form>
@@ -81,6 +81,7 @@ export default {
   data () {
     return {
       editState: false,
+      loading: false,
       defaultAddr: {},
       tableData: [],
       form: {
@@ -148,6 +149,7 @@ export default {
     onSubmit (formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
+          this.loading = true
           let params = {
             provinceId: this.form.province,
             cityId: this.form.city,
@@ -161,11 +163,17 @@ export default {
             addMyAddress(params).then(res => {
               if (res.data.code == 0) {
                 this.editState = false
+                this.loading = false
                 this.modify = 0
                 this.getData()
                 this.$message({
                   type: 'success',
                   message: '添加成功'
+                })
+              } else {
+                this.$message({
+                  type: 'error',
+                  message: res.data.msg
                 })
               }
             })
@@ -174,11 +182,17 @@ export default {
             editMyAddress(params).then(res => {
               if (res.data.code == 0) {
                 this.editState = false
+                this.loading = false
                 this.modify = 0
                 this.getData()
                 this.$message({
                   type: 'success',
                   message: '修改成功'
+                })
+              } else {
+                this.$message({
+                  type: 'error',
+                  message: res.data.msg
                 })
               }
             })
@@ -205,9 +219,12 @@ export default {
       this._getProvinceList()
     },
     handleChangeProvince (val) {
+      this.form.city = ''
+      this.form.county = ''
       this._getCityList(val)
     },
     handleChangeCity (val) {
+      this.form.county = ''
       this._getCountyList(val)
     },
     _getProvinceList (val) {

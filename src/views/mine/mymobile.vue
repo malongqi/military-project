@@ -6,17 +6,23 @@
     <div class="table-content">
       <el-form class="form-list" :rules="rules" ref="form" :model="form" label-width="130px">
         <el-form-item label="旧手机号" prop="oldMobile">
-          <div class="inner-block">
-            <el-input type="password" v-model="form.oldMobile"></el-input>
-            <el-button v-if="!showTime" @click.prevent="getVerifyCode">获取验证码</el-button>
-            <span v-else class="time yzm-btn" slot="iconRight">{{cutdown}}S</span>
-          </div>
+          <el-input v-model="form.oldMobile"></el-input>
+        </el-form-item>
+        <el-form-item label="密码" prop="password">
+          <el-input v-model="form.password"></el-input>
         </el-form-item>
         <el-form-item label="新手机号" prop="newMobile">
-          <el-input type="password" v-model="form.newMobile"></el-input>
+          <div class="inner-block">
+            <el-input v-model="form.newMobile"></el-input>
+            <el-button v-if="!showTime" @click.prevent="getVerifyCode" class="btn-code">获取验证码</el-button>
+            <el-button v-else>{{cutdown}}S</el-button>
+          </div>
+        </el-form-item>
+        <el-form-item label="验证码" prop="yzm">
+          <el-input v-model="form.yzm"></el-input>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="onSubmit('form')">保存</el-button>
+          <el-button type="primary" @click="onSubmit('form')" :loading="loading">保存</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -24,23 +30,43 @@
 </template>
 
 <script>
-import {modifyPwd} from './../../api/mine'
+import {getCode, modifyMobile} from './../../api/login'
+// import {modifyMobile} from './../../api/mine'
 export default {
   components: {},
   data () {
+    var validatemobile = (rule, value, callback) => {
+      let reg = /^1[3456789]\d{9}$/
+      if (value === '') {
+        callback(new Error('请输入手机号'));
+      } else if (!reg.test(value)) {
+        callback(new Error('请输入正确的手机号'));
+      } else {
+        callback();
+      }
+    }
     return {
-      editState: false,
+      showTime: false,
+      cutdown: 60,
+      loading: false,
       form: {
         oldMobile: '',
-        newMobile: '',
-        pwdConfirm: '',
+        password: '',
+        yzm: '',
+        newMobile: ''
       },
       rules: {
         oldMobile: [
-          { required: true, message: '请填写旧密码', trigger: 'blur' }
+          { required: true, validator: validatemobile, trigger: 'blur' }
+        ],
+        password: [
+          { required: true, message: '请填写旧手机号', trigger: 'blur' }
+        ],
+        yzm: [
+          { required: true, message: '请填入验证码', trigger: 'blur' }
         ],
         newMobile: [
-          { required: true, message: '请填写新密码', trigger: 'blur' }
+          { required: true,validator: validatemobile, trigger: 'blur' }
         ]
       }
     }
@@ -49,32 +75,48 @@ export default {
   mounted() {},
   methods: {
     onSubmit (formName) {
+      this.loading = true
       this.$refs[formName].validate((valid) => {
         if (valid) {
           let params = {
-            old_password: this.form.oldPwd,
-            password: this.form.newPwd
+            old_mobile: this.form.oldMobile,
+            old_password: this.form.password,
+            mobile: this.form.newMobile,
+            verify_code: this.form.yzm
           }
-          modifyPwd(params).then(res => {
+          modifyMobile(params).then(res => {
+            this.loading = false
             if (res.data.code == 0){
+              this.loading = false
               this.$message({
                 type: 'success',
                 message: '修改成功'
               })
+            } else {
+              this.loading = false
+              this.$message({
+                type: 'error',
+                message: res.data.msg
+              })
             }
           })
         } else {
+          this.loading = false
           console.log('error submit!!');
           return false;
         }
       })
     },
     getVerifyCode () {
-      if (!this.$vuerify.check(['form.oldMobile'])) {
+      this.$refs.form.validateField('newMobile', (phoneError) => {
+        // this.$message({
+        //   type: 'error',
+        //   message: '请填写正确的手机号'
+        // })
         return
-      }
+      })
       let params = {
-        mobile: this.form.oldMobile
+        mobile: this.form.newMobile
       }
       getCode(params).then(res => {
         if (res.data.code == 0) {
@@ -121,6 +163,9 @@ export default {
   }
   .table-content {
     padding: 30px 0;
+  }
+  .btn-code {
+    width: 120px;
   }
   a {
     color: #333;
