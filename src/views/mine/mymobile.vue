@@ -15,7 +15,7 @@
           <div class="inner-block">
             <el-input v-model="form.newMobile"></el-input>
             <el-button v-if="!showTime" @click.prevent="getVerifyCode" class="btn-code">获取验证码</el-button>
-            <el-button v-else>{{cutdown}}S</el-button>
+            <el-button class="btn-code" v-else>{{cutdown}}S</el-button>
           </div>
         </el-form-item>
         <el-form-item label="验证码" prop="yzm">
@@ -60,7 +60,7 @@ export default {
           { required: true, validator: validatemobile, trigger: 'blur' }
         ],
         password: [
-          { required: true, message: '请填写旧手机号', trigger: 'blur' }
+          { required: true, message: '请填写密码', trigger: 'blur' }
         ],
         yzm: [
           { required: true, message: '请填入验证码', trigger: 'blur' }
@@ -88,9 +88,13 @@ export default {
             this.loading = false
             if (res.data.code == 0){
               this.loading = false
+              this.$router.push({path: 'login'})
+              this.$cookies.remove('token')
+              this.$cookies.remove('user')
+              this.$store.commit('setUser', {})
               this.$message({
                 type: 'success',
-                message: '修改成功'
+                message: '修改成功，重新登录'
               })
             } else {
               this.loading = false
@@ -109,10 +113,6 @@ export default {
     },
     getVerifyCode () {
       this.$refs.form.validateField('newMobile', (phoneError) => {
-        // this.$message({
-        //   type: 'error',
-        //   message: '请填写正确的手机号'
-        // })
         return
       })
       let params = {
@@ -135,6 +135,11 @@ export default {
             type: 'success',
             message: '已发送'
           })
+        } else {
+          this.$message({
+            type: 'error',
+            message: res.data.msg
+          })
         }
       })
     }
@@ -151,7 +156,7 @@ export default {
     line-height: 56px;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid #2c2222;
+    border-bottom: 1px solid #e6e6e6;
     .list-edit {
       background: #2b93c6;
       color: #fff;
@@ -166,6 +171,7 @@ export default {
   }
   .btn-code {
     width: 120px;
+    margin-left: 10px;
   }
   a {
     color: #333;

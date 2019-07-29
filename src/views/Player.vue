@@ -3,41 +3,36 @@
     <div class="title">{{title}}</div>
     <div class="wrapper">
       <div class="video-box">
-        <video-player  class="vjs-custom-skin"
-          v-if="playerOptions.sources[0].src"
-          ref="videoPlayer"
-          :options="playerOptions"
-          :playsinline="true"
-          @play="onPlayerPlay($event)"
+        <div class="nickname" v-if="shownNick">{{user.nickname}}</div>
+        <dhf-player
+          ref="player"
+          v-if="videoOptions.source"
+          :playsinline="false"
+          :options= "videoOptions"
           @pause="onPlayerPause($event)"
-          @ended="onPlayerEnded($event)"
-          @loadeddata="onPlayerLoadeddata($event)"
-          @waiting="onPlayerWaiting($event)"
-          @playing="onPlayerPlaying($event)"
-          @timeupdate="onPlayerTimeupdate($event)"
-          @canplay="onPlayerCanplay($event)"
-          @canplaythrough="onPlayerCanplaythrough($event)"
-          @ready="playerReadied"
-          @statechanged="playerStateChanged($event)">
-        </video-player>
+          @ended="ended($event)"
+          @play="play($event)"
+          @error="error($event)"
+        ></dhf-player>
       </div>
       <div class="sidebar">
         <div class="sidebar-content">
           <ul class="list-tit" v-if= "activeMenu !== 3">
-            <li class="tit" v-for="(item,index) in list" :key="'list'+index" @click="getPlaying(item.class_id)">
+            <li class="tit" v-for="(item,index) in list" :key="'list'+index">
               <div class="playname">{{item.title}}</div>
-              <span class="btn" :class="{'active': item.isPlay}">观看视频</span>
+              <el-button size="small" v-if="activeMenu == 1" class="btn" :class="{'active': item.isPlay}"  @click="getPlaying(item.class_id, item.is_trial)">{{item.is_trial==1 ? '试看':'观看视频'}}</el-button>
+              <el-button size="small" v-if="activeMenu == 2" class="btn" :loading="item.loading" @click="downLoad(item)">点击下载</el-button>
             </li>
           </ul>
           <div v-else class="message-list">
             <div class="list-item" v-for="(msg,index) in messageList" :key="'msg' + index">
               <div class="avatar">
-                <img src="" alt="">
+                <img :src="msg.head_pic_small" alt="">
               </div>
               <div class="list-hd">
                 <div class="list-sub">
-                  <span>{{msg.nickname}} </span>
-                  <span> {{msg.comment_time}} </span>
+                  <p>{{msg.nickname}} </p>
+                  <p> {{msg.comment_time}} </p>
                 </div>
                 <div class="list-text">
                   {{msg.content}}
@@ -58,80 +53,88 @@
           </div>
         </div>
         <ul class="menu-bar">
-          <li class="bar-item" v-for="(item,index) in menu" :key="'menu'+index" @click="handleMenu(item.id)">{{item.title}}</li>
+          <li class="bar-item" :class="{'active' : item.active}" v-for="(item,index) in menu" :key="'menu'+index" @click="handleMenu(item)">{{item.title}}</li>
         </ul>
       </div>
     </div>
-    <login-dialog ref="login"></login-dialog>
-    <register-dialog ref="register"></register-dialog>
+    
   </div>
 </template>
-// <script src="./../assets/js/dhfPlayer.min.js"></script>
 <script>
-import RegisterDialog from './RegisterDialog'
 import {getLocalStorage, setLocalStorage} from './../assets/js/storage.js'
-import 'video.js/dist/video-js.css'
-import 'vue-video-player/src/custom-theme.css'
-import { videoPlayer } from 'vue-video-player'
-import videojs from 'video.js'
-import 'videojs-contrib-hls.js/src/videojs.hlsjs'
-import {getCourseDetail,getPlay,getComments,addComments} from './../api/course.js'
+import {getCourseDetail,getPlay,getCourseDown,getComments,addComments} from './../api/course.js'
+import '../../node_modules/video.js/dist/video-js.css'
+import { debuglog } from 'util';
 export default {
-  components: {
-    videoPlayer,
-    LoginDialog,
-    RegisterDialog
-    },
+  components: {},
   data () {
     return {
       id: '',
-      videoOptions: {},
+      player: null,
+      videoOptions: {
+        // 宽度
+        width: 400,
+        // 高度
+        height: 400,
+        // 视频播放后是否循环播放
+        loop: false,
+        // 是否静音
+        muted: true,
+        // 是否自动播放
+        autoplay: true,
+        // 当true时，Video.js player将拥有流体大小。换句话说，它将按比例缩放以适应其容器。设置为true，宽度和高度以父盒子为准
+        fluid: true,
+        // 视频m3u8地址
+        source: '',
+        // 传入的网校ID
+        // agencyId: '1',
+        // // //视频id
+        // videoId: '79313',
+        // // //后台分配的app_id
+        // app_id: 'LB6nIZoJj8DjFYwGtkkOoQ',
+      },
+      is_buy: 0,
+      shownNick: false,
       showPlayer: false,
       title: '星军课程',
+      messageList: [],
       courses: [],
       books: [],
-      messageList: [],
       list: [],
       menu: [
         {
           id: 1,
-          title: '课时'
+          title: '课时',
+          active: true,
         },
         {
           id: 2,
-          title: '资料下载'
+          title: '资料下载',
+          active: false,
         },
         {
           id: 3,
-          title: '学员留言'
+          title: '学员留言',
+          active: false,
         }
       ],
       textarea: '', //留言内容
       activeMenu: 1,
-      playerOptions: {
-        muted: true,
-        autoplay: true,
-        preload: 'auto',
-        language: 'en',
-        sources: [{
-          type: "video/mp4",
-          src: "http://dhfspace.360drm.com/1616_25007_1560737976_马哲一.m3u8?e=1563697027&token=gUBmfZgZS5wy4wdQIDZG8UVxlNCyVSjvksIb13K5:Wlrzm5LGvrgk6blFsiE3EDSSf7A=",
-        }],
-      }
+    }
+  },
+   computed: {
+    user () {
+      return this.$store.state.user
     }
   },
   mounted() {
     this.id = this.$route.query.id
+    this.class = getLocalStorage('class')
     this._getCoursedetail()
-    this.getPlaying(getLocalStorage('class'))
-  },
-  computed: {
-    player() {
-      return this.$refs.videoPlayer.player
-    }
+    let _this = this
+    this.getPlaying(this.class)
   },
   methods: {
-    // 课程详情数据
     _getCoursedetail () {
       let params = {
         course_id: this.id 
@@ -139,45 +142,86 @@ export default {
       getCourseDetail(params).then(res => {
         if (res.data.code == 0) {
           let data = res.data.data
+          this.is_buy = data.is_buy
           data.courses.map(item => {
-            if (item.class_id == getLocalStorage('class')) {
+            if (item.class_id == this.class) {
               item.isPlay = true
             } else {
               item.isPlay = false
             }
           })
           this.list = this.courses = data.courses
+          data.downs.map(item => {
+            item.loading = false
+          })
           this.books = data.downs
           this.$store.commit('handleLoad', false)
         }
       })
     },
-    // 获取播放数据
-    getPlaying (classid) {
+    getPlaying (classid, isTrial) {
+      if (isTrial && isTrial != 1 &&  this.is_buy == 0) {
+        this.$message({
+          type: 'error',
+          message: '请先购买'
+        })
+        return
+      }
       let params = {
         course_id: this.id,
         class_id: classid
       }
-      this.list.map(item => {
+      this.list.map((item,index) => {
         if (item.class_id == classid) {
           item.isPlay = true
         } else {
           item.isPlay = false
         }
       })
-      setLocalStorage('class',classid)
+      setLocalStorage('class', classid)
       getPlay(params).then(res => {
         if (res.data.code == 0) {
           let data = res.data.data
-          this.$set(this.playerOptions.sources, 0, {
-            type: "video/mp4",
-            src: data.play_url
-          });
-          this.showPlayer = true
-          // this.play(this.options)
+          this.shownNick = true
+          this.videoOptions.source =  data.play_url
           this.$store.commit('handleLoad', false)
         }
       })
+    },
+    playEnd () {
+      
+    },
+    onPlayerPause (player) {
+      console.log(player)
+    },
+    ended (player) {
+      this.showPlayer = false
+      let next = ''
+      for (let i = 0; i < this.courses.length; i++) {
+        let item = this.courses[i]
+        if (item.isPlay) {
+          if (i == this.courses.length -1) {
+            next = 0
+          } else {
+            next = i + 1
+          }
+          
+          if (this.is_buy==0 && this.courses[next].is_trial == 0) {
+            return
+          } else {
+            this.class = this.courses[next].class_id
+            setLocalStorage('class', this.class)
+            this.getPlaying(this.class)
+          }
+          return
+        }
+      }
+    },
+    play () {
+      console.log('play')
+    },
+    error () {
+      console.log('error')
     },
     // 获取评论数据
     getCommentsList () {
@@ -215,159 +259,48 @@ export default {
           // this.play(this.options)
           this.getCommentsList()
           this.$message({
-            type: 'sucess',
+            type: 'success',
             message: '评论已添加'
           })
         }
       })
     },
-    handleMenu (id) {
-      this.activeMenu = id
-      if (id == 1) {
+    handleMenu (item) {
+      this.activeMenu = item.id
+      if (item.id == 1) {
         this.list = this.courses
       }
-      if (id == 2) {
+      if (item.id == 2) {
         this.list = this.books
       }
-      if (id == 3) {
+      if (item.id == 3) {
         this.getCommentsList()
       }
+      this.menu.map((sub,index) => {
+        sub.active = false
+      })
+      item.active = true
     },
-     // listen event
-      onPlayerPlay(player) {
-        // console.log('player play!', player)
-      },
-      onPlayerPause(player) {
-        // console.log('player pause!', player)
-      },
-      onPlayerEnded(player) {
-        for (let i = 0; i < this.courses.length; i++) {
-          let item = this.courses[i]
-          item.isPlay = false
-          if (item.class_id = this.class) {
-            if (i == this.courses.length -1) {
-              setLocalStorage('class', this.courses[0].class_id)
-              this.$set(this.list[0], 'isPlay', true)
-            } else {
-              setLocalStorage('class', this.courses[i + 1].class_id)
-              this.$set(this.list[i + 1], 'isPlay', true)
-            }
-          }
-        }
-        this.getPlaying()
-        // this.playerOptions.sources[0].src = 'https://cdn.theguardian.tv/webM/2015/07/20/150716YesMen_synd_768k_vp8.webm';
-        // console.log('player ended!', player)
-      },
-      onPlayerLoadeddata(player) {
-        // console.log('player Loadeddata!', player)
-      },
-      onPlayerWaiting(player) {
-        // console.log('player Waiting!', player)
-      },
-      onPlayerPlaying(player) {
-        // console.log('player Playing!', player)
-      },
-      onPlayerTimeupdate(player) {
-        // console.log('player Timeupdate!', player.currentTime())
-      },
-      onPlayerCanplay(player) {
-        // console.log('player Canplay!', player)
-      },
-      onPlayerCanplaythrough(player) {
-        // console.log('player Canplaythrough!', player)
-      },
-      // or listen state event
-      playerStateChanged(playerCurrentState) {
-        // console.log('player current update state', playerCurrentState)
-      },
-      // player is ready
-      playerReadied(player) {
-       this.player.play()
-      },
-     play(options){
-      var me = this,url;
-      if(options.source){
-        this.player.ready(function() {
-          this.src({
-            src: options.source,
-            type: 'application/x-mpegURL',
-          });
-        });
-        this.player.play();
-        return;
-      }
-      if(options.videoId&&options.app_id&&options.agencyId){
-        axios.get('http://testweb.360drm.com/index.php?app=api&mod=Player&act=GetPlay&app_id=' + encodeURIComponent(this.videoOptions.app_id) + '&agencyId=' + this.videoOptions.agencyId +
-          '&fid=' + this.videoOptions.videoId).then((res) => {
-          if (res.data.code === 0) {
-            console.log(this.decode(res.data.data))
-            //url = 'https://video-dev.github.io/streams/x36xhzz/x36xhzz.m3u8';
-            url = this.decode(res.data.data)
-          } else {
-            alert(res.data.msg)
-          }
-        }).then(function () {
-          me.player.ready(function() {
-            this.src({
-              src: url,
-              type: 'application/x-mpegURL',
-            });
-          });
-          me.player.play();
+    downLoad (item) {
+      if (this.is_buy == 0) {
+        this.$message({
+          type: 'error',
+          message: '请先购买'
         })
+        return
       }
-    },
-    decode (input) {
-      var _keyStr = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/='
-      var output = ''
-      var chr1, chr2, chr3
-      var enc1, enc2, enc3, enc4
-      var i = 0
-      var re = /[^A-Za-z0-9\+\/\=]/g;
-      input = input.replace(re, '')
-      while (i < input.length) {
-        enc1 = _keyStr.indexOf(input.charAt(i++))
-        enc2 = _keyStr.indexOf(input.charAt(i++))
-        enc3 = _keyStr.indexOf(input.charAt(i++))
-        enc4 = _keyStr.indexOf(input.charAt(i++))
-        chr1 = (enc1 << 2) | (enc2 >> 4)
-        chr2 = ((enc2 & 15) << 4) | (enc3 >> 2)
-        chr3 = ((enc3 & 3) << 6) | enc4
-        output = output + String.fromCharCode(chr1)
-        if (enc3 !== 64) {
-          output = output + String.fromCharCode(chr2)
-        }
-        if (enc4 !== 64) {
-          output = output + String.fromCharCode(chr3)
-        }
+      item.loading = true
+      let params = {
+        course_id: this.id,
+        class_id: item.class_id
       }
-      output = this._utf8_decode(output)
-      return output
-    },
-    _utf8_decode(utftext) {
-      let string = ''
-      let i = 0
-      let c = 0
-      let c2 = 0
-      let c3 = 0
-      while (i < utftext.length) {
-        c = utftext.charCodeAt(i)
-        if (c < 128) {
-          string += String.fromCharCode(c)
-          i++
-        } else if ((c > 191) && (c < 224)) {
-          c2 = utftext.charCodeAt(i + 1)
-          string += String.fromCharCode(((c & 31) << 6) | (c2 & 63))
-          i += 2
-        } else {
-          c2 = utftext.charCodeAt(i + 1)
-          c3 = utftext.charCodeAt(i + 2)
-          string += String.fromCharCode(((c & 15) << 12) | ((c2 & 63) << 6) | (c3 & 63))
-          i += 3
+      getCourseDown(params).then(res => {
+        if (res.data.code == 0) {
+          item.loading = false
+          location.href = res.data.data.down_url
         }
-      }
-      return string
-    },
+      })  
+    }
   }
 }
 </script>
@@ -377,6 +310,11 @@ export default {
 // body {
 //   overflow: hidden;
 // }
+@keyframes mymove {
+  0% {left:10%; top: 10%}
+  50% {left:80%; top:80% }
+  100% {left:10%; top: 10%}
+}
 .player {
   position: absolute;
   left: 0;
@@ -394,16 +332,19 @@ export default {
     padding-bottom: 40px; 
   }
   .video-box {
+    position: relative;
     width: 74%;
     box-sizing: border-box;
     float: left;
-    height: 100%;
     padding:0 20px;
-    /deep/ .video-player {
-      height: 100%;
-      .video-js {
-        height: 100%;
-      }
+    .nickname {
+      position: absolute;
+      color: #a7a4a4;
+      z-index: 9;
+      font-size: 20px;
+      font-weight: bolder;
+      white-space: nowrap;
+      animation:mymove 30s linear infinite;
     }
   }
   .sidebar {
@@ -416,6 +357,7 @@ export default {
     position: relative;
     height: 100%;
     flex: 1;
+    overflow-y:scroll; 
     background: #fff;
     .tit {
       display: block;
@@ -427,7 +369,7 @@ export default {
     }
     .playname {
       flex: 1;
-      width: 155px;
+      width: 130px;
       text-overflow: ellipsis;
       white-space: nowrap;
       overflow: hidden;
@@ -436,8 +378,6 @@ export default {
       display: inline-block;
       color: #ff0000;
       border: 1px solid #ff0000;
-      width: 108px;
-      line-height: 32px;
       text-align: center;
       border-radius: 4px;
       font-size: 18px;
@@ -460,6 +400,9 @@ export default {
       align-items: center;
       justify-content: center;
       border-bottom: 3px solid #000;
+      &.active {
+        background: #a6a6a6;
+      }
       &:first-child {
         border-top: 3px solid #000;
       }
@@ -485,24 +428,34 @@ export default {
     }
   }
   .list-item {
-    padding: 20px;
+    padding:20px 10px;
     display: flex;
     border-bottom: 1px solid #a6a6a6;
     .avatar {
       width: 66px;
       height: 66px;
+      margin-right: 10px;
       overflow: hidden;
       border-radius: 8px;
+      img {
+        width: 100%;
+        height: 100%;
+      }
     }
     .list-hd {
       flex: 1;
-      font-size:18px; 
+      font-size:16px; 
       .list-sub {
         color: #a6a6a6;
+        p {
+          margin: 0
+        }
       }
       .list-text {
-        margin-top: 20px;
+        margin-top: 10px;
         color: #333333;
+        font-size: 14px;
+        word-break: break-all;
       }
     }
   }

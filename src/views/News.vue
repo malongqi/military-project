@@ -13,7 +13,7 @@
         <ul class="list-news">
           <li class="list-news-item" v-for="(item,index) in newsList" :key="'new' + index">
             <router-link :to="{path: 'detail', query: {newsId: item.news_id}}">
-              <h3 class="list-news-hd">{{item.title}}</h3>
+              <h3 class="list-news-hd" v-html="item.title"></h3>
               <p class="list-news-text">
                 <span>发表于：{{item.public_time}}</span>
                 <span>新闻来源：{{item.source}}</span>
@@ -21,16 +21,16 @@
             </router-link>
           </li>
         </ul>
-        <div class="pagination-box">
-          <el-pagination
-            prev-text="上一页"
-            next-text="下一页"
-            layout="prev, pager, next"
-            :page-size="pagination.pageSize"
-            :total="pagination.pageTotal"
-            @current-change="handleChange">
-          </el-pagination>
-        </div>
+      </div>
+      <div class="pagination-box">
+        <el-pagination
+          prev-text="上一页"
+          next-text="下一页"
+          layout="prev, pager, next"
+          :page-size="pagination.pageSize"
+          :total="pagination.pageTotal"
+          @current-change="handleChange">
+        </el-pagination>
       </div>
     </div>
   </div>
@@ -107,6 +107,7 @@ export default {
 </script>
 <style lang='scss' scoped>
 .news {
+  padding-top:30px;
   margin-bottom: 50px;
   .catalog {
     background: #f5f5f5;
@@ -119,19 +120,23 @@ export default {
   border: 1px solid #a6a6a6;
   border-top: 0;
   .list-news-item {
-    padding: 54px 10px;
+    padding: 34px 10px;
     list-style: none;
     border-bottom: 1px solid #a6a6a6;
+    &:last-child {
+      border-bottom: 0;
+    }
     .list-news-hd {
       margin: 0;
-      font-size: 24px;
+      font-size: 22px;
       color: #333;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
     .list-news-text {
-      font-size:16px;
+      margin: 20px 0;
+      font-size:18px;
       color: #666666;
       span {
         display: inline-block;

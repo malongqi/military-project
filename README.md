@@ -1,4 +1,4 @@
-# military-project
+# xingjun_pc
 
 ## Project setup
 ```

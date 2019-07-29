@@ -162,25 +162,27 @@
             </li>
           </ul>
           <div class="order-form">
-            <h4>确认付款方式</h4>
-            <div class="radio-group">
-              <el-radio v-model="radioValue" :label="check.pay_type" v-for="(check, index) in checkList" :key="'check' + index">
-                <img width="100" v-if="check.pay_type == '1'" src="./../assets/images/zfb.jpg" alt="">
-                <img width="100" v-if="check.pay_type == '2'" src="./../assets/images/wx.png" alt="">
-              </el-radio>
-            </div>
-            <p class="order-tips">为了保证及时处理您的订单，请下单24小时内付款</p>
-            <div class="order-section">
-              <div class="label">订单赠言：</div>
-              <el-input
-                type="textarea"
-                class="textarea"
-                placeholder="请输入内容"
-                v-model="remark">
-              </el-input>
+            <h4 class="label-tit">确认付款方式</h4>
+            <div style="margin-left: 20px;">
+               <div class="radio-group">
+                  <el-radio v-model="radioValue" :label="check.pay_type" v-for="(check, index) in checkList" :key="'check' + index">
+                    <img width="100" v-if="check.pay_type == '1'" src="./../assets/images/zfb.jpg" alt="">
+                    <img width="100" v-if="check.pay_type == '2'" src="./../assets/images/wx.png" alt="">
+                  </el-radio>
+                </div>
+                <p class="order-tips">为了保证及时处理您的订单，请下单90分钟内付款</p>
+                <div class="order-section">
+                  <div class="label">订单留言：</div>
+                  <el-input
+                    type="textarea"
+                    class="textarea"
+                    placeholder="请输入内容"
+                    v-model="remark">
+                  </el-input>
+                </div>
             </div>
             <div class="order-section align-end">
-              <div class="label">金额总计：</div>
+              <div class="label-tit">金额总计：</div>
               <div class="total">
                 <p>
                   <span>商品总金额： <span class="num">{{total}}</span>元</span>
@@ -192,6 +194,7 @@
                 </p>
               </div>
             </div>
+            
             <div class="clearfix">
               <div class="submit-box">
                 <span class="submit-btn" @click="onSubmit">提交订单</span>
@@ -298,6 +301,14 @@ export default {
       
     }
   },
+  watch: {
+    payVisible (val) {
+      if (!val) {
+        window.clearInterval(this.timer)
+        this.timer = null;
+      }
+    }
+  },
   mounted () {
     this.$store.commit('handleLoad', false)
     for (let key in this.$route.query) {
@@ -363,7 +374,7 @@ export default {
         postAlipay(params).then(res => {
           if (res.data.code == 0) {
             let data = res.data.data
-             window.location.href = data.confirm_url + '?order_id=' + data.order_id + '&token=' + this.$store.state.user.token
+             window.open(data.confirm_url + '?order_id=' + data.order_id + '&token=' + this.$cookies.get('token'))
           } else {
             this.$message({
               type: 'error',
@@ -408,12 +419,21 @@ export default {
       let params = {
         order_id: this.payParam.order_id
       }
+      // 未支付2001 // 2000 支付成功 // 2002 支付失败
       checkWxPay(params).then(res => {
-        if (res.data.code == 0) {
+        if (res.data.code == 2000) {
           this.payVisible = false
           window.clearInterval(this.timer)
           this.timer = null;
           this.$router.push({path:'/mycourse'})
+        } else if(res.data.code == 2002){
+          this.payVisible = false
+          window.clearInterval(this.timer)
+          this.timer = null;
+          this.$message({
+            type: 'error',
+            message: res.data.msg
+          })
         }
       })
     },
@@ -579,11 +599,11 @@ export default {
 /* scss */
 .order {
   padding: 30px 0;
-  background: #eeeeee;
+  background: #f5f5f5;
   color: #333;
 }
 .order-wrapper {
-  padding:0 20px 20px;
+  padding:0 40px 20px;
   background: #ffffff;
   .order-head {
     font-size: 20px;
@@ -620,6 +640,7 @@ export default {
   line-height: 60px;
   &.align-end {
     justify-content: space-between;
+    
   }
   .textarea {
     flex: .6;
@@ -640,6 +661,7 @@ export default {
     .num {
       color: #e26262;
       font-size: 30px;
+      font-weight: bold;
     }
   }
 }
@@ -762,6 +784,10 @@ export default {
   }
 }
 .order-form {
+  .label-tit {
+    font-weight: bold;
+    font-size: 18px;
+  }
   .order-tips {
     font-size: 16px;
     color: #ef2020;

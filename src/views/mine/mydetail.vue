@@ -1,7 +1,7 @@
 <template>
   <div class="table-container">
     <div class="table-header">
-      <span>订单详情</span>
+      <span>订单详情 > 订单号：{{order_num}}</span>
     </div>
     <div class="table-content">
       <el-table
@@ -23,9 +23,6 @@
           prop="pay_time"
           label="付款时间"
           width="180">
-          <!-- <template slot-scope="scope">
-            {{timestampToTime(scope.row.update_time)}}
-          </template> -->
         </el-table-column>
         <el-table-column
           prop="product_num"
@@ -35,21 +32,14 @@
           prop="pay_fee"
           label="订单金额">
         </el-table-column>
-        <!-- <el-table-column
-          align="center"
-          label="操作">
-          <template slot-scope="scope">
-            <router-link :to="{path: 'detail', query:{courseId: scope.row.id}}">申请退款</router-link>
-          </template>
-        </el-table-column> -->
       </el-table>
-      <div class="wrapper" v-if="product_type == 2">
+      <div class="wrapper">
         <el-steps finish-status="success">
           <el-step v-for="item in steps" :key="item.name" :title="item.name" :description="item.time" :icon="item.status==1 ? 'finished': 'waiting'"></el-step>
         </el-steps>
       </div>
-      <div class="status" v-if="product_type == 2">
-        订单状态: 待出库
+      <div class="status">
+        订单状态: {{orderStatus}}
       </div>
       <div class="bottom-lists" v-if="product_type == 2">
         <div class="list" v-for="(list,index) in getList" :key="'list' + index">
@@ -81,7 +71,9 @@ export default {
   data () {
     return {
       id: '',
+      orderStatus: '',
       tableData: [],
+      order_num: '',
       steps: [],
       getList: [],
       product_type: '',
@@ -100,9 +92,15 @@ export default {
       getOrderDetail(params).then(res => {
         if (res.data.code == 0){
           let data = res.data.data
+          this.order_num = data.product.order_num
           this.product_type = data.product.product_type
           this.tableData.push(data.product)
           this.steps = data.express
+          data.express.map(item => {
+            if (item.status == 1) {
+              this.orderStatus = item.name
+            }
+          })
           this.getList.push(data.receive)
         }
       })
@@ -120,7 +118,7 @@ export default {
     line-height: 56px;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid #2c2222;
+    border-bottom: 1px solid #e6e6e6;
     .list-edit {
       background: #2b93c6;
       color: #fff;

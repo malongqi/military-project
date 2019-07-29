@@ -1,6 +1,6 @@
 <template>
  <div class="detail">
-  <!-- <bread-crumbs></bread-crumbs> -->
+  <bread-crumbs :lists="breadMenu"></bread-crumbs>
   <!-- 课程详情 -->
   <div class="container" v-if="pageType == 'courseId'">
     <ul class="list-news">
@@ -13,7 +13,7 @@
           <h3 class="list-item-hd title">
             {{courseDetail.title}}
           </h3>
-          <div class="list-item-hd border-bt">
+          <div class="list-item-hd border-bt list-text">
             <span class="item-sub">购买数{{courseDetail.buy_num}}</span>
             <span class="item-sub">课时数{{courseDetail.course_num}}</span>
             <span class="item-sub">浏览量{{courseDetail.view_num}}</span>
@@ -23,12 +23,14 @@
             <p>课程有效期：从购买之日起{{courseDetail.period}}天</p>
           </div>
           <div v-if="courseDetail.pre_sale && courseDetail.pre_sale == 1" class="list-item-text clearfix">
-            <span class="price">活动中：{{coupon.desc}}</span>
-            <router-link v-if="courseDetail.is_buy==0" class="list-btn" :to="{path:'order',query:{courseId: id}}">购买</router-link>
-            <router-link v-if="courseDetail.is_buy==1" class="list-btn" :to="{path:'mycourse'}">已购买</router-link>
+            <span v-if="coupon.status == 1" class="price">活动已结束</span>
+            <span v-if="coupon.status == 2" class="price">优惠券已售卖完</span>
+            <span v-if="coupon.status == 0" class="price">活动中：{{coupon.desc}}</span>
+            <router-link v-if="coupon.is_buy==0 && coupon.status == 0" class="list-btn" :to="{path:'order',query:{courseId: id}}">购买</router-link>
+            <router-link v-if="coupon.is_buy==1 && coupon.status == 0" class="list-btn" :to="{path:'mycourse'}">已购买</router-link>
           </div>
           <div v-else class="list-item-text clearfix">
-            <span class="price">¥{{courseDetail.price}}</span>
+            <span class="price">¥ {{courseDetail.price}}</span>
             <router-link v-if="courseDetail.is_buy==0" class="list-btn" :to="{path:'order',query:{courseId: id}}">购买</router-link>
             <router-link v-if="courseDetail.is_buy==1" class="list-btn" :to="{path:'mycourse'}">已购买</router-link>
           </div>
@@ -95,20 +97,23 @@
           <h3 class="list-item-hd">
             {{bookDetail.title}}
           </h3>
-          <div class="list-item-hd" v-if="courseDetail.pre_sale != 1">
-              <span class="price">¥{{bookDetail.price}}22</span>
+          <div class="list-item-hd" v-if="bookDetail.pre_sale != 1">
+              <span class="price">¥ {{bookDetail.price}}</span>
           </div>
           <div class="list-item-text">
             <p>{{bookDetail.desc}}</p>
           </div>
-          <div v-if="courseDetail.pre_sale && courseDetail.pre_sale == 1" class="list-item-text clearfix">
-            <span class="price">活动中：{{coupon.desc}}</span>
-            <router-link v-if="courseDetail.is_buy==0" class="list-btn" :to="{path:'order',query:{courseId: id}}">购买</router-link>
-            <router-link v-if="courseDetail.is_buy==1" class="list-btn" :to="{path:'mycourse'}">已购买</router-link>
+          <div v-if="bookDetail.pre_sale && bookDetail.pre_sale == 1" class="list-item-text clearfix">
+            <span v-if="coupon.status == 1" class="price">活动已结束</span>
+            <span v-if="coupon.status == 2" class="price">优惠券已售卖完</span>
+            <span v-if="coupon.status == 0" class="price">活动中：{{coupon.desc}}</span>
+            
+            <router-link v-if="coupon.is_buy==0 && coupon.status == 0" class="list-btn" :to="{path:'order',query:{courseId: id}}">购买</router-link>
+            <router-link v-if="coupon.is_buy==1 && coupon.status == 0" class="list-btn" :to="{path:'mycourse'}">已购买</router-link>
           </div>
           <div v-else class="list-item-text clearfix">
             <router-link v-if="bookDetail.is_buy==0" class="list-btn" :to="{path:'order',query:{bookId: id}}">提交订单</router-link>
-            <router-link v-if="bookDetail.is_buy==1" class="list-btn" :to="{path:'mycourse'}">已购买</router-link>
+            <router-link v-if="bookDetail.is_buy==1" class="list-btn" :to="{path:'myorder'}">已购买</router-link>
           </div>
         </div>
       </li>
@@ -128,10 +133,14 @@
   <div class="container" v-if="pageType == 'newsId'">
     <div class="social-share"></div>
     <div class="news-detail">
-      <h3 class="title">{{newsDetail.title}}</h3>
+      <div class="title-box">
+        <h3 class="title" v-html="newsDetail.title"></h3>
+        <span class="icon-prev" @click="getNews('prev')"></span>
+        <span class="icon-next" @click="getNews('next')"></span>
+      </div>
       <div class="label">
         <span>{{newsDetail.public_time}}</span>
-        <span>{{newsDetail.source}}</span>
+        <span>新闻来源: {{newsDetail.source}}</span>
       </div>
       <div class="artical" v-html="newsDetail.content"></div>
     </div>
@@ -146,7 +155,7 @@ import { swiper, swiperSlide } from 'vue-awesome-swiper'
 import {setLocalStorage} from './../assets/js/storage.js'
 import {getCourseDetail, getCourseRecommend, getCourseDown} from './../api/course.js'
 import {getBookDetail} from './../api/book.js'
-import {getNewsDetail} from './../api/news.js'
+import {getNewsDetail,getNewsPrev,getNewsNext} from './../api/news.js'
 export default {
   name: 'Detail',
   components: {
@@ -180,6 +189,7 @@ export default {
       ],
       currentTab: 'courses',
       content: '',
+      breadMenu: [],
       swiperSlides: [],
       swiperOptionTop: {
         spaceBetween: 10,
@@ -206,6 +216,7 @@ export default {
         this.pageType = key
         this.id = this.$route.query[key]
       }
+      this.getBread(this.pageType)
       this.getDetail()
     }
   },
@@ -214,10 +225,24 @@ export default {
       this.pageType = key
       this.id = this.$route.query[key]
     }
-    
+    this.getBread(this.pageType)
     this.getDetail()
   },
   methods: {
+    getBread (pageType) {
+      this.breadMenu = []
+      switch (pageType) {
+        case 'newsId':
+          this.breadMenu.push('资讯')
+          break
+        case 'bookId':
+          this.breadMenu.push('教材')
+          break
+        case 'courseId':
+          this.breadMenu.push('课程')
+          break
+      }
+    },
     getDetail () {
       this.$store.commit('handleLoad', true)
       switch (this.pageType) {
@@ -241,6 +266,7 @@ export default {
         if (res.data.code == 0) {
           let data = res.data.data
           this.bookDetail = data
+          this.breadMenu.push(data.title)
           this.$store.commit('handleLoad', false)
         }
       })
@@ -253,6 +279,7 @@ export default {
         if (res.data.code == 0) {
           let data = res.data.data
           this.courseDetail = data
+          this.breadMenu.push(data.title)
           if (this.courseDetail.pre_sale && this.courseDetail.pre_sale == '1') {
             this.coupon = this.courseDetail.coupon
             this.content = this.courseDetail.coupon.desc
@@ -287,6 +314,7 @@ export default {
         if (res.data.code == 0) {
           let data = res.data.data
           this.newsDetail = data
+          this.breadMenu.push(data.title)
           let config = {
             url: window.location.href,
             title:data.title,
@@ -301,6 +329,41 @@ export default {
           this.$store.commit('handleLoad', false)
         }
       })
+    },
+    getNews (val) {
+      let params = {
+        news_id: this.id
+      }
+      if (val === 'prev') {
+        getNewsPrev(params).then(res => {
+          if (res.data.code == 0) {
+            let data = res.data.data
+            this.id = data.news_id
+            this.$router.push({path:'detail', query: {newsId: this.id}})
+            this.newsDetail = data
+          } else {
+            this.$message({
+              type: 'error',
+              message: '已到第一条数据'
+            })
+          }
+        })
+      }
+      if (val === 'next') {
+        getNewsNext(params).then(res => {
+          if (res.data.code == 0) {
+            let data = res.data.data
+            this.id = data.news_id
+            this.$router.push({path:'detail', query: {newsId: this.id}})
+            this.newsDetail = data
+          } else {
+            this.$message({
+              type: 'error',
+              message: '已到最后一条数据'
+            })
+          }
+        })
+      }
     },
     // 处理点击tab
     handleNavBar (item) {
@@ -331,7 +394,7 @@ export default {
         }
       }
       setLocalStorage('class', item.class_id)
-      this.$router.push({path:'player1', query: {id: this.id}})
+      window.open(location.origin + '/#/player?id=' + this.id)
     },
     downLoad (item) {
       if (this.courseDetail.is_buy == 0) {
@@ -348,6 +411,11 @@ export default {
       getCourseDown(params).then(res => {
         if (res.data.code == 0) {
           location.href = res.data.data.down_url
+        } else {
+          this.$message({
+            type: 'error',
+            message: res.data.msg
+          })   
         }
       })
       
@@ -370,6 +438,42 @@ export default {
     }
   }
 }
+.title-box {
+  position: relative;
+  .icon-prev {
+    position: absolute;
+    left: 30px;
+    top:20px;
+    display: inline-block;
+    width:60px;
+    height: 60px;
+    cursor: pointer;
+    background: url('./../assets/images/prev.png') no-repeat center;
+    background-size: contain;
+    &:hover {
+      background: url('./../assets/images/prev_hover.png') no-repeat center;
+      background-size: contain;
+    }
+  }
+  .icon-next {
+    position: absolute;
+    right: 30px;
+    top:20px;
+    display: inline-block;
+    width:60px;
+    height: 60px;
+    cursor: pointer;
+    background: url('./../assets/images/next.png') no-repeat center;
+    background-size: contain;
+    &:hover {
+      background: url('./../assets/images/next_hover.png') no-repeat center;
+      background-size: contain;
+    }
+  }
+  .title {
+    padding: 0 120px;
+  }
+}
 .detail {
   margin-bottom: 50px;
 }
@@ -379,7 +483,7 @@ export default {
     display: flex;
     margin-bottom:20px;
     padding: 30px;
-    background: #eeeeee;
+    background: #f5f5f5;
   }
   .list-thumb{
     float: left;
@@ -402,6 +506,9 @@ export default {
         overflow: hidden;
         text-overflow:ellipsis;
       }
+      &.list-text {
+        font-size: 18px;
+      }
       .item-sub{
         display: inline-block;
         margin-right: 20px;
@@ -410,14 +517,15 @@ export default {
     }
     .list-item-text {
       margin-top:60px;
-      font-size:20px;
+      font-size:18px;
       color: #666666;
     }
     .price {
       float: left;
       margin-left: 20px;
       font-size: 26px;
-      color: #e62626
+      color: #e62626;
+      font-weight: bold;
     }
     .list-btn{
       float: right;
@@ -436,13 +544,15 @@ export default {
 }
 .list-book {
   list-style: none;
-  background: #eee;
+  background: #f5f5f5;
   .list-thumb{ 
     float: left;
     width: 33%;
     height: 340px;
-    margin-right: 50px;
-    padding: 30px 20px;
+    padding: 20px;
+    box-sizing: border-box;
+    background: #fff;
+    margin: 30px 50px 30px 20px;
     overflow: hidden;
     img {
       width: 100%;
@@ -467,7 +577,7 @@ export default {
       color: #666666;
     }
     .price {
-      font-size: 36px;
+      font-size: 26px;
       color: #e62626;
       font-weight: bold;
     }
@@ -534,7 +644,6 @@ export default {
     border: 1px solid #a6a6a6;
   }
   .tabbar {
-    border-bottom:  1px solid #a6a6a6;
     padding: 34px 30px 25px;
     background: #f5f5f5;
     .tabbar-item {
@@ -637,16 +746,13 @@ export default {
     border: 1px solid #a6a6a6;
     .title {
       margin-bottom: 20px;
-      font-size: 33px;
+      font-size: 28px;
       color: #333333;
       text-align: center;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
     }
     .label {
       text-align: center;
-      font-size: 16px;
+      font-size: 18px;
       color: #666666;
       span {
         display: inline-block;

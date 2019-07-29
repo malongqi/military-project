@@ -1,7 +1,7 @@
 <template>
-  <div>
+  <div class="layout">
     <div class="header">
-      <div class="container">
+      <div class="header-inner">
         <div class="topbar">
           <div class="topbar-brand">
             <a href="#">
@@ -45,24 +45,18 @@
           <li>联系电话：{{company.contact}}</li>
         </ul>
         <ul class="footer-list last" v-for="(item, index) in company.qrcodes" :key="'qrcode' + index">
-          <li>{{item.title}}</li>
+          <li class="center">{{item.title}}</li>
           <li><img :src="item.url" alt=""></li>
         </ul>
       </div>
     </div>
-    <register-dialog ref="register"></register-dialog>
-    <forget ref="forget"></forget>
   </div>
 </template>
 <script>
-import RegisterDialog from './RegisterDialog'
-import Forget from './Forget'
 import { getDetail } from './../api/mine'
 export default {
   name: 'Layout',
   components: {
-    RegisterDialog,
-    Forget
   },
   data () {
     return {
@@ -122,23 +116,44 @@ export default {
       if (val == 'login') {
         this.$router.push({path: 'login'})
       } else {
-        this.$refs.register.visibile = true
+        this.$router.push({path: 'register'})
       }
     },
     quite () {
       this.$store.commit('setUser', '' )
-      this.$cookies.remove("user");
+      this.$cookies.remove("user")
+      this.$cookies.remove("token")
       this.$router.push({path: 'home'})
+      location.reload()
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
+.layout {
+  position: relative;
+  width: 100%;
+  min-width: 1100px;
+  padding-top:90px;
+}
 .header {
+  min-width: 1100px;
+  position: fixed;
+  margin: 0 auto;
+  left: 0;
+  right: 0;
+  top: 0;
+  z-index: 99;
   line-height: 90px;
   background: #fff;
+  box-shadow: 0px 3px 5px rgba(0,0,0,0.1);
+  .header-inner {
+    width: 80%;
+    margin: 0 auto;
+  }
   .topbar{
+    position: relative;
     display: flex;
     background: #fff;
     border-bottom: 0;
@@ -179,6 +194,8 @@ export default {
     cursor: pointer;
   }
   .navbar-right {
+    position: absolute;
+    right: 0;
     .item {
       cursor: pointer;
       color: #ef2020;
@@ -195,6 +212,9 @@ export default {
     color:#b0b0b0;
     font-size: 14px;
     max-width: 300px;
+    .center {
+      text-align: center;
+    }
     &.first {
       margin-right: 180px;
     }
@@ -212,12 +232,12 @@ export default {
       color:#b0b0b0;
     }
     .title {
-      margin-bottom: 40px;
+      margin-bottom: 30px;
       color: #fffefe;
       font-size: 18px;
     }
     li {
-      margin-bottom: 30px;
+      margin-bottom: 20px;
     }
   }
 }

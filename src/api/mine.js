@@ -74,3 +74,7 @@ export const getCountyList = (params) => {
 export const buyInfor = (params) => {
   return axios.post('Buy/info', params)
 }
+
+export const goToPay = (params) => {
+  return axios.post('Pay/rebuy', params)
+}

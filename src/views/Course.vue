@@ -1,13 +1,11 @@
 <template>
   <div class="course">
-    <!-- <bread-crumbs></bread-crumbs> -->
     <div class="container">
       <div class="catalog" v-if="sortTypes.category">
         <label for="">分类：</label>
         <span v-for="(item,index) in sortTypes.category" :class="{'active': item.checked}" :key="'cat' + index" @click="getFilter('category',item)">{{item.name}}</span>
       </div>
       <ul class="list-course-title" v-if="sortTypes.sort">
-        <!-- <li class="active">综合排序</li> -->
         <li v-for="(item,index) in sortTypes.sort" :class="{'active': item.checked}" :key="'sort' + index" @click="getFilter('sort',item)">{{item.name}}</li>
       </ul>
       <!--列表标题-->
@@ -22,7 +20,7 @@
               <div class="list-main">
                 <h3 class="list-item-hd">
                   <a class="">{{item.title}}</a>
-                  <span class="price">¥{{item.price}}</span>
+                  <span class="price">¥ {{item.price}}</span>
                 </h3>
                 <div class="list-item-text">课程简介：{{item.desc}}</div>
                 <div class="list-item-text">
@@ -48,13 +46,10 @@
 </template>
 
 <script type="text/ecmascript-6">
-import BreadCrumbs from './../components/BreadCrumbs'
 import {getCourses, getSortType} from './../api/course.js'
 export default {
   name: 'Course',
-  components: {
-    BreadCrumbs
-  },
+  components: {},
   data () {
     return {
       sortTypes: [],
@@ -65,7 +60,7 @@ export default {
       },
       pagination: {
         pageIndex: 1,
-        pageSize: 15,
+        pageSize: 10,
         pageTotal: 0,
       }
     }
@@ -124,12 +119,19 @@ export default {
 
 <style scoped lang="scss">
 /* scss */
+.course {
+  padding-top: 20px;
+}
 .list-news {
   list-style-type: none;
   .list-news-item {
+    position: relative;
     margin-bottom:20px;
     padding: 30px 20px;
-    background: #eeeeee;
+    background: #f5f5f5;
+    &:hover {
+      box-shadow: 0px 3px 5px #dad8d8
+    }
   }
   .list-thumb{
     float: left;
@@ -145,7 +147,7 @@ export default {
     .list-item-hd {
       display: flex;
       margin-bottom:30px;
-      font-size: 24px;
+      font-size: 22px;
       a {
         max-width: 60%;
         display: inline-block;

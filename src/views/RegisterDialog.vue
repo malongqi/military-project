@@ -1,9 +1,5 @@
 <template>
-  <dialog-bar
-    class="register-dialog"
-    v-model="visibile"
-    :width="720"
-    title="注册">
+  <div class="register">
     <div>
       <form-item
       class="log-form-item"
@@ -51,7 +47,7 @@
       <span class="login-btn" @click="submit">注册</span>
       <span class="login-btn" @click="cansel">取消</span>
     </div>
-  </dialog-bar>
+  </div>
 </template>
 
 <script>
@@ -125,13 +121,16 @@ export default {
   },
   watch: {
     'visibile' (val) {
+      this.channel = getLocalStorage('channel')
       if (!val) {
-        this.channel = getLocalStorage('channel')
         this.showTime = false
         window.clearInterval(this.timmer)
         this.timmer = null
       }
     }
+  },
+  mounted () {
+    this.$store.commit('handleLoad', false)
   },
   methods: {
     submit () {
@@ -169,6 +168,7 @@ export default {
           this.$cookies.set('user', data, '1d');
           this.$store.commit('setUser', data)
           this.visibile = false
+          this.$router.push({path: 'home'})
           this.$message({
             type: 'success',
             message: '注册成功,已自动登录'
@@ -182,7 +182,7 @@ export default {
       })
     },
     cansel(){
-     this.visibile = false
+      this.$router.push({path: 'home'})
     },
     getVerifyCode () {
       if (!this.$vuerify.check(['form.mobile'])) {
@@ -244,7 +244,10 @@ export default {
   font-size: 20px;
   line-height: 58px;
 }
-.register-dialog{
+.register{
+  width: 500px;
+  margin: 50px auto;
+  text-align: center;
   &.dialog {
     z-index: 999;
   }

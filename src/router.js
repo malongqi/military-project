@@ -8,25 +8,31 @@ export default new Router({
   routes: [
     {
       path: '/',
-      name: '首页 ',
+      name: '',
       redirect: '/home',
       component: () => import(/* webpackChunkName: "index" */ './views/Layout.vue'),
       children: [
         {
           path: '/login',
           name: '登录',
-          // route level code-splitting
-          // this generates a separate chunk (about.[hash].js) for this route
-          // which is lazy-loaded when the route is visited.
           meta: {name: 'login', needUser: false},
           component: () => import(/* webpackChunkName: "index" */ './views/LoginDialog.vue')
         },
         {
+          path: '/register',
+          name: '注册',
+          meta: {name: 'register', needUser: false},
+          component: () => import(/* webpackChunkName: "index" */ './views/RegisterDialog.vue')
+        },
+        {
+          path: '/forget',
+          name: '忘记密码',
+          meta: {name: 'forget', needUser: false},
+          component: () => import(/* webpackChunkName: "index" */ './views/Forget.vue')
+        },
+        {
           path: '/home',
           name: '首页',
-          // route level code-splitting
-          // this generates a separate chunk (about.[hash].js) for this route
-          // which is lazy-loaded when the route is visited.
           meta: {name: 'home', needUser: false},
           component: () => import(/* webpackChunkName: "index" */ './views/Home.vue')
         },
@@ -51,7 +57,7 @@ export default new Router({
         {
           path: '/news',
           name: '资讯',
-          meta: {name: 'home', needUser: false},
+          meta: {name: '', needUser: false},
           component: () => import(/* webpackChunkName: "index" */ './views/News.vue')
         },
         {
@@ -136,12 +142,6 @@ export default new Router({
       name: '播放器',
       meta: {name: 'player', needUser: false},
       component: () => import(/* webpackChunkName: "index" */ './views/Player.vue')
-    },
-    {
-      path: '/player1',
-      name: '播放器',
-      meta: {name: 'player', needUser: false},
-      component: () => import(/* webpackChunkName: "index" */ './views/Player1.vue')
     },
     {
       path: '/*',

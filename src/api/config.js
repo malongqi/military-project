@@ -37,9 +37,6 @@ const instance = axios.create({
     return formData
   }]
 })
-// instance.interceptors.request.use(config => {
-//   debugger
-// }) 
 instance.interceptors.response.use(res => {
   // 对响应数据做些什么
   //  1000 需要登录
@@ -47,10 +44,17 @@ instance.interceptors.response.use(res => {
   // console.log(store.state.user)
   res.config.url = res.config.url + '?t=' + new Date().getTime()
   if (res.data.code == 1001) {
+    router.push({path: 'login'})
+    VueCookies.remove('token')
+    VueCookies.remove('user')
+    store.commit('setUser', {})
     Message({
       message: '登录信息已失效请登录',
       type: 'error'
     })
+  } 
+  if (res.data.code == 1002) {
+    store.commit('handleLoad', false)
   } 
   // else if (res.data.code != 0 && res.data.msg !== '订单未支付成功'){
   //   Message({

@@ -9,7 +9,6 @@ import Toasted from 'vue-toasted';
 import VueCookies from 'vue-cookies'
 import Vuerify from 'vuerify'
 import dhfPlayer from 'dhfplayer'
-import {setCookie} from './assets/js/storage'
 Vue.use(dhfPlayer)
 import ElementUI from 'element-ui'
 import 'swiper/dist/css/swiper.css'
@@ -32,6 +31,8 @@ router.beforeEach((to, from, next) => {
   if (to.path == '/detail') {
     if (Object.keys(to.query)[0] == 'bookId') {
       to.meta.name = 'book'
+    } else if (Object.keys(to.query)[0] == 'newsId') {
+      to.meta.name = 'news'
     } else {
       to.meta.name = 'course'
     }
@@ -41,7 +42,7 @@ router.beforeEach((to, from, next) => {
     if (JSON.stringify(store.state.user) !== '{}') {
       next()
     } else {
-      router.push({path: 'login'})
+      router.push({path: 'login', query:{path: JSON.stringify(from.fullPath)}})
     }
   } else {
     next()

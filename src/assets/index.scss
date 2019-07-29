@@ -2,8 +2,8 @@
   
 }
 body {
-  min-width: 980px;
-  max-width: 1440px;
+  /*  min-width: 980px;
+     max-width: 1440px; */
   margin: 0 auto;
 }
 .container {
@@ -37,7 +37,7 @@ a {
   margin-bottom: 20px;
   font-size: 18px;
   color: #333;
-  background: #eeeeee;
+  background: #f5f5f5;
 }
 .catalog label {
   margin-left: 15px;
@@ -78,6 +78,7 @@ a {
 .pagination-box .el-pager li.active {
   color: #fff;
   background-color: #e62626;
+  border-radius: 4px;
 }
 .pagination-box .el-pager li, .pagination-box .el-pagination button span{
   font-size: 16px;

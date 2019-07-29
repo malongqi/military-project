@@ -8,18 +8,20 @@
         v-for="(banner, index) in bannerList"
         :key="'banner' + index"
         >
-        <a :href="banner.target_url">
-          <img :src="banner.img_url" alt="">
+        <a v-if="banner.target_url !== ''"  target="_blank" :href="banner.target_url">
+          <img :src="banner.img_url">
         </a>
+        <img v-else :src="banner.img_url">
       </swiper-slide>
       <div class="swiper-pagination swiper-pagination-bullets" slot="pagination"></div>
     </swiper>
     <div class="container">
       <div class="section" v-for="(section,index) in homeList" :key="'section' + index">
         <div class="advert" v-if="section.view_type == '1' && section.data">
-          <a :href="section.data.target_url">
+          <a v-if="section.data.target_url" target="_blank" :href="section.data.target_url">
             <img :src="section.data.img_url" alt="">
           </a>
+          <img v-else :src="section.data.img_url" alt="">
         </div>
         <div v-if="section.view_type == '2' || section.view_type == '3'" class="titlebar">
           <h2 class="titlebar-title">
@@ -95,9 +97,7 @@
               </li>
               <li class="list-item clearfix" v-for="(listsubItem,index) in twoItem.items" :key="'listsubItem' + index">
                 <router-link :to="{path: 'detail', query: {newsId: listsubItem.id}}">
-                  <div class="title">
-                  {{listsubItem.title}}
-                  </div>
+                  <div class="title" v-html="listsubItem.title"></div>
                   <div class="label">
                     {{listsubItem.public_time}}
                   </div>
@@ -114,9 +114,10 @@
       </div>
       <ul class="links-items">
         <li class="links-item" v-for="(link, index) in links" :key="'link' + index">
-          <a :href="link.target_url" target="_blank">
+          <a v-if="link.target_url" :href="link.target_url" target="_blank">
             <img :src="link.img_url" alt="">
           </a>
+          <img v-else :src="link.img_url" alt="">
         </li>
       </ul>
     </div>
@@ -185,28 +186,16 @@ export default {
         }
       })
     }
-    // getPath(val) {
-    //   debugger
-    //   switch (val) {
-    //     case 1:
-    //       return 'course'
-    //     case 2:
-    //       return 'book'
-    //     case 3:
-    //       return 'news'
-    //   }
-    // }
   }
 }
 </script>
 
 <style lang="scss" scoped>
 .home {
-  background: #eeeeee;
+  background: #f5f5f5;
   padding-bottom: 50px;
 }
 .banner-slider {
-  height: 370px;
   img {
     width: 100%;
     height: 100%;
@@ -225,7 +214,7 @@ export default {
   }
 }
 .titlebar {
-  padding: 46px 0 32px;
+  padding: 38px 0 28px;
   .titlebar-title {
     max-width: 200px;
     overflow: hidden;
@@ -235,7 +224,7 @@ export default {
     margin: 0;
     padding-bottom: 10px;
     color: #333333;
-    font-size: 28px;
+    font-size: 22px;
     border-bottom: 4px solid #e26262;
     &:before {
       border-left:0;
@@ -284,11 +273,16 @@ export default {
     margin-left: 0; 
   }
   .list {
+    position: relative;
     float: left;
     margin-left: 1.2%;
     margin-bottom: 24px;
     width: 24%;
     list-style: none;
+    &:hover {
+      box-shadow: 0px 3px 5px #dad8d8
+    }
+    
     .list-img {
       overflow: hidden;
       background: #fff;
@@ -343,6 +337,7 @@ export default {
     }
   }
   .list-book {
+    position: relative;
     list-style: none;
     float: left;
     width: 18.2%;
@@ -351,6 +346,9 @@ export default {
     background: #fff;
     margin-right: 2.2%;
     box-sizing: border-box;
+    &:hover {
+      box-shadow:  0px 3px 5px #dad8d8
+    }
     &:nth-child(5n){
        margin-right: 0;
     }
@@ -409,6 +407,9 @@ export default {
       overflow: hidden;
       float: left;
       color: #4d4d4d;
+      &:hover {
+        color: #07f;
+      }
     }
     .label {
       float: right;
@@ -431,7 +432,13 @@ export default {
   }
   .links-item {
     display: inline-block;
+    width: 180px;
+    height: 62px;
     margin: 0 13px;
+    img {
+      width: 100%;
+      height: 100%;
+    }
   }
 }
 </style>

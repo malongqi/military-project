@@ -308,7 +308,7 @@ export default {
     line-height: 56px;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid #2c2222;
+    border-bottom: 1px solid #e6e6e6;
     .list-edit {
       background: #2b93c6;
       color: #fff;

@@ -18,7 +18,7 @@
             <div class="list-hd">
               <h3 class="list-hd-title">{{book.title}}</h3>
               <p class="list-hd-text">{{book.desc}}</p>
-              <div class="price">¥{{book.price}}</div>
+              <div class="price">¥ {{book.price}}</div>
             </div>
           </router-link>
         </div>
@@ -54,7 +54,7 @@ export default {
       },
       pagination: {
         pageIndex: 1,
-        pageSize: 40,
+        pageSize: 16,
         pageTotal: 0,
       }
     }
@@ -113,6 +113,7 @@ export default {
 <style scoped lang="scss">
 /* scss */
 .book {
+  padding-top: 20px;
   margin-bottom: 50px;
 }
 .list-books-box {
@@ -120,6 +121,7 @@ export default {
   box-sizing: border-box;
 }
 .list-book {
+  position: relative;
   box-sizing: border-box;
   float: left;
   width: 25%;
@@ -127,6 +129,19 @@ export default {
   border: 1px solid #a6a6a6;
   margin-top: -1px;
   margin-left: -1px;
+  a{
+    &:hover {
+      &::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: 100%;
+        background: rgba($color: #000000, $alpha: 0.05)
+      }
+    }
+  }
   .img-box {
     box-sizing: border-box;
     padding: 30px 40px 35px;
@@ -144,18 +159,21 @@ export default {
       color:#333333;
       white-space: nowrap;
       overflow: hidden;
+      font-size: 20px;
       text-overflow: ellipsis;
     }
     .list-hd-text {
       margin: 0 0 20px;
       color: #666666;
       white-space: nowrap;
+      font-size: 18px;
       overflow: hidden;
       text-overflow: ellipsis;
     }
     .price {
       color: #ef2020;
       font-size: 24px;
+      font-weight: bold;
     }
   }
 }

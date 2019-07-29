@@ -53,7 +53,7 @@ export default {
       tableData: [],
       pagination: {
         pageIndex: 1,
-        pageSize: 15,
+        pageSize: 10,
         pageTotal: 0,
       }
     }

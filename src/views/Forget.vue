@@ -1,9 +1,5 @@
 <template>
-  <dialog-bar
-    class="register-dialog"
-    v-model="visibile"
-    :width="720"
-    title="忘记密码">
+  <div class="forget">
     <div>
       <form-item
       class="log-form-item"
@@ -44,7 +40,7 @@
       <span class="login-btn" @click="submit">保存</span>
       <span class="login-btn" @click="cansel">取消</span>
     </div>
-  </dialog-bar>
+  </div>
 </template>
 
 <script>
@@ -149,7 +145,7 @@ export default {
       })
     },
     cansel(){
-     this.visibile = false
+     this.$router.push({path: 'home'})
     },
     getVerifyCode () {
       if (!this.$vuerify.check(['form.mobile'])) {
@@ -211,10 +207,10 @@ export default {
   font-size: 20px;
   line-height: 58px;
 }
-.register-dialog{
-  &.dialog {
-    z-index: 999;
-  }
+.forget{
+  width: 500px;
+  margin: 50px auto;
+  text-align: center;
   /deep/ .content {
     height: 440px;
     padding: 40px 0 30px;

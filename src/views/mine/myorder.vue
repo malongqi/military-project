@@ -21,19 +21,20 @@
         </el-table-column>
         <el-table-column
           prop="name"
-          width="200" 
+          width="150" 
           show-overflow-tooltip
           label="商品名称">
         </el-table-column>
         <el-table-column
           prop="price"
-          width="90"
+          width="80"
           label="支付金额">
         </el-table-column>
         <el-table-column
           prop="pay_time"
           label="订单产生时间"
-          width="170">
+          show-overflow-tooltip
+          width="150">
           <!-- <template slot-scope="scope">
             {{timestampToTime(scope.row.create_time)}}
           </template> -->
@@ -59,7 +60,7 @@
           <template slot-scope="scope">
             <router-link class="btn-text" :to="{path: 'mydetail', query:{id: scope.row.order_id}}">查看</router-link>
             <span class="btn-text" @click="deleteOrderItem(scope.row)">删除</span>
-            <router-link v-if="scope.row.pay_status == 0" class="btn-text red" :to="{path: 'detail', query:{courseId: scope.row.id}}">去付款</router-link>
+            <span v-if="scope.row.pay_status == 0" class="btn-text red" @click="goPay(scope.row)">去付款</span>
           </template>
         </el-table-column>
       </el-table>
@@ -74,21 +75,63 @@
         @current-change="handleChange">
       </el-pagination>
     </div>
+     <el-dialog
+      title="请选择支付方式"
+      :visible.sync="shouPayType"
+      width="400px">
+      <div class="radio-group">
+        <el-radio v-model="radioValue" :label="check.type" v-for="(check, index) in checkList" :key="'check' + index">
+          <img width="100" v-if="check.type == '1'" src="./../../assets/images/zfb.jpg" alt="">
+          <img width="100" v-if="check.type == '2'" src="./../../assets/images/wx.png" alt="">
+        </el-radio>
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="shouPayType = false">取 消</el-button>
+        <el-button type="primary" @click="submit">确 定</el-button>
+      </span>
+    </el-dialog>
+    <el-dialog
+      :visible.sync="payVisible"
+      width="800px">
+      <div class="dialog-content">
+        <div>
+          <div>订单号：{{payParam.order_id}}</div>
+          <img :src="payParam.code_url" alt="">
+        </div>
+        <div>
+          <img src="./../../assets/images/weixin-qrcode.jpg" alt="">
+        </div>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import {getOrderList,deleteOrder} from './../../api/mine'
+import {getOrderList,deleteOrder,goToPay,checkWxPay} from './../../api/mine'
 export default {
   components: {},
   data () {
     return {
       tableData: [],
+      shouPayType: false,
+      payVisible: false,
+      radioValue: '1',
+      checkList: [
+        {
+          type: '1',
+        },
+        {
+          type: '2'
+        }
+      ],
       pagination: {
         pageIndex: 1,
-        pageSize: 15,
+        pageSize: 10,
         pageTotal: 0,
       },
+      toPayRow: '',
+      payParam: '',
+      timer: null,
       user: ''
     }
   },
@@ -137,6 +180,60 @@ export default {
       this.pagination.pageIndex = val
       this.getData()
     },
+    goPay(row) {
+      this.toPayRow = row
+      this.shouPayType = true
+    },
+    checkPay () {
+      let params = {
+        order_id: this.payParam.order_id
+      }
+      checkWxPay(params).then(res => {
+        if (res.data.code == 2000) {
+          this.payVisible = false
+          window.clearInterval(this.timer)
+          this.timer = null;
+          this.$router.push({path:'/mycourse'})
+        } else if(res.data.code == 2002){
+          this.payVisible = false
+          window.clearInterval(this.timer)
+          this.timer = null;
+          this.$message({
+            type: 'error',
+            message: res.data.msg
+          })
+        }
+      })
+    },
+    submit () {
+      let params = {
+        order_id: this.toPayRow.order_id,
+        pay_type: this.radioValue
+      }
+      goToPay(params).then(res => {
+          if (res.data.code == 0) {
+            if (this.radioValue == 1) {
+              let data = res.data.data
+              window.open(data.confirm_url + '?order_id=' + data.order_id + '&token=' + this.$cookies.get('token'))
+            }
+
+            if (this.radioValue == 2) {
+              this.shouPayType = false
+              this.payVisible = true
+              this.payParam = res.data.data
+              this.timer = setInterval(() => {
+                this.checkPay()
+              },2000)
+            }
+            
+          } else {
+            this.$message({
+              type: 'error',
+              message: res.data.msg
+            })
+          }
+        })
+    },
     timestampToTime (timestamp) {
       var date = new Date(timestamp * 1000); //时间戳为10位需*1000，时间戳为13位的话不需乘1000
       var Y = date.getFullYear() + '-';
@@ -157,7 +254,7 @@ export default {
   border: 1px solid #e6e6e6;
   .table-header {
     line-height: 56px;
-    border-bottom: 1px solid #2c2222;
+    border-bottom: 1px solid #e6e6e6;
   }
   .table-content {
     padding-bottom: 30px;
@@ -168,9 +265,22 @@ export default {
       color: #e26262;
     }
   }
+  span {
+    &.red {
+      color: #e26262;
+    }
+  }
+  .radio-group {
+    display: flex;
+    .el-radio {
+      display: flex;
+      align-items: center;
+    }
+  }
   .btn-text {
     padding: 0 5px;
     color: #333;
+    cursor: pointer;
   }
   /deep/ .el-table {
     th {
@@ -179,6 +289,17 @@ export default {
     }
     .cell {
       white-space: nowrap;
+    }
+  }
+}
+.dialog-content {
+  display: flex;
+  justify-content: space-between;
+  .code {
+    margin-top: 40px;
+    width: 300px;
+    img{
+      width: 100%;
     }
   }
 }

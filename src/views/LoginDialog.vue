@@ -28,14 +28,12 @@
 </template>
 
 <script>
-  
-import dialogBar from './../components/DialogBar'
+
 import FormItem from './../components/FormItem'
 import { login } from './../api/login'
 export default {
   name: 'LoginDialog',
   components: {
-    dialogBar,
     FormItem
   },
   data () {
@@ -43,6 +41,7 @@ export default {
       visibile: false,
       showLogin: false,
       modalVisible: false,
+      formPath: '',
       form: {
         mobile: '',
         password: ''
@@ -71,6 +70,7 @@ export default {
     }
   },
   mounted() {
+    this.formPath = this.$route.query.path || ''
     this.$store.commit('handleLoad', false)
   },
   methods: {
@@ -85,7 +85,11 @@ export default {
       login(params).then(res => {
         if(res.data.code == 0) {
           let data = res.data.data
-          this.$router.push({path: 'home'})
+          if (this.formPath) {
+            this.$router.push({path: JSON.parse(this.formPath)})
+          } else {
+            this.$router.push({path: 'home'})
+          }
           this.$cookies.set('user', data, '1d');
           this.$cookies.set('token', data.token, '1d');
           this.$message({
@@ -101,10 +105,10 @@ export default {
       })
     },
     forget () {
-      this.$parent.$refs.forget.visibile = true
+      this.$router.push({path: 'forget'})
     },
     register () {
-      this.$parent.$refs.register.visibile = true
+      this.$router.push({path: 'register'})
     }
   }
 }

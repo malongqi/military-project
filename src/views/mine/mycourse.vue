@@ -55,7 +55,7 @@ export default {
       tableData: [],
       pagination: {
         pageIndex: 1,
-        pageSize: 15,
+        pageSize: 10,
         pageTotal: 0,
       }
     }
@@ -104,7 +104,7 @@ export default {
   border: 1px solid #e6e6e6;
   .table-header {
     line-height: 56px;
-    border-bottom: 1px solid #2c2222;
+    border-bottom: 1px solid #e6e6e6;
   }
   .table-content {
     padding-bottom: 30px; 

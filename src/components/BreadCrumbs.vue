@@ -1,7 +1,7 @@
 <template>
  <ul class="bread-crumbs container">
    <li class="bread-item" v-for="(item,index) in lists" :key="'bread' + index">
-      <span>{{item.name}}</span>
+      <span>{{item}}</span>
       <i> > </i>
    </li>
   
@@ -14,13 +14,12 @@ export default {
   components: {
 
   },
+  props: {
+    lists: Array,
+  },
   data () {
     return {
-      lists: [] 
     }
-  },
-  mounted () {
-    this.lists = this.$router.currentRoute.matched
   }
 }
 </script>
